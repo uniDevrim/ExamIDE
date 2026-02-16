@@ -1,0 +1,6 @@
+{
+    "liveServer.settings.ignoreFiles": [
+        "**/temp_submissions/**",
+        "**/*.py" 
+    ]
+}
