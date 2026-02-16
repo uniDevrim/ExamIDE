@@ -536,25 +536,28 @@ function setupOutputPanel() {
 // Run & Submit
 // ========================================
 function runCode() {
-    saveCurrentCode();
-    const outputBody = document.getElementById('outputBody');
-    const outputPanel = document.querySelector('.output-panel');
+    
+    // 1. Get code from Monaco Editor
+    // (Assuming you have an editoreditor instance named 'editor')
+    const code = monacoEditor.getValue(); 
+    const language = document.getElementById('languageSelect').value; // 'python'
 
-    outputPanel.classList.remove('collapsed');
-    outputBody.className = 'output-body';
-    outputBody.innerHTML = '<i class="bi bi-hourglass-split"></i> Kod çalıştırılıyor...';
+    // 2. Send to Python Backend
+    fetch('http://127.0.0.1:5000/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code, language: language })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 3. Show Output
+        document.getElementById('outputBody').innerText = data.output;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('outputBody').innerText = "Connection failed.";
+    });
 
-    // Simulate running
-    setTimeout(() => {
-        const q = questions[currentQuestion];
-        const ex = q.examples[0];
-        outputBody.className = 'output-body success';
-        outputBody.innerHTML = `<div style="margin-bottom: 8px; color: var(--accent-info);">▶ Program Çıktısı:</div>` +
-            `<div style="padding: 8px; background: rgba(0,0,0,0.15); border-radius: 6px; margin-bottom: 8px;">${ex.output}</div>` +
-            `<div style="font-size: 0.75rem; color: var(--text-muted);">Çalışma süresi: ${Math.floor(Math.random() * 50 + 10)}ms | Bellek: ${(Math.random() * 5 + 10).toFixed(1)} MB</div>`;
-
-        showToast('Kod başarıyla çalıştırıldı', 'success');
-    }, 1500);
 }
 
 function submitCode() {
@@ -629,6 +632,9 @@ function updateNavButtons() {
     prevBtn.disabled = currentQuestion === 0;
     nextBtn.disabled = currentQuestion === questions.length - 1;
 }
+
+
+
 
 function updateProgressDots() {
     const dotsContainer = document.getElementById('progressDots');
