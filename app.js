@@ -6,6 +6,7 @@
 // ========================================
 // Question Data
 // ========================================
+
 const questions = [
     {
         id: 1,
@@ -543,7 +544,7 @@ function runCode() {
     const language = document.getElementById('languageSelect').value; // 'python'
 
     // 2. Send to Python Backend
-    fetch('http://127.0.0.1:5000/run', {
+    fetch(CONFIG.API_RUN_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code, language: language })

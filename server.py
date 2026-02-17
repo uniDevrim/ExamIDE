@@ -4,11 +4,17 @@ import uuid
 import tempfile
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+PORT = int(os.getenv('PORT', 5000))
+
 SYSTEM_TEMP_DIR = tempfile.gettempdir()
+
 
 @app.route('/run', methods=['POST'])
 def run_code():
@@ -42,10 +48,11 @@ def run_code():
     except subprocess.TimeoutExpired:
         return jsonify({"output": "Error: Execution timed out (Infinite Loop?)"}), 408
     except Exception as e:
+        print(f"Sistem Hatası: {str(e)}")  # Terminalde hatayı görmek için
         return jsonify({"output": f"Server Error: {str(e)}"}), 500
     finally:
         if os.path.exists(host_file_path):
             os.remove(host_file_path)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=PORT)
