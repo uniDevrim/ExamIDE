@@ -536,29 +536,32 @@ function setupOutputPanel() {
 // ========================================
 // Run & Submit
 // ========================================
-function runCode() {
+function runCode(event) {
+    if (event) event.preventDefault(); // Stop the refresh immediately
     
-    // 1. Get code from Monaco Editor
-    // (Assuming you have an editoreditor instance named 'editor')
     const code = monacoEditor.getValue(); 
-    const language = document.getElementById('languageSelect').value; // 'python'
+    const language = document.getElementById('languageSelect').value;
 
-    // 2. Send to Python Backend
+    // Optional: Add a loading state to the UI so you know it's working
+    document.getElementById('outputBody').innerText = "Kod çalıştırılıyor...";
+    document.querySelector('.output-panel').classList.remove('collapsed');
+
     fetch(CONFIG.API_RUN_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code, language: language })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
     .then(data => {
-        // 3. Show Output
         document.getElementById('outputBody').innerText = data.output;
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('outputBody').innerText = "Connection failed.";
+        document.getElementById('outputBody').innerText = "Hata: Sunucuya bağlanılamadı.";
     });
-
 }
 
 function submitCode() {
@@ -767,39 +770,4 @@ function showToast(message, type = 'info') {
         toast.style.animation = 'slideOut 0.3s ease forwards';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-}
-
-// ========================================
-// Editor Toolbar Actions
-// ========================================
-function resetCode() {
-    const q = questions[currentQuestion];
-    const code = q.starterCode[currentLanguage] || '';
-
-    if (monacoEditor) {
-        monacoEditor.setValue(code);
-    }
-
-    const key = `${q.id}_${currentLanguage}`;
-    userCode[key] = code;
-
-    showToast('Kod sıfırlandı', 'info');
-}
-
-function copyCode() {
-    if (monacoEditor) {
-        const code = monacoEditor.getValue();
-        navigator.clipboard.writeText(code).then(() => {
-            showToast('Kod panoya kopyalandı', 'success');
-        }).catch(() => {
-            // Fallback
-            const textarea = document.createElement('textarea');
-            textarea.value = code;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showToast('Kod panoya kopyalandı', 'success');
-        });
-    }
 }
