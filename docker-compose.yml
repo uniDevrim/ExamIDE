@@ -1,23 +1,22 @@
 version: '3.8'
 
 services:
-  # This is your Flask Backend
   backend:
     build: ./backend
     ports:
       - "5000:5000"
     volumes:
       - ./backend:/app
-      # This links your local grader folder into the backend container
-      - ./grader/temp_submissions:/app/temp_submissions
+      # ⬇️ THIS IS THE MAGIC LINE. DO NOT FORGET IT.
+      - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - ./backend/.env
     restart: always
 
-  # Optional: A simple service to keep your Grader image ready
+  # You can keep this if you want, but my solution pulls standard images (python:slim, gcc, etc.)
+  # effectively making this service redundant for execution purposes.
   grader-base:
     build: 
       context: ./grader
       dockerfile: Dockerfile.exec
     image: exam-grader-iso
-    # This won't run as a container, just ensures the image is built
