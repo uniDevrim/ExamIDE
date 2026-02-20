@@ -1,10 +1,12 @@
 import socket
 import threading
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__,
+            template_folder='../frontend_admin',
+            static_folder='../frontend_admin')
 CORS(app)
 
 students_db = {}
@@ -45,6 +47,7 @@ def receive_report():
         "student_id": data.get('student_id'),
         "name": data.get('student_name'),
         "surname": data.get('student_surname'),
+        "full_name": data.get('student_name')+ ' ' +data.get('student_surname'),
         "question": data.get('question_no'),
         "timestamp": data.get('date')
     }
@@ -52,6 +55,24 @@ def receive_report():
     print(f"[!] Veri Geldi: {data.get('student_name')} - Soru: {data.get('question_no')}")
     return jsonify({"status": "success"}), 200
 
+
+@app.route('/admin')
+def admin_page():
+    return render_template('admin.html') # admin.html dosyasını 'templates' klasörüne koymalısın
+
+# 2. JS'nin tabloyu doldurması için JSON verisi
+@app.route('/api/students')
+def get_students():
+    # students_db'deki veriyi temiz bir formatta döndürür
+    formatted_data = {}
+    for ip, info in students_db.items():
+        formatted_data[ip] = {
+            "student_id": info.get('student_id'),
+            "full_name": info.get('full_name'),
+            "current_question": info.get('question'),
+            "last_seen": info.get('timestamp')
+        }
+    return jsonify(formatted_data)
 
 if __name__ == '__main__':
     threading.Thread(target=admin_beacon, daemon=True).start()
