@@ -6,12 +6,15 @@ import requests
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
+from backend.routes.client_routes import client_bp
+import backend.execution_pool 
+
 
 load_dotenv()
 
 app = Flask(__name__, static_folder='../frontend_client')
 CORS(app)
-
+app.register_blueprint(client_bp)
 PORT = int(os.getenv('PORT', 5000))
 ADMIN_PORT = int(os.getenv('ADMIN_PORT', 5002))
 ADMIN_URL = None  # Bu yine None kalmalı, UDP dinleyici tarafından doldurulacak
