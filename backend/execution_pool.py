@@ -2,11 +2,11 @@ import docker
 import threading
 import queue
 import time
-import tarfile
-import io
+import base64
+import atexit
 
 # Configuration
-POOL_SIZE = 3  # Keep 3 containers ready per language
+POOL_SIZE = 3
 IMAGE_MAP = {
     "python": "python:3.9-slim",
     "cpp": "gcc:latest",
@@ -23,13 +23,34 @@ class WarmContainerPool:
         }
         self.running = True
         
+        # 1. THE REAPER: Kill any leftovers from previous runs
+        self._purge_zombies()
+        
         # Start the background janitor
         self.monitor_thread = threading.Thread(target=self._maintain_pool, daemon=True)
         self.monitor_thread.start()
         print(f"[+] Execution Pool Initialized. Target warm count: {POOL_SIZE}")
 
+        # Try to clean up on normal exit
+        atexit.register(self.shutdown)
+
+    def _purge_zombies(self):
+        """Finds and kills containers left behind by previous server restarts."""
+        print("[*] Hunting for zombie containers...")
+        # We look for containers with our specific label
+        zombies = self.client.containers.list(
+            all=True, 
+            filters={"label": "created_by=exam_ide_pool"}
+        )
+        for z in zombies:
+            try:
+                z.remove(force=True)
+                print(f"    - Killed zombie: {z.short_id}")
+            except:
+                pass
+        print(f"[*] Purge complete. Deleted {len(zombies)} orphans.")
+
     def _create_container(self, lang):
-        """Spawns a secure, isolated container idling on 'sleep infinity'."""
         image = IMAGE_MAP.get(lang)
         try:
             return self.client.containers.run(
@@ -38,16 +59,16 @@ class WarmContainerPool:
                 detach=True,
                 mem_limit="128m",
                 network_disabled=True,
-                # 'user': '1000:1000', # Uncomment if you want non-root strictness (requires carefully built images)
                 working_dir="/tmp",
-                tmpfs={'/tmp': ''} # Writable RAM disk for speed
+                tmpfs={'/tmp': ''},
+                # 2. TAGGING: Mark this container as ours
+                labels={"created_by": "exam_ide_pool"} 
             )
         except Exception as e:
             print(f"[-] Failed to spawn {lang}: {e}")
             return None
 
     def _maintain_pool(self):
-        """Background thread to refill queues."""
         while self.running:
             for lang, q in self.pools.items():
                 if q.qsize() < POOL_SIZE:
@@ -59,7 +80,7 @@ class WarmContainerPool:
     def get_container(self, lang):
         if lang not in self.pools:
             raise ValueError(f"Unsupported language: {lang}")
-        return self.pools[lang].get(timeout=5) # Wait up to 5s for a container
+        return self.pools[lang].get(timeout=5)
 
     def cleanup(self, container):
         try:
@@ -68,15 +89,14 @@ class WarmContainerPool:
             pass
 
     def copy_code(self, container, filename, code_str):
-        """Injects code directly into container memory (no shared volumes)."""
-        tar_stream = io.BytesIO()
-        with tarfile.open(fileobj=tar_stream, mode='w') as tar:
-            data = code_str.encode('utf-8')
-            info = tarfile.TarInfo(name=filename)
-            info.size = len(data)
-            tar.addfile(info, io.BytesIO(data))
-        tar_stream.seek(0)
-        container.put_archive("/tmp", tar_stream)
+        # ... (Keep your Base64 version here) ...
+        b64_code = base64.b64encode(code_str.encode('utf-8')).decode('utf-8')
+        cmd = f"sh -c 'echo {b64_code} | base64 -d > /tmp/{filename}'"
+        container.exec_run(cmd)
+
+    def shutdown(self):
+        self.running = False
+        self._purge_zombies()
 
 # Singleton Instance
 pool_manager = WarmContainerPool()

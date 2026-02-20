@@ -3,7 +3,7 @@ __pycache__/
 venv/
 grader/temp_submissions/*.py
 backend/.env
-
+frontend_client/config.js
 .DS_Store
 Thumbs.db
 

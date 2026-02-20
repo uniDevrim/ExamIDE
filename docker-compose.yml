@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -7,14 +5,11 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
-      # ⬇️ THIS IS THE MAGIC LINE. DO NOT FORGET IT.
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./frontend_client:/frontend_client
     env_file:
       - ./backend/.env
     restart: always
-
-  # You can keep this if you want, but my solution pulls standard images (python:slim, gcc, etc.)
-  # effectively making this service redundant for execution purposes.
   grader-base:
     build: 
       context: ./grader

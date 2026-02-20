@@ -541,9 +541,11 @@ function runCode(event) {
     
     const code = monacoEditor.getValue(); 
     const language = document.getElementById('languageSelect').value;
+    const outputElement = document.getElementById('outputBody');
 
-    // Optional: Add a loading state to the UI so you know it's working
-    document.getElementById('outputBody').innerText = "Kod çalıştırılıyor...";
+    // 1. UI Feedback: Show loading state
+    outputElement.innerText = "Kod konteynerde derleniyor...";
+    outputElement.style.color = "#aaa"; // Gray color for loading
     document.querySelector('.output-panel').classList.remove('collapsed');
 
     fetch(CONFIG.API_RUN_URL, {
@@ -552,15 +554,45 @@ function runCode(event) {
         body: JSON.stringify({ code: code, language: language })
     })
     .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) throw new Error(`HTTP hatası! Status: ${response.status}`);
         return response.json();
     })
     .then(data => {
-        document.getElementById('outputBody').innerText = data.output;
+        outputElement.style.color = "inherit"; 
+
+        if (data.error) {
+            outputElement.innerText = "Sistem Hatası: " + data.error;
+            outputElement.style.color = "#ff4d4d"; // Red
+            return;
+        }
+
+        // 2. Prepare the final output string
+        let content = "";
+
+        if (data.stdout) {
+            content += data.stdout;
+        }
+
+        if (data.stderr) {
+            if (content) content += "\n\n--- HATA ÇIKTISI ---\n";
+            content += data.stderr;
+        }
+
+        if (!content) {
+            content = `Program başarıyla tamamlandı (Exit Code: ${data.exit_code}).\n(Ekrana bir şey yazdırılmadı)`;
+            outputElement.style.color = "#888";
+        } else {
+            if (data.exit_code !== 0) {
+                 outputElement.style.color = "#ff6b6b"; 
+            }
+        }
+
+        outputElement.innerText = content;
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('outputBody').innerText = "Hata: Sunucuya bağlanılamadı.";
+        outputElement.innerText = "Bağlantı Hatası: " + error.message;
+        outputElement.style.color = "red";
     });
 }
 

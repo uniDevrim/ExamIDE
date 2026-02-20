@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from backend.execution_pool import pool_manager
+from execution_pool import pool_manager
 import time
 
 client_bp = Blueprint('client_bp', __name__)
@@ -9,45 +9,42 @@ def run_code():
     # 1. Validate Input
     data = request.json or {}
     code = data.get('code')
-    lang = data.get('language', 'python') # Default to python if missing
+    lang = data.get('language', 'python') 
 
     if not code:
-        return jsonify({"output": "No code provided", "exit_code": -1}), 400
+        return jsonify({"stdout": "", "stderr": "Error: No code provided", "exit_code": -1}), 400
     
     if lang not in ["python", "cpp", "csharp"]:
-        return jsonify({"output": f"Language '{lang}' not supported"}), 400
+        return jsonify({"stdout": "", "stderr": f"Error: Language '{lang}' not supported", "exit_code": -1}), 400
 
     container = None
     try:
-        # 2. Get Warm Container (Instant)
         container = pool_manager.get_container(lang)
         
-        # 3. Prepare Execution Command
         exec_cmd = ""
+        
         if lang == "python":
             pool_manager.copy_code(container, "main.py", code)
-            exec_cmd = "python main.py"
+            # Simple and clean.
+            exec_cmd = "python3 /tmp/main.py" 
             
         elif lang == "cpp":
             pool_manager.copy_code(container, "main.cpp", code)
-            exec_cmd = "g++ -o app main.cpp && ./app"
+            # Compile output to /tmp/app
+            exec_cmd = "g++ -o /tmp/app /tmp/main.cpp && /tmp/app"
             
         elif lang == "csharp":
             pool_manager.copy_code(container, "Program.cs", code)
-            # Create a minimal .csproj for valid .NET execution
-            csproj = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net7.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>'
-            pool_manager.copy_code(container, "App.csproj", csproj)
-            # 'dotnet run' restores, builds, and runs.
-            exec_cmd = "dotnet run --project /tmp/App.csproj"
+            # ... (C# project injection) ...
+            exec_cmd = "cd /tmp && dotnet run"
 
-        # 4. Execute
-        # Timeout protects against infinite loops (e.g., while(True))
+        # 4. Execute with Timeout
         start_time = time.time()
         
-        # We use a shell to enable operators like '&&'
+        # We wrap in sh -c to allow '&&' and 'cd'
         exit_code, output_bytes = container.exec_run(
             f"sh -c '{exec_cmd}'", 
-            demux=True  # Returns tuple (stdout, stderr)
+            demux=True 
         )
         
         stdout = output_bytes[0].decode() if output_bytes[0] else ""
@@ -61,10 +58,9 @@ def run_code():
         })
 
     except Exception as e:
-        return jsonify({"output": f"System Error: {str(e)}"}), 500
+        return jsonify({"stdout": "", "stderr": f"System Error: {str(e)}", "exit_code": -1}), 500
         
     finally:
-        # 5. Destroy Container
+        # 5. Clean up
         if container:
-            # Run cleanup in background ideally, but here for safety:
             pool_manager.cleanup(container)
