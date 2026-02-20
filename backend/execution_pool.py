@@ -5,8 +5,8 @@ import time
 import base64
 import atexit
 
-# Configuration
-POOL_SIZE = 3
+DEFAULT_LANG = None  
+POOL_SIZE = 3   #hazırda bekleyen container sayısı
 IMAGE_MAP = {
     "python": "python:3.9-slim",
     "cpp": "gcc:latest",
@@ -21,34 +21,49 @@ class WarmContainerPool:
             "cpp": queue.Queue(maxsize=POOL_SIZE),
             "csharp": queue.Queue(maxsize=POOL_SIZE)
         }
+        self.active_language = DEFAULT_LANG
         self.running = True
         
-        # 1. THE REAPER: Kill any leftovers from previous runs
+        # 1. Kill any zombies from previous runs
         self._purge_zombies()
         
-        # Start the background janitor
+        # 2. Start the background monitor
         self.monitor_thread = threading.Thread(target=self._maintain_pool, daemon=True)
         self.monitor_thread.start()
-        print(f"[+] Execution Pool Initialized. Target warm count: {POOL_SIZE}")
-
-        # Try to clean up on normal exit
+        
         atexit.register(self.shutdown)
 
-    def _purge_zombies(self):
-        """Finds and kills containers left behind by previous server restarts."""
-        print("[*] Hunting for zombie containers...")
-        # We look for containers with our specific label
-        zombies = self.client.containers.list(
-            all=True, 
-            filters={"label": "created_by=exam_ide_pool"}
-        )
-        for z in zombies:
-            try:
-                z.remove(force=True)
-                print(f"    - Killed zombie: {z.short_id}")
-            except:
-                pass
-        print(f"[*] Purge complete. Deleted {len(zombies)} orphans.")
+    def set_exam_language(self, lang):
+        """
+        Called by the Admin 'Start Exam' button.
+        Switches the active language and kills the unused ones.
+        """
+        print(f"[!] Switching Exam Language to: {lang}")
+        self.active_language = lang
+        
+        # CLEANUP: Kill containers that don't match the new language
+        for pool_lang, q in self.pools.items():
+            if pool_lang != lang:
+                while not q.empty():
+                    try:
+                        container = q.get_nowait()
+                        container.remove(force=True)
+                        print(f"    - Killed unused {pool_lang} container")
+                    except:
+                        pass
+
+    def _maintain_pool(self):
+        """
+        The Brain: Only spawns containers for the ACTIVE language.
+        """
+        while self.running:
+            if self.active_language and self.active_language in self.pools:
+                q = self.pools[self.active_language]
+                if q.qsize() < POOL_SIZE:
+                    c = self._create_container(self.active_language)
+                    if c:
+                        q.put(c)
+            time.sleep(1)
 
     def _create_container(self, lang):
         image = IMAGE_MAP.get(lang)
@@ -61,21 +76,20 @@ class WarmContainerPool:
                 network_disabled=True,
                 working_dir="/tmp",
                 tmpfs={'/tmp': ''},
-                # 2. TAGGING: Mark this container as ours
-                labels={"created_by": "exam_ide_pool"} 
+                labels={"created_by": "exam_ide_pool"} # Tagging for cleanup
             )
         except Exception as e:
             print(f"[-] Failed to spawn {lang}: {e}")
             return None
 
-    def _maintain_pool(self):
-        while self.running:
-            for lang, q in self.pools.items():
-                if q.qsize() < POOL_SIZE:
-                    c = self._create_container(lang)
-                    if c:
-                        q.put(c)
-            time.sleep(1)
+    def _purge_zombies(self):
+        print("[*] Hunting for zombie containers...")
+        zombies = self.client.containers.list(all=True, filters={"label": "created_by=exam_ide_pool"})
+        for z in zombies:
+            try:
+                z.remove(force=True)
+            except:
+                pass
 
     def get_container(self, lang):
         if lang not in self.pools:
@@ -89,7 +103,6 @@ class WarmContainerPool:
             pass
 
     def copy_code(self, container, filename, code_str):
-        # ... (Keep your Base64 version here) ...
         b64_code = base64.b64encode(code_str.encode('utf-8')).decode('utf-8')
         cmd = f"sh -c 'echo {b64_code} | base64 -d > /tmp/{filename}'"
         container.exec_run(cmd)
@@ -98,5 +111,4 @@ class WarmContainerPool:
         self.running = False
         self._purge_zombies()
 
-# Singleton Instance
 pool_manager = WarmContainerPool()

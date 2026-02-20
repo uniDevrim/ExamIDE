@@ -3,13 +3,13 @@ import socket
 import threading
 import time
 import requests
-from flask import Flask, send_from_directory, render_template
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-# Make sure imports are correct based on file location
+# Import routes and the execution pool
 from routes.client_routes import client_bp
-import execution_pool 
+from execution_pool import pool_manager
 
 load_dotenv()
 
@@ -20,22 +20,39 @@ app = Flask(__name__,
 
 CORS(app)
 
-# --- FIX 1: Add url_prefix so it matches your JavaScript fetch() ---
+# Register the execution route
 app.register_blueprint(client_bp, url_prefix='/api/client')
 
+# Load Configuration
 PORT = int(os.getenv('PORT', 5000))
 ADMIN_PORT = int(os.getenv('ADMIN_PORT', 5002))
-
-# --- FIX 2: Load Admin URL from .env if possible (Bypasses UDP in Docker) ---
 ADMIN_URL = os.getenv('ADMIN_URL') 
 
-# --- UDP DİNLEYİCİ ---
+# --- ADMIN ROUTES ---
+@app.route('/api/admin/start_exam', methods=['POST'])
+def start_exam():
+    """
+    Called by the Teacher Console to set the active language.
+    """
+    data = request.json
+    language = data.get('language')
+    
+    if not language:
+        return jsonify({"error": "Language required"}), 400
+        
+    if language not in ["python", "cpp", "csharp"]:
+        return jsonify({"error": "Unsupported language"}), 400
+
+    # Triggers the pool to clean up old containers and spawn new ones
+    pool_manager.set_exam_language(language)
+    
+    return jsonify({"status": "Exam started", "mode": language}), 200
+
+# --- UDP DISCOVERY ---
 def listen_for_admin():
     global ADMIN_URL
     
-    # If .env provided the URL, we don't need to listen!
     if ADMIN_URL:
-        print(f"[+] Admin URL loaded from config: {ADMIN_URL}")
         return
 
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -43,7 +60,7 @@ def listen_for_admin():
 
     try:
         client.bind(('', 37020))
-        print("[*] Admin aranıyor (UDP)...")
+        print("[*] Waiting for Admin broadcast (UDP)...")
         while True:
             data, addr = client.recvfrom(1024)
             message = data.decode()
@@ -51,49 +68,43 @@ def listen_for_admin():
                 admin_ip = message.split("|")[1]
                 if ADMIN_URL is None:
                     ADMIN_URL = f"http://{admin_ip}:5002/report"
-                    print(f"[!] Admin IP Sabitlendi: {ADMIN_URL}")
-                    # Once found, we can stop listening or keep updating. 
-                    # Returning here saves resources.
+                    print(f"[!] Admin IP Found: {ADMIN_URL}")
                     return 
 
     except Exception as e:
-        print(f"[-] UDP Hatası: {e}")
+        print(f"[-] UDP Discovery Error: {e}")
 
-# --- REPORTING ---
+# --- AUTO REPORTING ---
 def auto_report():
-    # Wait a bit for system to settle
     time.sleep(5)
-    
     while True:
         if ADMIN_URL:
             try:
+                # Replace this static data with real student info if available
                 payload = {
-                    "student_id": "2512729021",
-                    "student_name": "Bektaş",
-                    "student_surname": "Parlak",
-                    "question_no": 3,
+                    "student_id": "2512729006",
+                    "student_name": "Varol",
+                    "student_surname": "Kara",
+                    "question_no": 1,
                     "date": str(time.ctime()),
                 }
                 response = requests.post(ADMIN_URL, json=payload, timeout=5)
-                if response.status_code == 200:
-                    print(f"[+] Rapor Admin'e iletildi ({ADMIN_URL})")
-            except Exception as e:
-                print(f"[-] Admin'e erişilemiyor: {e}")
+            except Exception:
+                pass 
         else:
-            print("[?] Admin IP henüz bulunamadı...")
+            print("[?] Admin IP not found yet...")
 
-        time.sleep(10) # Slowed down to 10s to not spam logs
+        time.sleep(10)
 
 @app.route('/')
 def index():
     return render_template("index.html")
 
 if __name__ == '__main__':
-    # Only start the UDP thread if we didn't find the URL in .env
     if not ADMIN_URL:
         threading.Thread(target=listen_for_admin, daemon=True).start()
     else:
-        print(f"[+] Skipping UDP listener, using configured Admin URL: {ADMIN_URL}")
+        print(f"[+] Using Configured Admin URL: {ADMIN_URL}")
 
     threading.Thread(target=auto_report, daemon=True).start()
 
