@@ -19,31 +19,29 @@ ADMIN_URL = None #None
 STUDENT_ID = "Ogrenci_Bektas"
 
 
-# --- UDP LISTENER ---
+# --- UDP DİNLEYİCİ ---
 def listen_for_admin():
     global ADMIN_URL
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    # macOS/Linux için portun tekrar kullanılabilmesini sağlar
-    try:
-        client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-    except AttributeError:
-        pass
-
     try:
         client.bind(('', 37020))
-        print("[*] UDP Dinleyici Aktif: Admin bekleniyor...")
+        print("[*] Admin aranıyor...")
         while True:
             data, addr = client.recvfrom(1024)
             message = data.decode()
             if "ADMIN_IP" in message:
                 admin_ip = message.split("|")[1]
-                ADMIN_URL = f"http://{admin_ip}:{ADMIN_PORT}/report"
+
+                # ÖNEMLİ: Burada 'http=' değil 'http://' olmalı
+                # Ayrıca sadece ilk bulduğunu sabitlemek için kontrol ekliyoruz
+                if ADMIN_URL is None:
+                    ADMIN_URL = f"http://{admin_ip}:5002/report"
+                    print(f"[!] Admin IP Sabitlendi: {ADMIN_URL}")
+
     except Exception as e:
         print(f"[-] UDP Hatası: {e}")
-
-
 # --- REPORTING ---
 def auto_report():
     while True:
