@@ -25,23 +25,18 @@ def run_code():
         
         if lang == "python":
             pool_manager.copy_code(container, "main.py", code)
-            # Simple and clean.
             exec_cmd = "python3 /tmp/main.py" 
             
         elif lang == "cpp":
             pool_manager.copy_code(container, "main.cpp", code)
-            # Compile output to /tmp/app
-            exec_cmd = "g++ -o /tmp/app /tmp/main.cpp && /tmp/app"
+            exec_cmd = "g++ -o /tmp/app /tmp/main.cpp && chmod +x /tmp/app && /tmp/app"
             
         elif lang == "csharp":
             pool_manager.copy_code(container, "Program.cs", code)
-            # ... (C# project injection) ...
             exec_cmd = "cd /tmp && dotnet run"
 
-        # 4. Execute with Timeout
         start_time = time.time()
         
-        # We wrap in sh -c to allow '&&' and 'cd'
         exit_code, output_bytes = container.exec_run(
             f"sh -c '{exec_cmd}'", 
             demux=True 
@@ -58,6 +53,7 @@ def run_code():
         })
 
     except Exception as e:
+        print(f"[-] CRITICAL ERROR: {e}")
         return jsonify({"stdout": "", "stderr": f"System Error: {str(e)}", "exit_code": -1}), 500
         
     finally:

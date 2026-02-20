@@ -75,8 +75,7 @@ class WarmContainerPool:
                 mem_limit="128m",
                 network_disabled=True,
                 working_dir="/tmp",
-                tmpfs={'/tmp': ''},
-                labels={"created_by": "exam_ide_pool"} # Tagging for cleanup
+                labels={"created_by": "exam_ide_pool"}
             )
         except Exception as e:
             print(f"[-] Failed to spawn {lang}: {e}")
