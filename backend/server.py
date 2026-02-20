@@ -12,11 +12,9 @@ load_dotenv()
 app = Flask(__name__, static_folder='../frontend_client')
 CORS(app)
 
-# --- CONFIG ---
-PORT = 5001  # server.py port
-ADMIN_PORT = 5002  # app.py'nin port
-ADMIN_URL = None #None
-STUDENT_ID = "Ogrenci_Bektas"
+PORT = int(os.getenv('PORT', 5001))
+ADMIN_PORT = int(os.getenv('ADMIN_PORT', 5002))
+ADMIN_URL = None  # Bu yine None kalmalı, UDP dinleyici tarafından doldurulacak
 
 
 # --- UDP DİNLEYİCİ ---
