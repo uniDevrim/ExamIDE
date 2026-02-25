@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <title>Sınav Giriş</title>
+    <link rel="stylesheet" href="style.css"> </head>
+<body style="display:flex; justify-content:center; align-items:center; height:100vh;">
+    <div class="login-container" style="background:#18181b; padding:2rem; border-radius:12px; border:1px solid #27272a;">
+        <h2 style="color:white; margin-bottom:1.5rem;">Sınav Giriş Formu</h2>
+        <form action="/login" method="POST" style="display:flex; flex-direction:column; gap:10px;">
+            <input type="text" name="ogrenci_no" placeholder="Öğrenci Numarası" required>
+            <input type="text" name="ad" placeholder="Ad" required>
+            <input type="text" name="soyad" placeholder="Soyad" required>
+            <input type="text" name="bolum" placeholder="Bölüm" required>
+            <input type="text" name="sinif" placeholder="Sınıf" required>
+            <button type="submit" style="padding:10px; background:#22c55e; color:white; border:none; cursor:pointer;">Giriş Yap</button>
+        </form>
+    </div>
+</body>
+</html>
