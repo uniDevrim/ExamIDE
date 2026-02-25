@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
-from execution_pool import pool_manager
+from ..execution_pool import pool_manager
 import time
 
 client_bp = Blueprint('client_bp', __name__)
 
 @client_bp.route('/run', methods=['POST'])
 def run_code():
-    # 1. Validate Input
+    
     data = request.json or {}
     code = data.get('code')
     lang = data.get('language', 'python') 
@@ -20,6 +20,9 @@ def run_code():
     container = None
     try:
         container = pool_manager.get_container(lang)
+        
+        if container is None:
+            return jsonify({"stdout": "", "stderr": "Hata: Bu dil için hazır konteyner bulunamadı. Sınav başlatılmamış olabilir.", "exit_code": -1}), 503
         
         exec_cmd = ""
         

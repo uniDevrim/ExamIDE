@@ -34,10 +34,6 @@ class WarmContainerPool:
         atexit.register(self.shutdown)
 
     def set_exam_language(self, lang):
-        """
-        Called by the Admin 'Start Exam' button.
-        Switches the active language and kills the unused ones.
-        """
         print(f"[!] Switching Exam Language to: {lang}")
         self.active_language = lang
         

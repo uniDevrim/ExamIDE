@@ -537,61 +537,35 @@ function setupOutputPanel() {
 // Run & Submit
 // ========================================
 function runCode(event) {
-    if (event) event.preventDefault(); // Stop the refresh immediately
+    if (event) event.preventDefault();
     
     const code = monacoEditor.getValue(); 
-    const language = document.getElementById('languageSelect').value;
+    const language = document.getElementById('languageSelect').value.toLowerCase();
     const outputElement = document.getElementById('outputBody');
 
-    // 1. UI Feedback: Show loading state
+    console.log("Backend'e gönderilen veri:", { code, language });
+
     outputElement.innerText = "Kod konteynerde derleniyor...";
-    outputElement.style.color = "#aaa"; // Gray color for loading
     document.querySelector('.output-panel').classList.remove('collapsed');
 
-    fetch(CONFIG.API_RUN_URL, {
+    fetch('/api/client/run', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code, language: language })
     })
     .then(response => {
-        if (!response.ok) throw new Error(`HTTP hatası! Status: ${response.status}`);
+        // Eğer backend 500 dönerse burası yakalar
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.stderr || "Sunucu hatası"); });
+        }
         return response.json();
     })
     .then(data => {
-        outputElement.style.color = "inherit"; 
-
-        if (data.error) {
-            outputElement.innerText = "Sistem Hatası: " + data.error;
-            outputElement.style.color = "#ff4d4d"; // Red
-            return;
-        }
-
-        // 2. Prepare the final output string
-        let content = "";
-
-        if (data.stdout) {
-            content += data.stdout;
-        }
-
-        if (data.stderr) {
-            if (content) content += "\n\n--- HATA ÇIKTISI ---\n";
-            content += data.stderr;
-        }
-
-        if (!content) {
-            content = `Program başarıyla tamamlandı (Exit Code: ${data.exit_code}).\n(Ekrana bir şey yazdırılmadı)`;
-            outputElement.style.color = "#888";
-        } else {
-            if (data.exit_code !== 0) {
-                 outputElement.style.color = "#ff6b6b"; 
-            }
-        }
-
-        outputElement.innerText = content;
+        outputElement.innerText = data.stdout || data.stderr || "Program çıktı vermedi.";
     })
     .catch(error => {
-        console.error('Error:', error);
-        outputElement.innerText = "Bağlantı Hatası: " + error.message;
+        console.error('Hata Detayı:', error);
+        outputElement.innerText = "Hata: " + error.message;
         outputElement.style.color = "red";
     });
 }
