@@ -1,19 +1,378 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
 <head>
-    <title>Sınav Giriş</title>
-    <link rel="stylesheet" href="style.css"> </head>
-<body style="display:flex; justify-content:center; align-items:center; height:100vh;">
-    <div class="login-container" style="background:#18181b; padding:2rem; border-radius:12px; border:1px solid #27272a;">
-        <h2 style="color:white; margin-bottom:1.5rem;">Sınav Giriş Formu</h2>
-        <form action="/login" method="POST" style="display:flex; flex-direction:column; gap:10px;">
-            <input type="text" name="ogrenci_no" placeholder="Öğrenci Numarası" required>
-            <input type="text" name="ad" placeholder="Ad" required>
-            <input type="text" name="soyad" placeholder="Soyad" required>
-            <input type="text" name="bolum" placeholder="Bölüm" required>
-            <input type="text" name="sinif" placeholder="Sınıf" required>
-            <button type="submit" style="padding:10px; background:#22c55e; color:white; border:none; cursor:pointer;">Giriş Yap</button>
-        </form>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sınav Giriş | Üniversite Sınav Sistemi</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Override body overflow for login page */
+        html, body {
+            overflow: auto !important;
+            height: 100%;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background-color: var(--bg-primary);
+            position: relative;
+        }
+
+        /* Subtle background grid pattern */
+        .login-page::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glow blobs */
+        .login-page::after {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            z-index: 1;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Top accent line */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-info));
+            border-radius: 18px 18px 0 0;
+        }
+
+        /* Header */
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 14px;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Divider */
+        .login-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin-bottom: 1.75rem;
+        }
+
+        /* Form */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .form-label i {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+        }
+
+        .form-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+            background: var(--bg-secondary);
+        }
+
+        /* Two-column row */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Submit button — matches btn-submit from style.css */
+        .btn-login {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 24px;
+            background: linear-gradient(135deg, var(--accent-success), #16a34a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 10px rgba(34,197,94,0.2);
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(34,197,94,0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Footer note */
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .login-footer i {
+            color: var(--accent-primary);
+        }
+
+        /* Theme toggle — top right corner */
+        .theme-toggle-corner {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: var(--accent-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle-corner:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 480px) {
+            .form-row { grid-template-columns: 1fr; }
+            .login-card { padding: 2rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle-corner" onclick="toggleTheme()" title="Tema Değiştir">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
+
+    <div class="login-page">
+        <div class="login-card">
+
+            <!-- Header -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="bi bi-code-slash"></i>
+                </div>
+                <div class="login-title">Programlama Sınavı</div>
+                <div class="login-subtitle">Devam etmek için bilgilerinizi girin</div>
+            </div>
+
+            <div class="login-divider"></div>
+
+            <!-- Form -->
+            <form action="/login" method="POST" class="login-form">
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-person-badge"></i>
+                        Öğrenci Numarası
+                    </label>
+                    <input
+                        class="form-input"
+                        type="text"
+                        name="ogrenci_no"
+                        placeholder="örn. 20210001"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-person"></i>
+                            Ad
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            name="ad"
+                            placeholder="Adınız"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-person"></i>
+                            Soyad
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            name="soyad"
+                            placeholder="Soyadınız"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-mortarboard"></i>
+                            Bölüm
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            name="bolum"
+                            placeholder="örn. Bilgisayar Müh."
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="bi bi-layers"></i>
+                            Sınıf
+                        </label>
+                        <input
+                            class="form-input"
+                            type="text"
+                            name="sinif"
+                            placeholder="örn. 2"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Sınava Giriş Yap
+                </button>
+
+            </form>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <i class="bi bi-shield-check"></i>
+                Bilgileriniz güvenli şekilde iletilmektedir
+            </div>
+
+        </div>
     </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeIcon').className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        }
+    </script>
+
 </body>
 </html>
