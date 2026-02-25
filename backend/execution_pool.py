@@ -24,10 +24,8 @@ class WarmContainerPool:
         self.active_language = DEFAULT_LANG
         self.running = True
         
-        # 1. Kill any zombies from previous runs
         self._purge_zombies()
         
-        # 2. Start the background monitor
         self.monitor_thread = threading.Thread(target=self._maintain_pool, daemon=True)
         self.monitor_thread.start()
         
@@ -49,17 +47,15 @@ class WarmContainerPool:
                         pass
 
     def _maintain_pool(self):
-        """
-        The Brain: Only spawns containers for the ACTIVE language.
-        """
         while self.running:
-            if self.active_language and self.active_language in self.pools:
+            if self.active_language:
                 q = self.pools[self.active_language]
                 if q.qsize() < POOL_SIZE:
                     c = self._create_container(self.active_language)
                     if c:
                         q.put(c)
-            time.sleep(1)
+            # Sleep less to react faster to a deleted container
+            time.sleep(0.2)
 
     def _create_container(self, lang):
         image = IMAGE_MAP.get(lang)
@@ -89,7 +85,10 @@ class WarmContainerPool:
     def get_container(self, lang):
         if lang not in self.pools:
             raise ValueError(f"Unsupported language: {lang}")
-        return self.pools[lang].get(timeout=5)
+        try:
+            return self.pools[lang].get(timeout=10) 
+        except queue.Empty:
+            return None
 
     def cleanup(self, container):
         try:
