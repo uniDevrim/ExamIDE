@@ -28,8 +28,35 @@ class WarmContainerPool:
         
         self.monitor_thread = threading.Thread(target=self._maintain_pool, daemon=True)
         self.monitor_thread.start()
+
+
+        self.students = {}
         
         atexit.register(self.shutdown)
+
+
+
+
+
+    def add_student(self, ip, data):
+        """Öğrenci giriş yaptığında veya soru değiştirdiğinde çağrılır."""
+        self.students[ip] = data
+
+    def get_all_students(self):
+        """Admin panelinin /api/admin/students isteği için veriyi döndürür."""
+        return self.students
+
+    def update_student_question(self, ip, question_no):
+        """Öğrenci soru değiştirdikçe admin panelinde güncellenmesi için."""
+        if ip in self.students:
+            self.students[ip]['question'] = question_no
+            from datetime import datetime
+            self.students[ip]['timestamp'] = datetime.now().strftime("%H:%M:%S")
+
+
+
+
+
 
     def set_exam_language(self, lang):
         print(f"[!] Switching Exam Language to: {lang}")

@@ -601,7 +601,7 @@
            ======================================== */
         async function fetchStudents() {
             try {
-                const response = await fetch('/api/students');
+                const response = await fetch('/api/admin/students');
                 const data = await response.json();
 
                 const listBody  = document.getElementById('studentList');

@@ -9,24 +9,29 @@ students_db = {}
 
 @admin_bp.route('/dashboard')
 def admin_dashboard():
-    # Session kontrolü: Admin değilse login'e at
     if not session.get('is_admin'):
         return redirect(url_for('auth.login'))
 
     return render_template('admin.html')
 
+
 @admin_bp.route('/students')
 def get_students():
-    formatted_data = {}
-    for ip, info in students_db.items():
-        formatted_data[ip] = {
-            "student_id": info.get('student_id'),
-            "full_name": info.get('full_name'),
-            "current_question": info.get('question'),
-            "last_seen": info.get('timestamp')
-        }
-    return jsonify(formatted_data)
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
 
+    all_students = pool_manager.get_all_students()
+
+    formatted_data = {}
+    for ip, info in all_students.items():
+        formatted_data[ip] = {
+            "student_id": info.get('no'),
+            "full_name": f"{info.get('ad', '')} {info.get('soyad', '')}",
+            "current_question": info.get('question', 1),
+            "last_seen": info.get('timestamp', '—')
+        }
+
+    return jsonify(formatted_data)
 
 @admin_bp.route('/start_exam', methods=['POST'])
 def start_exam():
@@ -39,7 +44,6 @@ def start_exam():
     if language not in ["python", "cpp", "csharp"]:
         return jsonify({"error": "Unsupported language"}), 400
 
-    # Share the pool_manager across the app
     pool_manager.set_exam_language(language)
     
     return jsonify({"status": "Exam started", "mode": language}), 200
