@@ -23,12 +23,15 @@ def create_app():
 
     @app.before_request
     def require_login():
-        exempt_endpoints = ['auth.login', 'static'] # Giriş gerektirmeyen "muaf" yollar
+        if request.endpoint == 'static':
+            return
 
-        if 'user' not in session and request.endpoint not in exempt_endpoints:
-            # Eğer istek ana dizine ('index') geliyorsa ve giriş yoksa login'e at
-            if request.endpoint == 'index' or (request.blueprint and request.blueprint != 'auth'):
-                return redirect(url_for('auth.login'))
+        exempt_endpoints = ['auth.login',"static"]
+
+        if 'user' not in session and not session.get('is_admin'):
+            if request.endpoint not in exempt_endpoints:
+                if request.blueprint != 'auth':
+                    return redirect(url_for('auth.login'))
 
     @app.route('/')
     def index():
