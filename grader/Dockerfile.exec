@@ -1,8 +1,5 @@
-# Start with a tiny Linux (This is the source image it was asking for)
 FROM python:3.9-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# This container will just stay idle until your server sends it code
 CMD ["python3"]

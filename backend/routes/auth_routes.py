@@ -8,12 +8,12 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     incoming_token = request.args.get('token')
     system_token = current_app.config.get('ADMIN_LOGIN_TOKEN')
-
+    
     if incoming_token:
         if incoming_token == system_token:
+            session.permanent = True
             session['is_admin'] = True
             session['role'] = 'admin'
-
             return redirect(url_for('admin_bp.admin_dashboard'))
         else:
             pass

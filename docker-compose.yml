@@ -1,17 +1,59 @@
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "5000:5000"
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy
+    privileged: true
     volumes:
-      - ./backend:/app
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - POST=1
+      - DELETE=1
+      - EXEC=1
+      - VOLUMES=0
+      - FLASK_DEBUG=0
+      - NETWORKS=1
+    networks:
+      - internal-network
+    restart: always
+
+  backend:
+    build:
+      context: . 
+      dockerfile: ./backend/Dockerfile
+    expose:
+      - "5000"
+    volumes:
+      - .:/app
       - ./frontend_client:/frontend_client
     env_file:
       - ./backend/.env
+    environment:
+      - PYTHONPATH=/app
+      - DOCKER_HOST=tcp://docker-proxy:2375
     restart: always
+    depends_on:
+      - docker-proxy
+    networks:
+      - internal-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - internal-network
+    restart: always
+
   grader-base:
-    build: 
+    build:
       context: ./grader
       dockerfile: Dockerfile.exec
     image: exam-grader-iso
+
+networks:
+  internal-network:
+    driver: bridge
