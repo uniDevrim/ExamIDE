@@ -9,3 +9,6 @@ Thumbs.db
 
 .vscode/
 
+grader/submissions/
+grader/test_cases/
+grader/temp_submissions/

@@ -83,6 +83,7 @@ class WarmContainerPool:
                 mem_limit="128m",
                 network_disabled=True,
                 working_dir="/tmp",
+                auto_remove=True
             )
             container = self.get_container(lang)
             if container is None:
@@ -119,14 +120,10 @@ class WarmContainerPool:
             stdout = output_bytes[0].decode().strip() if output_bytes[0] else ""
             return stdout == expected_output.strip()
         
-
         except Exception as e:
             print(f"[-] run_with_stdin error: {e}")
             return False
 
-        finally:
-            if container:
-                self.cleanup(container)
 
     def set_exam_language(self, lang):
         print(f"[!] Switching Exam Language to: {lang}")

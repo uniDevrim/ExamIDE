@@ -700,7 +700,40 @@ function showFinishModal() {
 function confirmFinishExam() {
     const modal = bootstrap.Modal.getInstance(document.getElementById('finishModal'));
     modal.hide();
-    finishExam(false);
+
+    saveCurrentCode();
+
+    // Build all questions payload
+    const questionsPayload = questions.map(q => ({
+        question_id: `q${q.id}`,
+        code: userCode[`${q.id}_${currentLanguage}`] || q.starterCode[currentLanguage] || ''
+    }));
+
+    showToast('⏳ Sınav gönderiliyor...', 'info');
+
+    fetch('/api/client/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            exam_id: EXAM_ID,
+            student_id: STUDENT_ID,
+            language: currentLanguage,
+            questions: questionsPayload
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.message === 'Submitted successfully') {
+            finishExam(false);
+        } else if (data.error === 'Already submitted') {
+            showToast('⚠️ Bu sınav zaten gönderilmiş.', 'error');
+        } else {
+            showToast('❌ Hata: ' + (data.error || 'Bilinmeyen hata'), 'error');
+        }
+    })
+    .catch(() => {
+        showToast('❌ Sunucuya bağlanılamadı.', 'error');
+    });
 }
 
 function finishExam(timeUp) {
