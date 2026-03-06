@@ -76,6 +76,7 @@ def run_code():
 
 @client_bp.route('/submit', methods=['POST'])
 def submit():
+
     data = request.json or {}
     exam_id = data.get('exam_id')
     student_id = data.get('student_id')       

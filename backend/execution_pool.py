@@ -73,7 +73,17 @@ class WarmContainerPool:
 
     def run_with_stdin(self, code: str, lang: str, stdin_input: str, expected_output: str) -> bool:
         container = None
+        image = IMAGE_MAP.get(lang)
+
         try:
+            container = self.client.containers.run(
+                image,
+                command="sleep 30",
+                detach=True,
+                mem_limit="128m",
+                network_disabled=True,
+                working_dir="/tmp",
+            )
             container = self.get_container(lang)
             if container is None:
                 print("[-] run_with_stdin: No container available")
@@ -88,7 +98,6 @@ class WarmContainerPool:
                 if container is None:
                     return False
 
-            # Write code into container
             if lang == "python":
                 self.copy_code(container, "main.py", code)
                 exec_cmd = "python3 /tmp/main.py"
@@ -101,13 +110,15 @@ class WarmContainerPool:
             else:
                 return False
 
-            escaped_input = stdin_input.replace("'", "'\\''")
-            full_cmd = f"sh -c 'echo \\'{escaped_input}\\' | {exec_cmd}'"
+            b64_input = base64.b64encode(stdin_input.encode('utf-8')).decode('utf-8')
+            container.exec_run(f"sh -c 'echo {b64_input} | base64 -d > /tmp/stdin_input.txt'")
+            full_cmd = f"sh -c '{exec_cmd} < /tmp/stdin_input.txt'"
 
             _, output_bytes = container.exec_run(full_cmd, demux=True)
 
             stdout = output_bytes[0].decode().strip() if output_bytes[0] else ""
             return stdout == expected_output.strip()
+        
 
         except Exception as e:
             print(f"[-] run_with_stdin error: {e}")
