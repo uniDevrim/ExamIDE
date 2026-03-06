@@ -4,7 +4,7 @@ import queue
 import time
 import base64
 import atexit
-import os  # <--- BUNU EKLEMEYİ UNUTMA
+import os
 
 DEFAULT_LANG = None  
 POOL_SIZE = 3  
@@ -16,7 +16,6 @@ IMAGE_MAP = {
 
 class WarmContainerPool:
     def __init__(self):
-        # DOCKER_HOST ortam değişkeni sayesinde Proxy'ye bağlanır
         self.client = docker.from_env()
         self.pools = {
             "python": queue.Queue(maxsize=POOL_SIZE),
@@ -48,7 +47,6 @@ class WarmContainerPool:
             self.students[ip]['timestamp'] = datetime.now().strftime("%H:%M:%S")
 
     def run_grader_container(self, student_code, language, exam_id=None):
-
         print(f"[+] Grader başlatılıyor... Dil: {language}")
         
         image_name = "exam-grader-iso" 
@@ -72,6 +70,52 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[-] Grader Başlatma Hatası: {e}")
             return {"status": "error", "message": str(e)}
+
+    def run_with_stdin(self, code: str, lang: str, stdin_input: str, expected_output: str) -> bool:
+        container = None
+        try:
+            container = self.get_container(lang)
+            if container is None:
+                print("[-] run_with_stdin: No container available")
+                return False
+
+            try:
+                container.reload()
+                if container.status != "running":
+                    raise Exception("Stale container")
+            except Exception:
+                container = self.get_container(lang)
+                if container is None:
+                    return False
+
+            # Write code into container
+            if lang == "python":
+                self.copy_code(container, "main.py", code)
+                exec_cmd = "python3 /tmp/main.py"
+            elif lang == "cpp":
+                self.copy_code(container, "main.cpp", code)
+                exec_cmd = "g++ -o /tmp/app /tmp/main.cpp && chmod +x /tmp/app && /tmp/app"
+            elif lang == "csharp":
+                self.copy_code(container, "Program.cs", code)
+                exec_cmd = "cd /tmp && dotnet run"
+            else:
+                return False
+
+            escaped_input = stdin_input.replace("'", "'\\''")
+            full_cmd = f"sh -c 'echo \\'{escaped_input}\\' | {exec_cmd}'"
+
+            _, output_bytes = container.exec_run(full_cmd, demux=True)
+
+            stdout = output_bytes[0].decode().strip() if output_bytes[0] else ""
+            return stdout == expected_output.strip()
+
+        except Exception as e:
+            print(f"[-] run_with_stdin error: {e}")
+            return False
+
+        finally:
+            if container:
+                self.cleanup(container)
 
     def set_exam_language(self, lang):
         print(f"[!] Switching Exam Language to: {lang}")
@@ -112,7 +156,6 @@ class WarmContainerPool:
             print(f"[-] Failed to spawn {lang}: {e}")
             return None
 
-    
     def _purge_zombies(self):
         print("[*] Hunting for zombie containers...")
         zombies = self.client.containers.list(all=True, filters={"label": "created_by=exam_ide_pool"})

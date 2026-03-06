@@ -1,0 +1,7 @@
+{
+  "question_id": "q1",
+  "tests": [
+    { "input": "5\n3", "expected": "8" },
+    { "input": "10\n20", "expected": "30" }
+  ]
+}
