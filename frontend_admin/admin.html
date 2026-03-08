@@ -10,9 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ========================================
-           Theme Variables (matches style.css)
-           ======================================== */
         [data-theme="dark"] {
             --bg-primary: #1a1a2e;
             --bg-secondary: #16213e;
@@ -31,8 +28,8 @@
             --accent-info: #06b6d4;
             --border-color: #2a3a5c;
             --border-light: #334155;
-            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
-            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.3);
         }
 
         [data-theme="light"] {
@@ -53,15 +50,11 @@
             --accent-info: #0891b2;
             --border-color: #e2e8f0;
             --border-light: #cbd5e1;
-            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
         }
 
-        :root {
-            --transition-fast: 0.15s ease;
-            --transition-theme: 0.3s ease;
-        }
-
+        :root { --transition-fast: 0.15s ease; --transition-theme: 0.3s ease; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
@@ -72,15 +65,12 @@
             transition: background-color var(--transition-theme), color var(--transition-theme);
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-primary); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
 
-        /* ========================================
-           Navbar (identical to exam-navbar style)
-           ======================================== */
+        /* ── Navbar ── */
         .admin-navbar {
             background: var(--bg-navbar);
             border-bottom: 1px solid var(--border-color);
@@ -111,27 +101,18 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            white-space: nowrap;
         }
 
-        .navbar-brand i {
-            color: var(--accent-primary);
-            font-size: 1.1rem;
-        }
+        .navbar-brand i { color: var(--accent-primary); font-size: 1.1rem; }
 
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .navbar-right { display: flex; align-items: center; gap: 10px; }
 
-        /* Live status badge */
         .live-badge {
             display: flex;
             align-items: center;
             gap: 7px;
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid rgba(34, 197, 94, 0.25);
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.25);
             padding: 5px 13px;
             border-radius: 8px;
             font-size: 0.78rem;
@@ -141,52 +122,38 @@
         }
 
         .live-dot {
-            width: 7px;
-            height: 7px;
+            width: 7px; height: 7px;
             background: var(--accent-success);
             border-radius: 50%;
             animation: livePulse 1.8s ease-in-out infinite;
         }
 
         @keyframes livePulse {
-            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-            50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+            0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+            50%      { opacity:0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
         }
 
-        /* Theme toggle */
         .btn-theme-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
             border-radius: 10px;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
             color: var(--accent-primary);
             font-size: 1rem;
             cursor: pointer;
             transition: all var(--transition-fast);
         }
+        .btn-theme-toggle:hover { background: rgba(59,130,246,0.2); border-color: var(--accent-primary); transform: scale(1.05); }
 
-        .btn-theme-toggle:hover {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: var(--accent-primary);
-            transform: scale(1.05);
-        }
-
-        /* ========================================
-           Dashboard Container
-           ======================================== */
+        /* ── Dashboard ── */
         .dashboard-container {
-            padding: 2rem 2rem;
+            padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .page-header {
-            margin-bottom: 1.75rem;
-        }
+        .page-header { margin-bottom: 1.75rem; }
 
         .page-title {
             font-size: 1.35rem;
@@ -197,19 +164,10 @@
             gap: 10px;
         }
 
-        .page-title i {
-            color: var(--accent-primary);
-        }
+        .page-title i { color: var(--accent-primary); }
+        .page-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
 
-        .page-subtitle {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* ========================================
-           Stats Cards
-           ======================================== */
+        /* ── Stats Grid ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -239,22 +197,15 @@
             opacity: 0.7;
         }
 
-        .stats-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stats-card.blue  { --card-accent: var(--accent-primary); }
+        .stats-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stats-card.blue   { --card-accent: var(--accent-primary); }
         .stats-card.orange { --card-accent: var(--accent-warning); }
         .stats-card.green  { --card-accent: var(--accent-success); }
 
         .stats-icon {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.3rem;
             flex-shrink: 0;
         }
@@ -286,9 +237,646 @@
         .stats-number.orange { color: var(--accent-warning); }
         .stats-number.green  { color: var(--accent-success); }
 
-        /* ========================================
-           Student Table Panel
-           ======================================== */
+        /* ═══════════════════════════════════════
+           EXAM CONTROL PANEL
+        ═══════════════════════════════════════ */
+        .control-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 1.75rem;
+            transition: background-color var(--transition-theme), border-color var(--transition-theme);
+        }
+
+        .control-panel-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-navbar);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color var(--transition-theme), border-color var(--transition-theme);
+        }
+
+        .control-panel-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-panel-title i { color: var(--accent-primary); }
+
+        .exam-state-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .exam-state-badge.idle {
+            background: rgba(113,113,122,0.15);
+            border: 1px solid rgba(113,113,122,0.3);
+            color: var(--text-muted);
+        }
+
+        .exam-state-badge.running {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: var(--accent-success);
+        }
+
+        .exam-state-badge.paused {
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.3);
+            color: var(--accent-warning);
+        }
+
+        .exam-state-badge.ended {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--accent-danger);
+        }
+
+        .state-dot-badge {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .exam-state-badge.running .state-dot-badge { animation: livePulse 1.8s infinite; }
+
+        .control-panel-body {
+            padding: 1.5rem;
+        }
+
+        /* Two-column layout inside control panel */
+        .control-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        /* ── Upload Zone ── */
+        .upload-section { }
+
+        .upload-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upload-label i { color: var(--accent-primary); }
+
+        .upload-dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 1.6rem 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(59,130,246,0.02);
+            position: relative;
+        }
+
+        .upload-dropzone:hover, .upload-dropzone.dragover {
+            border-color: var(--accent-primary);
+            background: rgba(59,130,246,0.06);
+        }
+
+        .upload-dropzone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+            transition: color 0.2s;
+        }
+
+        .upload-dropzone:hover .upload-icon { color: var(--accent-primary); }
+
+        .upload-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .upload-hint strong { color: var(--accent-primary); }
+
+        /* Loaded file indicator */
+        .file-loaded {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.25);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .file-loaded.visible { display: flex; }
+
+        .file-loaded-icon {
+            width: 34px; height: 34px;
+            background: rgba(34,197,94,0.15);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent-success);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .file-loaded-info { flex: 1; min-width: 0; }
+
+        .file-loaded-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--accent-success);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-loaded-meta {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-remove-file {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .btn-remove-file:hover { color: var(--accent-danger); }
+
+        /* ── Exam Actions ── */
+        .actions-section { }
+
+        .actions-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .actions-label i { color: var(--accent-primary); }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+        }
+
+        .btn-exam {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-exam::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .btn-exam:active::after { opacity: 0.07; }
+
+        .btn-exam:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-exam:not(:disabled):hover { transform: translateY(-1px); }
+
+        /* Start */
+        .btn-start {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+            grid-column: 1 / -1;
+        }
+
+        .btn-start:not(:disabled):hover {
+            box-shadow: 0 6px 20px rgba(34,197,94,0.45);
+        }
+
+        /* Pause */
+        .btn-pause {
+            background: rgba(245,158,11,0.12);
+            border: 1px solid rgba(245,158,11,0.35) !important;
+            color: var(--accent-warning);
+        }
+
+        .btn-pause:not(:disabled):hover {
+            background: rgba(245,158,11,0.2);
+        }
+
+        /* Resume */
+        .btn-resume {
+            background: rgba(59,130,246,0.12);
+            border: 1px solid rgba(59,130,246,0.35) !important;
+            color: var(--accent-primary);
+        }
+
+        .btn-resume:not(:disabled):hover {
+            background: rgba(59,130,246,0.2);
+        }
+
+        /* End */
+        .btn-end {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3) !important;
+            color: var(--accent-danger);
+        }
+
+        .btn-end:not(:disabled):hover {
+            background: rgba(239,68,68,0.2);
+        }
+
+        /* ── Timer area ── */
+        .timer-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(59,130,246,0.04);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .timer-block { display: flex; align-items: center; gap: 8px; }
+
+        .timer-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 500;
+        }
+
+        .timer-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 70px;
+        }
+
+        .timer-value.running { color: var(--accent-success); }
+        .timer-value.paused  { color: var(--accent-warning); }
+
+        .divider-v {
+            width: 1px;
+            height: 28px;
+            background: var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .questions-loaded-info {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .questions-loaded-info i { color: var(--accent-primary); }
+
+        .q-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        /* ── Toast ── */
+        .toast-container-custom {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.75rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #fff;
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.3s ease;
+            min-width: 220px;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .toast-item.success { background: #16a34a; }
+        .toast-item.warning { background: #d97706; }
+        .toast-item.danger  { background: #dc2626; }
+        .toast-item.info    { background: #0891b2; }
+
+        /* ── Modal Confirm ── */
+        .modal-confirm-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-confirm-overlay.visible { display: flex; }
+
+        .modal-confirm-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 360px;
+            max-width: 90vw;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.25s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-confirm-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            background: rgba(239,68,68,0.12);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-danger);
+            margin-bottom: 1rem;
+        }
+
+        .modal-confirm-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .modal-confirm-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-confirm-actions {
+            display: flex;
+            gap: 0.65rem;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-cancel {
+            padding: 0.55rem 1.2rem;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-modal-cancel:hover { background: rgba(255,255,255,0.1); }
+
+        .btn-modal-confirm {
+            padding: 0.55rem 1.2rem;
+            border-radius: 8px;
+            background: var(--accent-danger);
+            border: none;
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-modal-confirm:hover { background: #b91c1c; }
+
+        /* ── JSON Error Modal ── */
+        .json-error-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .json-error-overlay.visible { display: flex; }
+
+        .json-error-box {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(239,68,68,0.4);
+            border-radius: 18px;
+            padding: 0;
+            width: 520px;
+            max-width: 95vw;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(239,68,68,0.15), var(--shadow-lg);
+            animation: modalIn 0.25s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .json-error-header {
+            padding: 1.25rem 1.5rem 1rem;
+            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
+            border-bottom: 1px solid rgba(239,68,68,0.2);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .json-error-header-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent-danger);
+            flex-shrink: 0;
+        }
+
+        .json-error-header-text { flex: 1; }
+
+        .json-error-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .json-error-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .json-error-body {
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .json-error-section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .json-error-section-label i { color: var(--accent-danger); }
+
+        .json-error-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .json-error-list li {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            background: rgba(239,68,68,0.06);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-left: 3px solid var(--accent-danger);
+            border-radius: 8px;
+            padding: 0.55rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .json-error-list li i { color: var(--accent-danger); font-style: normal; font-size: 0.78rem; }
+
+        .json-schema-block {
+            background: var(--bg-editor);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .json-schema-block .sch-key   { color: #93c5fd; }
+        .json-schema-block .sch-str   { color: #86efac; }
+        .json-schema-block .sch-num   { color: #fca5a5; }
+        .json-schema-block .sch-req   { color: #fcd34d; font-weight: 600; }
+
+        .json-error-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.65rem;
+            background: rgba(0,0,0,0.08);
+        }
+
+        .btn-json-close {
+            padding: 0.6rem 1.4rem;
+            border-radius: 9px;
+            background: var(--accent-danger);
+            border: none;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-json-close:hover { background: #b91c1c; transform: translateY(-1px); }
+
+        /* ── Table ── */
         .table-panel {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -316,9 +904,7 @@
             gap: 8px;
         }
 
-        .table-panel-title i {
-            color: var(--accent-primary);
-        }
+        .table-panel-title i { color: var(--accent-primary); }
 
         .refresh-hint {
             font-size: 0.72rem;
@@ -338,9 +924,7 @@
             border-collapse: collapse;
         }
 
-        .table thead tr {
-            background: rgba(255,255,255,0.03);
-        }
+        .table thead tr { background: rgba(255,255,255,0.03); }
 
         .table th {
             border-bottom: 1px solid var(--border-color);
@@ -359,19 +943,10 @@
             font-size: 0.88rem;
         }
 
-        .table tbody tr:last-child td {
-            border-bottom: none;
-        }
+        .table tbody tr:last-child td { border-bottom: none; }
+        .table tbody tr { transition: background var(--transition-fast); }
+        .table tbody tr:hover { background: rgba(59,130,246,0.04); }
 
-        .table tbody tr {
-            transition: background var(--transition-fast);
-        }
-
-        .table tbody tr:hover {
-            background: rgba(59, 130, 246, 0.04);
-        }
-
-        /* Student ID */
         .student-id {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.82rem;
@@ -384,13 +959,8 @@
             display: inline-block;
         }
 
-        /* Full name */
-        .student-name {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
+        .student-name { font-weight: 500; color: var(--text-primary); }
 
-        /* IP */
         .ip-code {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.78rem;
@@ -400,14 +970,13 @@
             border-radius: 4px;
         }
 
-        /* Question badge */
         .question-badge {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(245,158,11,0.1);
             color: var(--accent-warning);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            border: 1px solid rgba(245,158,11,0.3);
             padding: 3px 10px;
             border-radius: 6px;
             font-weight: 600;
@@ -415,7 +984,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Status badge */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -426,72 +994,47 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            background: rgba(34, 197, 94, 0.1);
+            background: rgba(34,197,94,0.1);
             color: var(--accent-success);
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            border: 1px solid rgba(34,197,94,0.3);
         }
 
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             background: var(--accent-success);
             border-radius: 50%;
             animation: livePulse 2s ease-in-out infinite;
         }
 
-        /* Last seen */
         .last-seen {
             font-size: 0.8rem;
             color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Empty state */
         .empty-state {
             text-align: center;
             padding: 3rem 2rem;
             color: var(--text-muted);
         }
 
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 0.75rem;
-            opacity: 0.4;
-            display: block;
-        }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; display: block; }
+        .empty-state p { font-size: 0.85rem; }
 
-        .empty-state p {
-            font-size: 0.85rem;
-        }
-
-        /* ========================================
-           Responsive
-           ======================================== */
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .dashboard-container { padding: 1rem; }
-        }
-
-        @media (max-width: 576px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .live-badge span { display: none; }
-        }
+        @media (max-width: 900px) { .control-layout { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .dashboard-container { padding: 1rem; } }
+        @media (max-width: 576px) { .live-badge span { display: none; } .actions-grid { grid-template-columns: 1fr; } .btn-start { grid-column: 1 / -1; } }
     </style>
 </head>
 <body>
 
-    <!-- ========================================
-         Navbar
-         ======================================== -->
+    <!-- Navbar -->
     <nav class="admin-navbar">
         <div class="inner">
-            <!-- Brand -->
             <a class="navbar-brand" href="#">
                 <i class="bi bi-shield-lock-fill"></i>
                 Admin Monitoring
             </a>
-
-            <!-- Right -->
             <div class="navbar-right">
                 <div class="live-badge">
                     <div class="live-dot"></div>
@@ -504,18 +1047,16 @@
         </div>
     </nav>
 
-    <!-- ========================================
-         Dashboard
-         ======================================== -->
+    <!-- Dashboard -->
     <div class="dashboard-container">
 
-        <!-- Page Header -->
+        <!-- Header -->
         <div class="page-header">
             <div class="page-title">
                 <i class="bi bi-grid-1x2-fill"></i>
                 Sınav Takip Paneli
             </div>
-            <div class="page-subtitle">Aktif öğrencilerin sınav durumlarını gerçek zamanlı izleyin</div>
+            <div class="page-subtitle">Aktif öğrencilerin sınav durumlarını gerçek zamanlı izleyin ve sınavı yönetin</div>
         </div>
 
         <!-- Stats -->
@@ -543,7 +1084,101 @@
             </div>
         </div>
 
-        <!-- Table -->
+        <!-- ═══ EXAM CONTROL PANEL ═══ -->
+        <div class="control-panel">
+            <div class="control-panel-header">
+                <div class="control-panel-title">
+                    <i class="bi bi-sliders2"></i>
+                    Sınav Kontrolü
+                </div>
+                <div class="exam-state-badge idle" id="examStateBadge">
+                    <span class="state-dot-badge"></span>
+                    <span id="examStateText">Bekleniyor</span>
+                </div>
+            </div>
+
+            <div class="control-panel-body">
+                <div class="control-layout">
+
+                    <!-- Upload Section -->
+                    <div class="upload-section">
+                        <div class="upload-label">
+                            <i class="bi bi-file-earmark-code"></i>
+                            Soru Dosyası (JSON)
+                        </div>
+
+                        <div class="upload-dropzone" id="dropzone">
+                            <input type="file" accept=".json" id="jsonFileInput" onchange="handleFileSelect(event)">
+                            <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                            <div class="upload-hint">
+                                <strong>Dosya seçin</strong> veya buraya sürükleyin<br>
+                                <span style="font-size:0.72rem; opacity:0.7;">Yalnızca .json uzantılı dosyalar</span>
+                            </div>
+                        </div>
+
+                        <div class="file-loaded" id="fileLoaded">
+                            <div class="file-loaded-icon">
+                                <i class="bi bi-file-earmark-check-fill"></i>
+                            </div>
+                            <div class="file-loaded-info">
+                                <div class="file-loaded-name" id="fileLoadedName">sorular.json</div>
+                                <div class="file-loaded-meta" id="fileLoadedMeta">— soru yüklendi</div>
+                            </div>
+                            <button class="btn-remove-file" onclick="removeFile()" title="Dosyayı Kaldır">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Actions Section -->
+                    <div class="actions-section">
+                        <div class="actions-label">
+                            <i class="bi bi-play-circle"></i>
+                            Sınav İşlemleri
+                        </div>
+
+                        <div class="actions-grid">
+                            <button class="btn-exam btn-start" id="btnStart" onclick="startExam()" disabled>
+                                <i class="bi bi-play-fill"></i>
+                                Sınavı Başlat
+                            </button>
+                            <button class="btn-exam btn-pause" id="btnPause" onclick="pauseExam()" disabled>
+                                <i class="bi bi-pause-fill"></i>
+                                Duraklat
+                            </button>
+                            <button class="btn-exam btn-resume" id="btnResume" onclick="resumeExam()" disabled>
+                                <i class="bi bi-skip-forward-fill"></i>
+                                Devam Et
+                            </button>
+                            <button class="btn-exam btn-end" id="btnEnd" onclick="confirmEndExam()" disabled>
+                                <i class="bi bi-stop-fill"></i>
+                                Sınavı Bitir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer row -->
+            <div class="timer-row">
+                <div class="timer-block">
+                    <div class="timer-label">Geçen Süre</div>
+                    <div class="timer-value" id="elapsedTimer">00:00:00</div>
+                </div>
+                <div class="divider-v"></div>
+                <div class="timer-block">
+                    <div class="timer-label">Sınav Durumu</div>
+                    <div class="timer-value" id="examStatusTimer" style="color: var(--text-muted);">—</div>
+                </div>
+                <div class="questions-loaded-info" id="questionsInfo" style="display:none;">
+                    <i class="bi bi-list-check"></i>
+                    <span class="q-count" id="qCount">0</span>
+                    <span>soru yüklendi</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Table -->
         <div class="table-panel">
             <div class="table-panel-header">
                 <div class="table-panel-title">
@@ -568,11 +1203,8 @@
                             <th>Son Görülme</th>
                         </tr>
                     </thead>
-                    <tbody id="studentList">
-                        <!-- Loaded by JS -->
-                    </tbody>
+                    <tbody id="studentList"></tbody>
                 </table>
-
                 <div id="emptyState" class="empty-state" style="display:none;">
                     <i class="bi bi-inbox"></i>
                     <p>Henüz bağlı öğrenci yok.</p>
@@ -581,30 +1213,443 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Confirm Modal -->
+    <div class="modal-confirm-overlay" id="confirmModal">
+        <div class="modal-confirm-box">
+            <div class="modal-confirm-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="modal-confirm-title">Sınavı Bitir</div>
+            <div class="modal-confirm-desc">
+                Sınavı bitirmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm öğrencilerin bağlantısı kesilecektir.
+            </div>
+            <div class="modal-confirm-actions">
+                <button class="btn-modal-cancel" onclick="closeConfirmModal()">İptal</button>
+                <button class="btn-modal-confirm" onclick="endExam()">
+                    <i class="bi bi-stop-fill"></i> Evet, Bitir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Schema Error Modal -->
+    <div class="json-error-overlay" id="jsonErrorOverlay" onclick="closeJsonErrorModal(event)">
+        <div class="json-error-box">
+            <div class="json-error-header">
+                <div class="json-error-header-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="json-error-header-text">
+                    <div class="json-error-title">Geçersiz Sınav JSON Yapısı</div>
+                    <div class="json-error-subtitle" id="jsonErrorSubtitle">Yüklenen dosya beklenen şemaya uymuyor.</div>
+                </div>
+            </div>
+            <div class="json-error-body">
+                <div class="json-error-section-label">
+                    <i class="bi bi-x-circle-fill"></i> Tespit Edilen Hatalar
+                </div>
+                <ul class="json-error-list" id="jsonErrorList">
+                    <!-- Hata öğeleri buraya eklenir -->
+                </ul>
+
+                <div class="json-error-section-label" style="margin-top:0.25rem">
+                    <i class="bi bi-braces"></i> Beklenen Yapı
+                </div>
+                <div class="json-schema-block"><span class="sch-req">{</span>
+  <span class="sch-key">"name"</span>:        <span class="sch-str">"Sınav Adı"</span>,
+  <span class="sch-key">"description"</span>: <span class="sch-str">"Sınav Açıklaması"</span>,
+  <span class="sch-key">"time"</span>:        <span class="sch-str">"Sınav Süresi"</span>,
+  <span class="sch-key">"language"</span>:    <span class="sch-str">"Python"</span>,
+  <span class="sch-key">"questions"</span>: <span class="sch-req">{</span>
+    <span class="sch-key">"1"</span>: <span class="sch-req">{</span>
+      <span class="sch-key">"title"</span>:          <span class="sch-str">"Soru Başlığı"</span>,
+      <span class="sch-key">"description"</span>:  <span class="sch-str">"Soru Açıklaması"</span>,
+      <span class="sch-key">"test-cases"</span>: [ <span class="sch-req">{</span> <span class="sch-key">"input"</span>: <span class="sch-str">"…"</span>, <span class="sch-key">"output"</span>: <span class="sch-str">"…"</span> <span class="sch-req">}</span> ],
+      <span class="sch-key">"run-time-limit"</span>: <span class="sch-num">5</span>,
+      <span class="sch-key">"memory-limit"</span>:  <span class="sch-num">1024</span>,
+      <span class="sch-key">"points"</span>:        <span class="sch-num">10</span>
+    <span class="sch-req">}</span>
+  <span class="sch-req">}</span>
+<span class="sch-req">}</span></div>
+            </div>
+            <div class="json-error-footer">
+                <button class="btn-json-close" onclick="closeJsonErrorModal()">
+                    <i class="bi bi-x-lg"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        /* ========================================
+        /* ─────────────────────────────────────
            Theme Toggle
-           ======================================== */
+        ───────────────────────────────────── */
         function toggleTheme() {
             const html = document.documentElement;
             const isDark = html.getAttribute('data-theme') === 'dark';
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            const icon = document.getElementById('themeIcon');
-            icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            document.getElementById('themeIcon').className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
         }
 
-        /* ========================================
-           Fetch & Render Students  (unchanged logic)
-           ======================================== */
+        /* ─────────────────────────────────────
+           State
+        ───────────────────────────────────── */
+        let examState   = 'idle';   // idle | running | paused | ended
+        let jsonLoaded  = false;
+        let loadedFile  = null;
+        let questionCount = 0;
+        let examStartTime = null;
+        let timerInterval = null;
+
+        /* ─────────────────────────────────────
+           Toast
+        ───────────────────────────────────── */
+        function showToast(msg, type = 'success', duration = 3000) {
+            const icons = { success: 'bi-check-circle-fill', warning: 'bi-exclamation-circle-fill', danger: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = `toast-item ${type}`;
+            el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i> ${msg}`;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.3s, transform 0.3s';
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(20px)';
+                setTimeout(() => el.remove(), 350);
+            }, duration);
+        }
+
+        /* ─────────────────────────────────────
+           Drag & Drop
+        ───────────────────────────────────── */
+        const dropzone = document.getElementById('dropzone');
+
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) processFile(file);
+        }
+
+        /* ─────────────────────────────────────
+           JSON Schema Validator
+        ───────────────────────────────────── */
+        function validateExamJson(data) {
+            const errors = [];
+
+            // Üst düzey zorunlu alanlar
+            const topRequired = ['name', 'description', 'time', 'language', 'questions'];
+            for (const field of topRequired) {
+                if (data[field] === undefined || data[field] === null || data[field] === '') {
+                    errors.push(`Üst seviye alan eksik veya boş: "${field}"`);
+                }
+            }
+
+            // questions bir nesne (object) olmalı
+            if (data.questions !== undefined) {
+                if (typeof data.questions !== 'object' || Array.isArray(data.questions) || data.questions === null) {
+                    errors.push('"questions" alanı bir nesne (object) olmalıdır, dizi (array) değil.');
+                } else {
+                    const keys = Object.keys(data.questions);
+                    if (keys.length === 0) {
+                        errors.push('"questions" nesnesi en az 1 soru içermelidir.');
+                    }
+                    keys.forEach((qKey) => {
+                        const q = data.questions[qKey];
+                        const qLabel = `Soru "${qKey}"`;
+
+                        if (!q || typeof q !== 'object') {
+                            errors.push(`${qLabel}: geçersiz yapı.`);
+                            return;
+                        }
+
+                        const qRequired = ['title', 'description', 'test-cases', 'run-time-limit', 'memory-limit', 'points'];
+                        for (const f of qRequired) {
+                            if (q[f] === undefined || q[f] === null) {
+                                errors.push(`${qLabel}: "${f}" alanı eksik.`);
+                            }
+                        }
+
+                        // test-cases kontrolü
+                        if (q['test-cases'] !== undefined) {
+                            if (!Array.isArray(q['test-cases'])) {
+                                errors.push(`${qLabel}: "test-cases" bir dizi (array) olmalıdır.`);
+                            } else if (q['test-cases'].length === 0) {
+                                errors.push(`${qLabel}: "test-cases" en az 1 test durumu içermelidir.`);
+                            } else {
+                                q['test-cases'].forEach((tc, idx) => {
+                                    if (tc.input === undefined) errors.push(`${qLabel} test-case[${idx}]: "input" alanı eksik.`);
+                                    if (tc.output === undefined) errors.push(`${qLabel} test-case[${idx}]: "output" alanı eksik.`);
+                                });
+                            }
+                        }
+
+                        // Sayısal alan kontrolleri
+                        if (q['run-time-limit'] !== undefined && typeof q['run-time-limit'] !== 'number') {
+                            errors.push(`${qLabel}: "run-time-limit" sayısal bir değer olmalıdır.`);
+                        }
+                        if (q['memory-limit'] !== undefined && typeof q['memory-limit'] !== 'number') {
+                            errors.push(`${qLabel}: "memory-limit" sayısal bir değer olmalıdır.`);
+                        }
+                        if (q['points'] !== undefined && typeof q['points'] !== 'number') {
+                            errors.push(`${qLabel}: "points" sayısal bir değer olmalıdır.`);
+                        }
+                    });
+                }
+            }
+
+            return errors;
+        }
+
+        function showJsonErrorModal(filename, errors) {
+            document.getElementById('jsonErrorSubtitle').textContent =
+                `"${filename}" dosyası beklenen şemaya uymuyor. Lütfen aşağıdaki hataları giderin.`;
+            const list = document.getElementById('jsonErrorList');
+            list.innerHTML = errors.map(err =>
+                `<li><i class="bi bi-dot"></i>${err}</li>`
+            ).join('');
+            document.getElementById('jsonErrorOverlay').classList.add('visible');
+        }
+
+        function closeJsonErrorModal(event) {
+            if (!event || event.target === document.getElementById('jsonErrorOverlay')) {
+                document.getElementById('jsonErrorOverlay').classList.remove('visible');
+            }
+        }
+
+        function processFile(file) {
+            if (!file.name.endsWith('.json')) {
+                showToast('Yalnızca .json dosyaları kabul edilir.', 'danger');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Yapı doğrulaması
+                    const errors = validateExamJson(data);
+                    if (errors.length > 0) {
+                        showJsonErrorModal(file.name, errors);
+                        return;
+                    }
+
+                    const questions = data.questions;
+                    questionCount = Object.keys(questions).length;
+
+                    loadedFile = { name: file.name, data, questions };
+                    jsonLoaded = true;
+
+                    // Show file indicator
+                    document.getElementById('fileLoaded').classList.add('visible');
+                    document.getElementById('fileLoadedName').textContent = file.name;
+                    document.getElementById('fileLoadedMeta').textContent = `${questionCount} soru yüklendi`;
+
+                    // Show count in timer row
+                    document.getElementById('questionsInfo').style.display = 'flex';
+                    document.getElementById('qCount').textContent = questionCount;
+
+                    updateButtons();
+                    showToast(`${questionCount} soru başarıyla yüklendi.`, 'success');
+                } catch {
+                    showToast('Geçersiz JSON dosyası — parse hatası.', 'danger');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function removeFile() {
+            if (examState === 'running' || examState === 'paused') {
+                showToast('Sınav devam ederken dosya kaldırılamaz.', 'warning');
+                return;
+            }
+            jsonLoaded = false;
+            loadedFile = null;
+            questionCount = 0;
+            document.getElementById('fileLoaded').classList.remove('visible');
+            document.getElementById('jsonFileInput').value = '';
+            document.getElementById('questionsInfo').style.display = 'none';
+            updateButtons();
+            showToast('Dosya kaldırıldı.', 'info');
+        }
+
+        /* ─────────────────────────────────────
+           Button State Manager
+        ───────────────────────────────────── */
+        function updateButtons() {
+            const start  = document.getElementById('btnStart');
+            const pause  = document.getElementById('btnPause');
+            const resume = document.getElementById('btnResume');
+            const end    = document.getElementById('btnEnd');
+
+            // Reset all
+            [start, pause, resume, end].forEach(b => b.disabled = true);
+
+            if (examState === 'idle') {
+                start.disabled = !jsonLoaded;
+            } else if (examState === 'running') {
+                pause.disabled = false;
+                end.disabled   = false;
+            } else if (examState === 'paused') {
+                resume.disabled = false;
+                end.disabled    = false;
+            }
+            // ended → all stay disabled
+        }
+
+        /* ─────────────────────────────────────
+           Exam State Badge
+        ───────────────────────────────────── */
+        function setExamStateBadge(state) {
+            const badge = document.getElementById('examStateBadge');
+            const text  = document.getElementById('examStateText');
+            badge.className = `exam-state-badge ${state}`;
+            const labels = { idle: 'Bekleniyor', running: 'Devam Ediyor', paused: 'Duraklatıldı', ended: 'Sona Erdi' };
+            text.textContent = labels[state] || state;
+        }
+
+        /* ─────────────────────────────────────
+           Timer
+        ───────────────────────────────────── */
+        function formatTime(ms) {
+            const s = Math.floor(ms / 1000);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return [h, m, sec].map(v => String(v).padStart(2, '0')).join(':');
+        }
+
+        let pauseOffset = 0;
+        let pauseStart  = null;
+
+        function startTimer() {
+            const timerEl  = document.getElementById('elapsedTimer');
+            const statusEl = document.getElementById('examStatusTimer');
+            timerEl.className = 'timer-value running';
+            statusEl.textContent = 'Aktif';
+            statusEl.style.color = 'var(--accent-success)';
+
+            timerInterval = setInterval(() => {
+                if (examState === 'running') {
+                    timerEl.textContent = formatTime(Date.now() - examStartTime - pauseOffset);
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        /* ─────────────────────────────────────
+           Exam Actions
+        ───────────────────────────────────── */
+        async function startExam() {
+            examState    = 'running';
+            examStartTime = Date.now();
+            pauseOffset  = 0;
+
+            setExamStateBadge('running');
+            updateButtons();
+            startTimer();
+            showToast('Sınav başlatıldı!', 'success');
+
+            // API call (non-blocking)
+            try {
+                await fetch('/api/admin/start_exam', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({language: 'python'})
+                }).then(r => r.json()).then(console.log);
+
+            } catch { /* server may not be up in preview */ }
+        }
+
+        async function pauseExam() {
+            examState = 'paused';
+            pauseStart = Date.now();
+
+            setExamStateBadge('paused');
+            updateButtons();
+
+            const statusEl = document.getElementById('examStatusTimer');
+            statusEl.textContent = 'Duraklatıldı';
+            statusEl.style.color = 'var(--accent-warning)';
+            document.getElementById('elapsedTimer').className = 'timer-value paused';
+
+            showToast('Sınav duraklatıldı.', 'warning');
+            try { await fetch('/api/admin/exam/pause', { method: 'POST' }); } catch { }
+        }
+
+        async function resumeExam() {
+            if (pauseStart) pauseOffset += Date.now() - pauseStart;
+            pauseStart = null;
+            examState = 'running';
+
+            setExamStateBadge('running');
+            updateButtons();
+
+            const statusEl = document.getElementById('examStatusTimer');
+            statusEl.textContent = 'Aktif';
+            statusEl.style.color = 'var(--accent-success)';
+            document.getElementById('elapsedTimer').className = 'timer-value running';
+
+            showToast('Sınav devam ettiriliyor.', 'info');
+            try { await fetch('/api/admin/exam/resume', { method: 'POST' }); } catch { }
+        }
+
+        function confirmEndExam() {
+            document.getElementById('confirmModal').classList.add('visible');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('visible');
+        }
+
+        async function endExam() {
+            closeConfirmModal();
+            examState = 'ended';
+            stopTimer();
+
+            setExamStateBadge('ended');
+            updateButtons();
+
+            const statusEl = document.getElementById('examStatusTimer');
+            statusEl.textContent = 'Sona Erdi';
+            statusEl.style.color = 'var(--accent-danger)';
+            document.getElementById('elapsedTimer').className = 'timer-value';
+            document.getElementById('elapsedTimer').style.color = 'var(--accent-danger)';
+
+            showToast('Sınav sona erdirildi.', 'danger', 4000);
+            try { await fetch('/api/admin/exam/end', { method: 'POST' }); } catch { }
+        }
+
+        // Close modal on overlay click
+        document.getElementById('confirmModal').addEventListener('click', function(e) {
+            if (e.target === this) closeConfirmModal();
+        });
+
+        /* ─────────────────────────────────────
+           Fetch Students
+        ───────────────────────────────────── */
         async function fetchStudents() {
             try {
                 const response = await fetch('/api/admin/students');
                 const data = await response.json();
 
-                const listBody  = document.getElementById('studentList');
+                const listBody   = document.getElementById('studentList');
                 const emptyState = document.getElementById('emptyState');
                 listBody.innerHTML = '';
 
@@ -622,34 +1667,28 @@
                 let totalQ = 0;
                 entries.forEach(([ip, info]) => {
                     totalQ += Number(info.current_question) || 0;
-                    const row = `
+                    listBody.innerHTML += `
                         <tr>
                             <td><span class="student-id">${info.student_id}</span></td>
                             <td><span class="student-name">${info.full_name}</span></td>
                             <td><span class="ip-code">${ip}</span></td>
                             <td><span class="question-badge"><i class="bi bi-file-code"></i> Soru ${info.current_question}</span></td>
-                            <td>
-                                <span class="status-badge">
-                                    <span class="status-dot"></span>
-                                    Aktif
-                                </span>
-                            </td>
+                            <td><span class="status-badge"><span class="status-dot"></span>Aktif</span></td>
                             <td class="last-seen">${info.last_seen}</td>
                         </tr>
                     `;
-                    listBody.innerHTML += row;
                 });
 
                 document.getElementById('totalStudents').innerText = entries.length;
-                document.getElementById('avgQuestion').innerText =
-                    (totalQ / entries.length).toFixed(1);
-
-            } catch (error) {
-                console.error("Veri çekme hatası:", error);
+                document.getElementById('avgQuestion').innerText = (totalQ / entries.length).toFixed(1);
+            } catch (err) {
+                console.error('Veri çekme hatası:', err);
             }
         }
 
-        setInterval(fetchStudents, 3000);
+        // Init
+        updateButtons();
+        setInterval(fetchStudents, 5000);
         fetchStudents();
     </script>
 </body>
