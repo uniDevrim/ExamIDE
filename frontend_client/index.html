@@ -15,6 +15,84 @@
     <link href="style.css" rel="stylesheet">
     
     <script src="config.js"></script>
+
+    <style>
+        /* ── Exam Status Overlays ── */
+        .exam-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9990;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .exam-overlay.active {
+            display: flex;
+        }
+
+        [data-theme="dark"] .exam-overlay {
+            background: rgba(10, 15, 30, 0.82);
+        }
+
+        [data-theme="light"] .exam-overlay {
+            background: rgba(240, 244, 248, 0.82);
+        }
+
+        .overlay-icon-ring {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+        }
+
+        #overlayWaiting  .overlay-icon-ring { background: rgba(59,130,246,0.15); color: #3b82f6; border: 2px solid rgba(59,130,246,0.3); }
+        #overlayPaused   .overlay-icon-ring { background: rgba(245,158,11,0.15); color: #f59e0b; border: 2px solid rgba(245,158,11,0.3); }
+        #overlayEnded    .overlay-icon-ring { background: rgba(239,68,68,0.15);  color: #ef4444; border: 2px solid rgba(239,68,68,0.3); }
+
+        .overlay-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary, #e4e4e7);
+        }
+
+        .overlay-sub {
+            font-size: 0.9rem;
+            color: var(--text-muted, #71717a);
+            max-width: 360px;
+            line-height: 1.6;
+        }
+
+        .overlay-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        #overlayWaiting .overlay-badge  { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.25); }
+        #overlayPaused  .overlay-badge  { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        #overlayEnded   .overlay-badge  { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+        @keyframes overlayPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.7; transform: scale(0.97); }
+        }
+
+        .overlay-pulse-anim { animation: overlayPulse 2.5s ease-in-out infinite; }
+    </style>
 </head>
 
 <body>
@@ -209,6 +287,40 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ================================================
+         Exam Status Overlays (admin kontrolüne göre açılır)
+         ================================================ -->
+
+    <!-- WAITING: Sınav Henüz Başlamadı -->
+    <div class="exam-overlay" id="overlayWaiting">
+        <div class="overlay-icon-ring overlay-pulse-anim">
+            <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="overlay-title">Sınav Henüz Başlamadı</div>
+        <div class="overlay-sub">Sınav başlatıldığında ekranınız otomatik olarak açılacaktır.</div>
+        <div class="overlay-badge"><i class="bi bi-clock-history"></i> Admin sınavı başlatmayı bekliyor</div>
+    </div>
+
+    <!-- PAUSED: Sınav Duraklatıldı -->
+    <div class="exam-overlay" id="overlayPaused">
+        <div class="overlay-icon-ring">
+            <i class="bi bi-pause-circle-fill"></i>
+        </div>
+        <div class="overlay-title">Sınav Duraklatıldı</div>
+        <div class="overlay-sub">Admin sınavı geçici olarak duraklatıldı. Lütfen bekleyin, sınav devam edince ekranınız tekrar açılacaktır.</div>
+        <div class="overlay-badge"><i class="bi bi-pause-fill"></i> Duraklatıldı</div>
+    </div>
+
+    <!-- ENDED: Sınav Sona Erdi -->
+    <div class="exam-overlay" id="overlayEnded">
+        <div class="overlay-icon-ring">
+            <i class="bi bi-flag-fill"></i>
+        </div>
+        <div class="overlay-title">Sınav Sona Erdi</div>
+        <div class="overlay-sub">Sınav admin tarafından sonlandırıldı. Cevaplarınız kaydedilmiştir.</div>
+        <div class="overlay-badge"><i class="bi bi-check-circle-fill"></i> Sona Erdi</div>
     </div>
 
     <!-- Toast Container -->

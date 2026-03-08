@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from ..execution_pool import pool_manager
 import time
 import json
@@ -6,6 +6,19 @@ import os
 from datetime import datetime
 
 client_bp = Blueprint('client_bp', __name__)
+
+
+@client_bp.route('/exam/status', methods=['GET'])
+def exam_status():
+    """
+    Öğrencilerin her 3 saniyede bir polling yaptığı endpoint.
+    Giriş yapmış herhangi bir kullanıcı erişebilir (admin değil).
+    Test case CEVAPLARI döndürülmez — yalnızca örnek input/output.
+    """
+    if 'user' not in session and not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    return jsonify(pool_manager.get_exam_status()), 200
 
 @client_bp.route('/run', methods=['POST'])
 def run_code():

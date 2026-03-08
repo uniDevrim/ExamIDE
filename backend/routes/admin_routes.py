@@ -36,18 +36,70 @@ def get_students():
 
 @admin_bp.route('/start_exam', methods=['POST'])
 def start_exam():
-    data = request.json
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.json or {}
     language = data.get('language')
-    
+    exam_data = data.get('exam_data')  # yüklenen JSON verisinin tamamı
+
     if not language:
         return jsonify({"error": "Language required"}), 400
-        
-    if language not in ["python", "cpp", "csharp"]:
+
+    if language.lower() not in ["python", "cpp", "csharp"]:
         return jsonify({"error": "Unsupported language"}), 400
 
-    pool_manager.set_exam_language(language)
-    
+    pool_manager.set_exam_language(language.lower())
+
+    if exam_data:
+        pool_manager.set_exam_data(exam_data)
+
+    pool_manager.set_exam_state("running")
+
     return jsonify({"status": "Exam started", "mode": language}), 200
+
+
+@admin_bp.route('/pause_exam', methods=['POST'])
+def pause_exam():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if pool_manager.exam_state != "running":
+        return jsonify({"error": "Exam is not running"}), 400
+
+    pool_manager.set_exam_state("paused")
+    return jsonify({"status": "Exam paused"}), 200
+
+
+@admin_bp.route('/resume_exam', methods=['POST'])
+def resume_exam():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if pool_manager.exam_state != "paused":
+        return jsonify({"error": "Exam is not paused"}), 400
+
+    pool_manager.set_exam_state("running")
+    return jsonify({"status": "Exam resumed"}), 200
+
+
+@admin_bp.route('/end_exam', methods=['POST'])
+def end_exam():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if pool_manager.exam_state not in ("running", "paused"):
+        return jsonify({"error": "No active exam"}), 400
+
+    pool_manager.set_exam_state("ended")
+    return jsonify({"status": "Exam ended"}), 200
+
+
+@admin_bp.route('/exam/status')
+def admin_exam_status():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    return jsonify(pool_manager.get_exam_status()), 200
 
 
 # ---------------------------------------------------------------

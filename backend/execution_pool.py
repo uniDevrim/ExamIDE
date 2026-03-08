@@ -31,7 +31,14 @@ class WarmContainerPool:
         self.monitor_thread.start()
 
         self.students = {}
-        
+
+        # Exam state
+        self.exam_state            = "idle"   # idle | running | paused | ended
+        self.exam_data             = {}       # yüklenen JSON verisi
+        self.exam_started_at       = None     # datetime — sınav başladığında
+        self.exam_paused_at        = None     # datetime — son duraklama anı
+        self.exam_total_paused_secs = 0.0    # toplam duraklatılan süre (saniye)
+
         atexit.register(self.shutdown)
 
     def add_student(self, ip, data):
@@ -45,6 +52,104 @@ class WarmContainerPool:
             self.students[ip]['question'] = question_no
             from datetime import datetime
             self.students[ip]['timestamp'] = datetime.now().strftime("%H:%M:%S")
+
+    # ── Exam State ─────────────────────────────────────────────
+    def set_exam_data(self, data: dict):
+        """Admin JSON yükleyince çağrılır."""
+        self.exam_data = data
+
+    def set_exam_state(self, state: str):
+        """idle | running | paused | ended"""
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        prev = self.exam_state
+
+        if state == "running":
+            if prev == "idle" and self.exam_started_at is None:
+                # İlk kez başlıyor
+                self.exam_started_at = now
+            elif prev == "paused" and self.exam_paused_at is not None:
+                # Resume: duraklatma süresini toplama ekle
+                paused_dur = (now - self.exam_paused_at).total_seconds()
+                self.exam_total_paused_secs += paused_dur
+                self.exam_paused_at = None
+
+        elif state == "paused" and prev == "running":
+            self.exam_paused_at = now
+
+        elif state in ("idle", "ended"):
+            # Sınav sona erdi, duraklama varsa kapat
+            if self.exam_paused_at is not None:
+                paused_dur = (now - self.exam_paused_at).total_seconds()
+                self.exam_total_paused_secs += paused_dur
+                self.exam_paused_at = None
+
+        self.exam_state = state
+
+    def _remaining_seconds(self) -> float:
+        """Kalan süreyi saniye cinsinden hesaplar."""
+        from datetime import datetime, timezone
+        raw_time = self.exam_data.get("time", "")
+        if not raw_time or self.exam_started_at is None:
+            return -1  # bilinmiyor
+
+        # Toplam süresi saniyeye çevir
+        total = self._parse_time_secs(str(raw_time).strip())
+        if total <= 0:
+            return -1
+
+        now = datetime.now(timezone.utc)
+        elapsed = (now - self.exam_started_at).total_seconds()
+        paused  = self.exam_total_paused_secs
+        # Hâlâ duraklatılmışsa o süreyi de çıkar
+        if self.exam_paused_at is not None:
+            paused += (now - self.exam_paused_at).total_seconds()
+
+        remaining = total - (elapsed - paused)
+        return max(remaining, 0)
+
+    @staticmethod
+    def _parse_time_secs(s: str) -> float:
+        """'90' -> 5400, '01:30:00' -> 5400"""
+        if ":" in s:
+            parts = list(map(float, s.split(":")))
+            if len(parts) == 3:
+                return parts[0]*3600 + parts[1]*60 + parts[2]
+            if len(parts) == 2:
+                return parts[0]*60 + parts[1]
+        try:
+            n = float(s)
+            return n * 60  # sayı ise dakika kabul et
+        except ValueError:
+            return 0
+
+    def get_exam_status(self) -> dict:
+        """Client polling için durum + soru verisi döner (test case cevapları HARİÇ)."""
+        questions_safe = {}
+        raw_questions = self.exam_data.get("questions", {})
+        for key, q in raw_questions.items():
+            questions_safe[key] = {
+                "title"          : q.get("title", ""),
+                "description"    : q.get("description", ""),
+                "test-cases"     : q.get("test-cases", []),
+                "run-time-limit" : q.get("run-time-limit", 5),
+                "memory-limit"   : q.get("memory-limit", 1024),
+                "points"         : q.get("points", 0),
+            }
+        exam_meta = {
+            "name"        : self.exam_data.get("name", ""),
+            "description" : self.exam_data.get("description", ""),
+            "time"        : self.exam_data.get("time", ""),
+            "language"    : self.exam_data.get("language", ""),
+        } if self.exam_data else {}
+        return {
+            "state"             : self.exam_state,
+            "started_at"        : self.exam_started_at.isoformat() if self.exam_started_at else None,
+            "remaining_seconds" : self._remaining_seconds(),   # <-- kalan süre
+            "exam"              : exam_meta,
+            "questions"         : questions_safe,
+        }
+    # ────────────────────────────────────────────────────────────
 
     def run_grader_container(self, student_code, language, exam_id=None):
         print(f"[+] Grader başlatılıyor... Dil: {language}")

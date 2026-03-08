@@ -1,0 +1,21 @@
+{
+  "name": "Sınav Adı",
+  "description": "Sınav Açıklaması",
+  "time": "90",
+  "language": "Python",
+  "questions": {
+    "1": {
+      "title": "Soru Başlığı",
+      "description": "Soru Açıklaması",
+      "test-cases": [
+        {
+          "input": "Giriş",
+          "output": "Çıkış"
+        }
+      ],
+      "run-time-limit": 5,
+      "memory-limit": 1024,
+      "points": 10
+    }
+  }
+}

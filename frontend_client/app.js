@@ -223,8 +223,6 @@ const monacoLanguageMap = {
 // Initialize
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    initializeTabs();
-    startTimer();
     setupResizer();
     setupOutputPanel();
     initMonacoEditor();
@@ -235,6 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLanguage = e.target.value;
         loadCodeForCurrentQuestion();
     });
+
+    // Başlatıcı: önce polling ile soru verisi gelsin
+    startStatusPolling();
 });
 
 // ========================================
@@ -490,7 +491,10 @@ function setupResizer() {
 // ========================================
 // Timer
 // ========================================
+let _examTimerStarted = false; // ilk başlatıştı mı?
+
 function startTimer() {
+    if (timerInterval) clearInterval(timerInterval); // öncekini temizle
     updateTimerDisplay();
     timerInterval = setInterval(() => {
         examTimeSeconds--;
@@ -498,6 +502,7 @@ function startTimer() {
 
         if (examTimeSeconds <= 0) {
             clearInterval(timerInterval);
+            timerInterval = null;
             finishExam(true);
         }
     }, 1000);
@@ -809,4 +814,193 @@ function showToast(message, type = 'info') {
         toast.style.animation = 'slideOut 0.3s ease forwards';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
+}
+
+// ========================================
+// Exam Status Polling
+// ========================================
+
+let _lastExamState   = null;   // önceki state (ilk yüklemeyi tetiklemek için)
+let _questionsLoaded = false;  // sorular bir kez yüklenince false'a dönmesin
+let _pollingInterval = null;
+
+/**
+ * Her 3 saniyede bir /api/client/exam/status'a istek atar.
+ * State değiştikçe UI'yi günceller.
+ */
+function startStatusPolling() {
+    doPoll();                           // hemen ilk istek
+    _pollingInterval = setInterval(doPoll, 3000);
+}
+
+async function doPoll() {
+    try {
+        const res = await fetch('/api/client/exam/status');
+        if (!res.ok) return;
+        const status = await res.json();
+        handleExamStatus(status);
+    } catch (e) {
+        // ağ hatası — sessizce geç
+    }
+}
+
+/**
+ * API yanıtını işler ve UI durumunu güncelller.
+ * @param {Object} status - { state, exam, questions, started_at }
+ */
+function handleExamStatus(status) {
+    const state     = status.state;         // idle | running | paused | ended
+    const examData  = status.exam || {};
+    const questions_api = status.questions || {};
+
+    const stateChanged = (state !== _lastExamState);
+    _lastExamState = state;
+
+    // ─── Overlay kontrolü ───────────────────────────────────────────
+    const overlays = {
+        waiting : document.getElementById('overlayWaiting'),
+        paused  : document.getElementById('overlayPaused'),
+        ended   : document.getElementById('overlayEnded'),
+    };
+
+    // Tümünü kapat, sonra doğrusunu aç
+    Object.values(overlays).forEach(el => el && el.classList.remove('active'));
+
+    if (state === 'idle') {
+        overlays.waiting && overlays.waiting.classList.add('active');
+        _setEditorReadOnly(true);
+    } else if (state === 'paused') {
+        overlays.paused && overlays.paused.classList.add('active');
+        _setEditorReadOnly(true);
+    } else if (state === 'ended') {
+        overlays.ended && overlays.ended.classList.add('active');
+        _setEditorReadOnly(true);
+        clearInterval(_pollingInterval); // artık poll etmeye gerek yok
+    } else if (state === 'running') {
+        // Tüm overlay'ler kapatıldı, editörü aç
+        _setEditorReadOnly(false);
+    }
+
+    // ─── Soruları yükle (yalnızca ilk kez, running durumunda) ────────
+    if (state === 'running' && !_questionsLoaded) {
+        const qKeys = Object.keys(questions_api);
+        if (qKeys.length > 0) {
+            _loadQuestionsFromApi(questions_api, examData);
+            _questionsLoaded = true;
+        }
+    }
+
+    // ─── Timer: API'dan gelen kalan süreyi kullan ───────────────────
+    const remainingSecs = (typeof status.remaining_seconds === 'number' && status.remaining_seconds >= 0)
+        ? Math.round(status.remaining_seconds)
+        : null;
+
+    if (state === 'idle') {
+        // Sınav başlamadı: JSON'daki tam süreyi göster, saydırma
+        if (remainingSecs === null && examData.time) {
+            examTimeSeconds = _parseTimeSecs(examData.time);
+        } else if (remainingSecs !== null) {
+            examTimeSeconds = remainingSecs;
+        }
+        if (!timerInterval) updateTimerDisplay();
+    }
+
+    if (state === 'running') {
+        // Her poll'da kalan süreyi senkronize et (sayfa yenileme de dahil)
+        if (remainingSecs !== null) {
+            examTimeSeconds = remainingSecs;
+        }
+        // Sayaç çalışmıyorsa başlat
+        if (!timerInterval) {
+            _examTimerStarted = true;
+            startTimer();
+        }
+    }
+
+    // paused olunca saydırmayı durdur, kalan süreyi ekranda dondur
+    if (state === 'paused') {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        // Kalan süreyi doğru göster
+        if (remainingSecs !== null) {
+            examTimeSeconds = remainingSecs;
+            updateTimerDisplay();
+        }
+    }
+
+    if (state === 'ended' && timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+/** time alanını saniyeye çevirir. '90' => 5400, '01:30:00' => 5400 */
+function _parseTimeSecs(time) {
+    if (!time) return 0;
+    const s = String(time).trim();
+    if (s.includes(':')) {
+        const parts = s.split(':').map(Number);
+        if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+        if (parts.length === 2) return parts[0]*60 + parts[1];
+    }
+    const n = parseInt(s, 10);
+    return isNaN(n) ? 0 : n * 60; // düzce sayı ise dakika kabul et
+}
+
+/** Editörü read-only veya yazılabilir yapar */
+function _setEditorReadOnly(readonly) {
+    if (monacoEditor) {
+        monacoEditor.updateOptions({ readOnly: readonly });
+    }
+}
+
+/**
+ * API'dan gelen soruları yerel `questions` dizisine çevirir
+ * ve mevcut soru sistemini çalıştırır.
+ */
+function _loadQuestionsFromApi(questionsObj, examData) {
+    // Dil: API'dan gelen language alanı
+    const lang = (examData.language || 'python').toLowerCase();
+    if (['python', 'cpp', 'csharp'].includes(lang)) {
+        currentLanguage = lang === 'csharp' ? 'cpp' : lang;
+        const sel = document.getElementById('languageSelect');
+        if (sel) sel.value = currentLanguage;
+    }
+
+    // soruları yeniden oluştur
+    questions.length = 0;  // dizini temizle
+    Object.keys(questionsObj).forEach((key, idx) => {
+        const q = questionsObj[key];
+        const examples = (q['test-cases'] || []).map((tc, i) => ({
+            input       : tc.input  ?? '',
+            output      : tc.output ?? '',
+            explanation : ''
+        }));
+        questions.push({
+            id          : parseInt(key, 10) || (idx + 1),
+            title       : q.title || `Soru ${key}`,
+            difficulty  : 'medium',
+            points      : q.points || 0,
+            category    : '',
+            description : q.description || '',
+            examples,
+            constraints : [
+                `Çalışma süresi sınırı: ${q['run-time-limit']} saniye`,
+                `Bellek sınırı: ${q['memory-limit']} MB`,
+            ],
+            starterCode : {
+                python : `# Kodunuzu buraya yazın\n`,
+                cpp    : `// Kodunuzu buraya yazın\n`,
+                java   : `// Kodunuzu buraya yazın\n`,
+                c      : `// Kodunuzu buraya yazın\n`,
+            }
+        });
+    });
+
+    // Tab + soru panelini güncelle
+    currentQuestion = 0;
+    initializeTabs();
+    loadQuestion(0);
 }

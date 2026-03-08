@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
         [data-theme="dark"] {
@@ -28,8 +31,8 @@
             --accent-info: #06b6d4;
             --border-color: #2a3a5c;
             --border-light: #334155;
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         [data-theme="light"] {
@@ -50,14 +53,23 @@
             --accent-info: #0891b2;
             --border-color: #e2e8f0;
             --border-light: #cbd5e1;
-            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
 
-        :root { --transition-fast: 0.15s ease; --transition-theme: 0.3s ease; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --transition-fast: 0.15s ease;
+            --transition-theme: 0.3s ease;
+        }
 
-        html, body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
             min-height: 100%;
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-primary);
@@ -65,10 +77,23 @@
             transition: background-color var(--transition-theme), color var(--transition-theme);
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-primary); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
 
         /* ── Navbar ── */
         .admin-navbar {
@@ -103,16 +128,23 @@
             text-decoration: none;
         }
 
-        .navbar-brand i { color: var(--accent-primary); font-size: 1.1rem; }
+        .navbar-brand i {
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+        }
 
-        .navbar-right { display: flex; align-items: center; gap: 10px; }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
         .live-badge {
             display: flex;
             align-items: center;
             gap: 7px;
-            background: rgba(34,197,94,0.1);
-            border: 1px solid rgba(34,197,94,0.25);
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.25);
             padding: 5px 13px;
             border-radius: 8px;
             font-size: 0.78rem;
@@ -122,29 +154,47 @@
         }
 
         .live-dot {
-            width: 7px; height: 7px;
+            width: 7px;
+            height: 7px;
             background: var(--accent-success);
             border-radius: 50%;
             animation: livePulse 1.8s ease-in-out infinite;
         }
 
         @keyframes livePulse {
-            0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-            50%      { opacity:0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+            }
+
+            50% {
+                opacity: 0.7;
+                box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+            }
         }
 
         .btn-theme-toggle {
-            display: flex; align-items: center; justify-content: center;
-            width: 36px; height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.2);
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             color: var(--accent-primary);
             font-size: 1rem;
             cursor: pointer;
             transition: all var(--transition-fast);
         }
-        .btn-theme-toggle:hover { background: rgba(59,130,246,0.2); border-color: var(--accent-primary); transform: scale(1.05); }
+
+        .btn-theme-toggle:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
 
         /* ── Dashboard ── */
         .dashboard-container {
@@ -153,7 +203,9 @@
             margin: 0 auto;
         }
 
-        .page-header { margin-bottom: 1.75rem; }
+        .page-header {
+            margin-bottom: 1.75rem;
+        }
 
         .page-title {
             font-size: 1.35rem;
@@ -164,8 +216,15 @@
             gap: 10px;
         }
 
-        .page-title i { color: var(--accent-primary); }
-        .page-subtitle { font-size: 0.82rem; color: var(--text-muted); margin-top: 4px; }
+        .page-title i {
+            color: var(--accent-primary);
+        }
+
+        .page-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
         /* ── Stats Grid ── */
         .stats-grid {
@@ -191,30 +250,60 @@
         .stats-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             height: 2px;
             background: var(--card-accent, var(--accent-primary));
             opacity: 0.7;
         }
 
-        .stats-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .stats-card.blue   { --card-accent: var(--accent-primary); }
-        .stats-card.orange { --card-accent: var(--accent-warning); }
-        .stats-card.green  { --card-accent: var(--accent-success); }
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stats-card.blue {
+            --card-accent: var(--accent-primary);
+        }
+
+        .stats-card.orange {
+            --card-accent: var(--accent-warning);
+        }
+
+        .stats-card.green {
+            --card-accent: var(--accent-success);
+        }
 
         .stats-icon {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.3rem;
             flex-shrink: 0;
         }
 
-        .stats-icon.blue   { background: rgba(59,130,246,0.12); color: var(--accent-primary); }
-        .stats-icon.orange { background: rgba(245,158,11,0.12); color: var(--accent-warning); }
-        .stats-icon.green  { background: rgba(34,197,94,0.12);  color: var(--accent-success); }
+        .stats-icon.blue {
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--accent-primary);
+        }
 
-        .stats-info { flex: 1; }
+        .stats-icon.orange {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--accent-warning);
+        }
+
+        .stats-icon.green {
+            background: rgba(34, 197, 94, 0.12);
+            color: var(--accent-success);
+        }
+
+        .stats-info {
+            flex: 1;
+        }
 
         .stats-label {
             font-size: 0.75rem;
@@ -233,9 +322,17 @@
             line-height: 1;
         }
 
-        .stats-number.blue   { color: var(--accent-primary); }
-        .stats-number.orange { color: var(--accent-warning); }
-        .stats-number.green  { color: var(--accent-success); }
+        .stats-number.blue {
+            color: var(--accent-primary);
+        }
+
+        .stats-number.orange {
+            color: var(--accent-warning);
+        }
+
+        .stats-number.green {
+            color: var(--accent-success);
+        }
 
         /* ═══════════════════════════════════════
            EXAM CONTROL PANEL
@@ -268,7 +365,9 @@
             gap: 8px;
         }
 
-        .control-panel-title i { color: var(--accent-primary); }
+        .control-panel-title i {
+            color: var(--accent-primary);
+        }
 
         .exam-state-badge {
             display: inline-flex;
@@ -284,36 +383,39 @@
         }
 
         .exam-state-badge.idle {
-            background: rgba(113,113,122,0.15);
-            border: 1px solid rgba(113,113,122,0.3);
+            background: rgba(113, 113, 122, 0.15);
+            border: 1px solid rgba(113, 113, 122, 0.3);
             color: var(--text-muted);
         }
 
         .exam-state-badge.running {
-            background: rgba(34,197,94,0.1);
-            border: 1px solid rgba(34,197,94,0.3);
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
             color: var(--accent-success);
         }
 
         .exam-state-badge.paused {
-            background: rgba(245,158,11,0.1);
-            border: 1px solid rgba(245,158,11,0.3);
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             color: var(--accent-warning);
         }
 
         .exam-state-badge.ended {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             color: var(--accent-danger);
         }
 
         .state-dot-badge {
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: currentColor;
         }
 
-        .exam-state-badge.running .state-dot-badge { animation: livePulse 1.8s infinite; }
+        .exam-state-badge.running .state-dot-badge {
+            animation: livePulse 1.8s infinite;
+        }
 
         .control-panel-body {
             padding: 1.5rem;
@@ -328,7 +430,7 @@
         }
 
         /* ── Upload Zone ── */
-        .upload-section { }
+        .upload-section {}
 
         .upload-label {
             font-size: 0.78rem;
@@ -342,7 +444,9 @@
             gap: 6px;
         }
 
-        .upload-label i { color: var(--accent-primary); }
+        .upload-label i {
+            color: var(--accent-primary);
+        }
 
         .upload-dropzone {
             border: 2px dashed var(--border-color);
@@ -351,13 +455,14 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.25s ease;
-            background: rgba(59,130,246,0.02);
+            background: rgba(59, 130, 246, 0.02);
             position: relative;
         }
 
-        .upload-dropzone:hover, .upload-dropzone.dragover {
+        .upload-dropzone:hover,
+        .upload-dropzone.dragover {
             border-color: var(--accent-primary);
-            background: rgba(59,130,246,0.06);
+            background: rgba(59, 130, 246, 0.06);
         }
 
         .upload-dropzone input[type="file"] {
@@ -376,7 +481,9 @@
             transition: color 0.2s;
         }
 
-        .upload-dropzone:hover .upload-icon { color: var(--accent-primary); }
+        .upload-dropzone:hover .upload-icon {
+            color: var(--accent-primary);
+        }
 
         .upload-hint {
             font-size: 0.8rem;
@@ -384,33 +491,43 @@
             line-height: 1.5;
         }
 
-        .upload-hint strong { color: var(--accent-primary); }
+        .upload-hint strong {
+            color: var(--accent-primary);
+        }
 
         /* Loaded file indicator */
         .file-loaded {
             display: none;
             align-items: center;
             gap: 10px;
-            background: rgba(34,197,94,0.08);
-            border: 1px solid rgba(34,197,94,0.25);
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
             border-radius: 10px;
             padding: 0.75rem 1rem;
             margin-top: 0.75rem;
         }
 
-        .file-loaded.visible { display: flex; }
+        .file-loaded.visible {
+            display: flex;
+        }
 
         .file-loaded-icon {
-            width: 34px; height: 34px;
-            background: rgba(34,197,94,0.15);
+            width: 34px;
+            height: 34px;
+            background: rgba(34, 197, 94, 0.15);
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--accent-success);
             font-size: 1rem;
             flex-shrink: 0;
         }
 
-        .file-loaded-info { flex: 1; min-width: 0; }
+        .file-loaded-info {
+            flex: 1;
+            min-width: 0;
+        }
 
         .file-loaded-name {
             font-size: 0.82rem;
@@ -440,10 +557,12 @@
             flex-shrink: 0;
         }
 
-        .btn-remove-file:hover { color: var(--accent-danger); }
+        .btn-remove-file:hover {
+            color: var(--accent-danger);
+        }
 
         /* ── Exam Actions ── */
-        .actions-section { }
+        .actions-section {}
 
         .actions-label {
             font-size: 0.78rem;
@@ -457,7 +576,9 @@
             gap: 6px;
         }
 
-        .actions-label i { color: var(--accent-primary); }
+        .actions-label i {
+            color: var(--accent-primary);
+        }
 
         .actions-grid {
             display: grid;
@@ -490,7 +611,9 @@
             transition: opacity 0.15s;
         }
 
-        .btn-exam:active::after { opacity: 0.07; }
+        .btn-exam:active::after {
+            opacity: 0.07;
+        }
 
         .btn-exam:disabled {
             opacity: 0.35;
@@ -498,51 +621,53 @@
             transform: none !important;
         }
 
-        .btn-exam:not(:disabled):hover { transform: translateY(-1px); }
+        .btn-exam:not(:disabled):hover {
+            transform: translateY(-1px);
+        }
 
         /* Start */
         .btn-start {
             background: linear-gradient(135deg, #16a34a, #22c55e);
             color: #fff;
-            box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
             grid-column: 1 / -1;
         }
 
         .btn-start:not(:disabled):hover {
-            box-shadow: 0 6px 20px rgba(34,197,94,0.45);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
         }
 
         /* Pause */
         .btn-pause {
-            background: rgba(245,158,11,0.12);
-            border: 1px solid rgba(245,158,11,0.35) !important;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35) !important;
             color: var(--accent-warning);
         }
 
         .btn-pause:not(:disabled):hover {
-            background: rgba(245,158,11,0.2);
+            background: rgba(245, 158, 11, 0.2);
         }
 
         /* Resume */
         .btn-resume {
-            background: rgba(59,130,246,0.12);
-            border: 1px solid rgba(59,130,246,0.35) !important;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.35) !important;
             color: var(--accent-primary);
         }
 
         .btn-resume:not(:disabled):hover {
-            background: rgba(59,130,246,0.2);
+            background: rgba(59, 130, 246, 0.2);
         }
 
         /* End */
         .btn-end {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3) !important;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
             color: var(--accent-danger);
         }
 
         .btn-end:not(:disabled):hover {
-            background: rgba(239,68,68,0.2);
+            background: rgba(239, 68, 68, 0.2);
         }
 
         /* ── Timer area ── */
@@ -551,11 +676,15 @@
             align-items: center;
             gap: 1.5rem;
             padding: 1rem 1.5rem;
-            background: rgba(59,130,246,0.04);
+            background: rgba(59, 130, 246, 0.04);
             border-top: 1px solid var(--border-color);
         }
 
-        .timer-block { display: flex; align-items: center; gap: 8px; }
+        .timer-block {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .timer-label {
             font-size: 0.72rem;
@@ -573,8 +702,13 @@
             min-width: 70px;
         }
 
-        .timer-value.running { color: var(--accent-success); }
-        .timer-value.paused  { color: var(--accent-warning); }
+        .timer-value.running {
+            color: var(--accent-success);
+        }
+
+        .timer-value.paused {
+            color: var(--accent-warning);
+        }
 
         .divider-v {
             width: 1px;
@@ -592,7 +726,9 @@
             margin-left: auto;
         }
 
-        .questions-loaded-info i { color: var(--accent-primary); }
+        .questions-loaded-info i {
+            color: var(--accent-primary);
+        }
 
         .q-count {
             font-family: 'JetBrains Mono', monospace;
@@ -626,27 +762,47 @@
         }
 
         @keyframes toastIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to   { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
-        .toast-item.success { background: #16a34a; }
-        .toast-item.warning { background: #d97706; }
-        .toast-item.danger  { background: #dc2626; }
-        .toast-item.info    { background: #0891b2; }
+        .toast-item.success {
+            background: #16a34a;
+        }
+
+        .toast-item.warning {
+            background: #d97706;
+        }
+
+        .toast-item.danger {
+            background: #dc2626;
+        }
+
+        .toast-item.info {
+            background: #0891b2;
+        }
 
         /* ── Modal Confirm ── */
         .modal-confirm-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 2000;
             align-items: center;
             justify-content: center;
         }
 
-        .modal-confirm-overlay.visible { display: flex; }
+        .modal-confirm-overlay.visible {
+            display: flex;
+        }
 
         .modal-confirm-box {
             background: var(--bg-secondary);
@@ -660,15 +816,25 @@
         }
 
         @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.94); }
-            to   { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .modal-confirm-icon {
-            width: 52px; height: 52px;
+            width: 52px;
+            height: 52px;
             border-radius: 14px;
-            background: rgba(239,68,68,0.12);
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(239, 68, 68, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.5rem;
             color: var(--accent-danger);
             margin-bottom: 1rem;
@@ -697,7 +863,7 @@
         .btn-modal-cancel {
             padding: 0.55rem 1.2rem;
             border-radius: 8px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             font-size: 0.82rem;
@@ -706,7 +872,9 @@
             transition: all 0.15s;
         }
 
-        .btn-modal-cancel:hover { background: rgba(255,255,255,0.1); }
+        .btn-modal-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
 
         .btn-modal-confirm {
             padding: 0.55rem 1.2rem;
@@ -720,31 +888,35 @@
             transition: all 0.15s;
         }
 
-        .btn-modal-confirm:hover { background: #b91c1c; }
+        .btn-modal-confirm:hover {
+            background: #b91c1c;
+        }
 
         /* ── JSON Error Modal ── */
         .json-error-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.75);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 3000;
             align-items: center;
             justify-content: center;
             padding: 1rem;
         }
 
-        .json-error-overlay.visible { display: flex; }
+        .json-error-overlay.visible {
+            display: flex;
+        }
 
         .json-error-box {
             background: var(--bg-secondary);
-            border: 1px solid rgba(239,68,68,0.4);
+            border: 1px solid rgba(239, 68, 68, 0.4);
             border-radius: 18px;
             padding: 0;
             width: 520px;
             max-width: 95vw;
             max-height: 90vh;
-            box-shadow: 0 20px 60px rgba(239,68,68,0.15), var(--shadow-lg);
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.15), var(--shadow-lg);
             animation: modalIn 0.25s ease;
             overflow: hidden;
             display: flex;
@@ -753,25 +925,30 @@
 
         .json-error-header {
             padding: 1.25rem 1.5rem 1rem;
-            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
-            border-bottom: 1px solid rgba(239,68,68,0.2);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.04));
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
             display: flex;
             align-items: flex-start;
             gap: 1rem;
         }
 
         .json-error-header-icon {
-            width: 44px; height: 44px;
+            width: 44px;
+            height: 44px;
             border-radius: 12px;
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.25);
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.3rem;
             color: var(--accent-danger);
             flex-shrink: 0;
         }
 
-        .json-error-header-text { flex: 1; }
+        .json-error-header-text {
+            flex: 1;
+        }
 
         .json-error-title {
             font-size: 1rem;
@@ -804,7 +981,9 @@
             gap: 6px;
         }
 
-        .json-error-section-label i { color: var(--accent-danger); }
+        .json-error-section-label i {
+            color: var(--accent-danger);
+        }
 
         .json-error-list {
             list-style: none;
@@ -818,8 +997,8 @@
         .json-error-list li {
             font-size: 0.82rem;
             color: var(--text-secondary);
-            background: rgba(239,68,68,0.06);
-            border: 1px solid rgba(239,68,68,0.15);
+            background: rgba(239, 68, 68, 0.06);
+            border: 1px solid rgba(239, 68, 68, 0.15);
             border-left: 3px solid var(--accent-danger);
             border-radius: 8px;
             padding: 0.55rem 0.85rem;
@@ -829,7 +1008,11 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .json-error-list li i { color: var(--accent-danger); font-style: normal; font-size: 0.78rem; }
+        .json-error-list li i {
+            color: var(--accent-danger);
+            font-style: normal;
+            font-size: 0.78rem;
+        }
 
         .json-schema-block {
             background: var(--bg-editor);
@@ -844,10 +1027,22 @@
             white-space: pre;
         }
 
-        .json-schema-block .sch-key   { color: #93c5fd; }
-        .json-schema-block .sch-str   { color: #86efac; }
-        .json-schema-block .sch-num   { color: #fca5a5; }
-        .json-schema-block .sch-req   { color: #fcd34d; font-weight: 600; }
+        .json-schema-block .sch-key {
+            color: #93c5fd;
+        }
+
+        .json-schema-block .sch-str {
+            color: #86efac;
+        }
+
+        .json-schema-block .sch-num {
+            color: #fca5a5;
+        }
+
+        .json-schema-block .sch-req {
+            color: #fcd34d;
+            font-weight: 600;
+        }
 
         .json-error-footer {
             padding: 1rem 1.5rem;
@@ -856,7 +1051,7 @@
             align-items: center;
             justify-content: flex-end;
             gap: 0.65rem;
-            background: rgba(0,0,0,0.08);
+            background: rgba(0, 0, 0, 0.08);
         }
 
         .btn-json-close {
@@ -874,7 +1069,10 @@
             gap: 7px;
         }
 
-        .btn-json-close:hover { background: #b91c1c; transform: translateY(-1px); }
+        .btn-json-close:hover {
+            background: #b91c1c;
+            transform: translateY(-1px);
+        }
 
         /* ── Table ── */
         .table-panel {
@@ -904,7 +1102,9 @@
             gap: 8px;
         }
 
-        .table-panel-title i { color: var(--accent-primary); }
+        .table-panel-title i {
+            color: var(--accent-primary);
+        }
 
         .refresh-hint {
             font-size: 0.72rem;
@@ -914,7 +1114,9 @@
             gap: 5px;
         }
 
-        .table-responsive { overflow-x: auto; }
+        .table-responsive {
+            overflow-x: auto;
+        }
 
         .table {
             color: var(--text-primary);
@@ -924,7 +1126,9 @@
             border-collapse: collapse;
         }
 
-        .table thead tr { background: rgba(255,255,255,0.03); }
+        .table thead tr {
+            background: rgba(255, 255, 255, 0.03);
+        }
 
         .table th {
             border-bottom: 1px solid var(--border-color);
@@ -943,29 +1147,40 @@
             font-size: 0.88rem;
         }
 
-        .table tbody tr:last-child td { border-bottom: none; }
-        .table tbody tr { transition: background var(--transition-fast); }
-        .table tbody tr:hover { background: rgba(59,130,246,0.04); }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr {
+            transition: background var(--transition-fast);
+        }
+
+        .table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.04);
+        }
 
         .student-id {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.82rem;
             font-weight: 600;
             color: var(--accent-primary);
-            background: rgba(59,130,246,0.08);
+            background: rgba(59, 130, 246, 0.08);
             padding: 3px 9px;
             border-radius: 6px;
-            border: 1px solid rgba(59,130,246,0.2);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             display: inline-block;
         }
 
-        .student-name { font-weight: 500; color: var(--text-primary); }
+        .student-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
 
         .ip-code {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.78rem;
             color: var(--text-muted);
-            background: rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.04);
             padding: 2px 8px;
             border-radius: 4px;
         }
@@ -974,9 +1189,9 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: rgba(245,158,11,0.1);
+            background: rgba(245, 158, 11, 0.1);
             color: var(--accent-warning);
-            border: 1px solid rgba(245,158,11,0.3);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             padding: 3px 10px;
             border-radius: 6px;
             font-weight: 600;
@@ -994,13 +1209,14 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            background: rgba(34,197,94,0.1);
+            background: rgba(34, 197, 94, 0.1);
             color: var(--accent-success);
-            border: 1px solid rgba(34,197,94,0.3);
+            border: 1px solid rgba(34, 197, 94, 0.3);
         }
 
         .status-dot {
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             background: var(--accent-success);
             border-radius: 50%;
             animation: livePulse 2s ease-in-out infinite;
@@ -1018,14 +1234,49 @@
             color: var(--text-muted);
         }
 
-        .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; display: block; }
-        .empty-state p { font-size: 0.85rem; }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+            display: block;
+        }
 
-        @media (max-width: 900px) { .control-layout { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .dashboard-container { padding: 1rem; } }
-        @media (max-width: 576px) { .live-badge span { display: none; } .actions-grid { grid-template-columns: 1fr; } .btn-start { grid-column: 1 / -1; } }
+        .empty-state p {
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 900px) {
+            .control-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-container {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .live-badge span {
+                display: none;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-start {
+                grid-column: 1 / -1;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Navbar -->
@@ -1056,7 +1307,8 @@
                 <i class="bi bi-grid-1x2-fill"></i>
                 Sınav Takip Paneli
             </div>
-            <div class="page-subtitle">Aktif öğrencilerin sınav durumlarını gerçek zamanlı izleyin ve sınavı yönetin</div>
+            <div class="page-subtitle">Aktif öğrencilerin sınav durumlarını gerçek zamanlı izleyin ve sınavı yönetin
+            </div>
         </div>
 
         <!-- Stats -->
@@ -1221,7 +1473,8 @@
             </div>
             <div class="modal-confirm-title">Sınavı Bitir</div>
             <div class="modal-confirm-desc">
-                Sınavı bitirmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm öğrencilerin bağlantısı kesilecektir.
+                Sınavı bitirmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm öğrencilerin bağlantısı
+                kesilecektir.
             </div>
             <div class="modal-confirm-actions">
                 <button class="btn-modal-cancel" onclick="closeConfirmModal()">İptal</button>
@@ -1241,7 +1494,8 @@
                 </div>
                 <div class="json-error-header-text">
                     <div class="json-error-title">Geçersiz Sınav JSON Yapısı</div>
-                    <div class="json-error-subtitle" id="jsonErrorSubtitle">Yüklenen dosya beklenen şemaya uymuyor.</div>
+                    <div class="json-error-subtitle" id="jsonErrorSubtitle">Yüklenen dosya beklenen şemaya uymuyor.
+                    </div>
                 </div>
             </div>
             <div class="json-error-body">
@@ -1256,21 +1510,25 @@
                     <i class="bi bi-braces"></i> Beklenen Yapı
                 </div>
                 <div class="json-schema-block"><span class="sch-req">{</span>
-  <span class="sch-key">"name"</span>:        <span class="sch-str">"Sınav Adı"</span>,
-  <span class="sch-key">"description"</span>: <span class="sch-str">"Sınav Açıklaması"</span>,
-  <span class="sch-key">"time"</span>:        <span class="sch-str">"Sınav Süresi"</span>,
-  <span class="sch-key">"language"</span>:    <span class="sch-str">"Python"</span>,
-  <span class="sch-key">"questions"</span>: <span class="sch-req">{</span>
-    <span class="sch-key">"1"</span>: <span class="sch-req">{</span>
-      <span class="sch-key">"title"</span>:          <span class="sch-str">"Soru Başlığı"</span>,
-      <span class="sch-key">"description"</span>:  <span class="sch-str">"Soru Açıklaması"</span>,
-      <span class="sch-key">"test-cases"</span>: [ <span class="sch-req">{</span> <span class="sch-key">"input"</span>: <span class="sch-str">"…"</span>, <span class="sch-key">"output"</span>: <span class="sch-str">"…"</span> <span class="sch-req">}</span> ],
-      <span class="sch-key">"run-time-limit"</span>: <span class="sch-num">5</span>,
-      <span class="sch-key">"memory-limit"</span>:  <span class="sch-num">1024</span>,
-      <span class="sch-key">"points"</span>:        <span class="sch-num">10</span>
-    <span class="sch-req">}</span>
-  <span class="sch-req">}</span>
-<span class="sch-req">}</span></div>
+                    <span class="sch-key">"name"</span>: <span class="sch-str">"Sınav Adı"</span>,
+                    <span class="sch-key">"description"</span>: <span class="sch-str">"Sınav Açıklaması"</span>,
+                    <span class="sch-key">"time"</span>: <span class="sch-str">"Sınav Süresi"</span>,
+                    <span class="sch-key">"language"</span>: <span class="sch-str">"Python"</span>,
+                    <span class="sch-key">"questions"</span>: <span class="sch-req">{</span>
+                    <span class="sch-key">"1"</span>: <span class="sch-req">{</span>
+                    <span class="sch-key">"title"</span>: <span class="sch-str">"Soru Başlığı"</span>,
+                    <span class="sch-key">"description"</span>: <span class="sch-str">"Soru Açıklaması"</span>,
+                    <span class="sch-key">"test-cases"</span>: [ <span class="sch-req">{</span> <span
+                        class="sch-key">"input"</span>: <span class="sch-str">"…"</span>, <span
+                        class="sch-key">"output"</span>: <span class="sch-str">"…"</span> <span class="sch-req">}</span>
+                    ],
+                    <span class="sch-key">"run-time-limit"</span>: <span class="sch-num">5</span>,
+                    <span class="sch-key">"memory-limit"</span>: <span class="sch-num">1024</span>,
+                    <span class="sch-key">"points"</span>: <span class="sch-num">10</span>
+                    <span class="sch-req">}</span>
+                    <span class="sch-req">}</span>
+                    <span class="sch-req">}</span>
+                </div>
             </div>
             <div class="json-error-footer">
                 <button class="btn-json-close" onclick="closeJsonErrorModal()">
@@ -1299,9 +1557,9 @@
         /* ─────────────────────────────────────
            State
         ───────────────────────────────────── */
-        let examState   = 'idle';   // idle | running | paused | ended
-        let jsonLoaded  = false;
-        let loadedFile  = null;
+        let examState = 'idle';   // idle | running | paused | ended
+        let jsonLoaded = false;
+        let loadedFile = null;
         let questionCount = 0;
         let examStartTime = null;
         let timerInterval = null;
@@ -1490,10 +1748,10 @@
            Button State Manager
         ───────────────────────────────────── */
         function updateButtons() {
-            const start  = document.getElementById('btnStart');
-            const pause  = document.getElementById('btnPause');
+            const start = document.getElementById('btnStart');
+            const pause = document.getElementById('btnPause');
             const resume = document.getElementById('btnResume');
-            const end    = document.getElementById('btnEnd');
+            const end = document.getElementById('btnEnd');
 
             // Reset all
             [start, pause, resume, end].forEach(b => b.disabled = true);
@@ -1502,10 +1760,10 @@
                 start.disabled = !jsonLoaded;
             } else if (examState === 'running') {
                 pause.disabled = false;
-                end.disabled   = false;
+                end.disabled = false;
             } else if (examState === 'paused') {
                 resume.disabled = false;
-                end.disabled    = false;
+                end.disabled = false;
             }
             // ended → all stay disabled
         }
@@ -1515,7 +1773,7 @@
         ───────────────────────────────────── */
         function setExamStateBadge(state) {
             const badge = document.getElementById('examStateBadge');
-            const text  = document.getElementById('examStateText');
+            const text = document.getElementById('examStateText');
             badge.className = `exam-state-badge ${state}`;
             const labels = { idle: 'Bekleniyor', running: 'Devam Ediyor', paused: 'Duraklatıldı', ended: 'Sona Erdi' };
             text.textContent = labels[state] || state;
@@ -1533,10 +1791,10 @@
         }
 
         let pauseOffset = 0;
-        let pauseStart  = null;
+        let pauseStart = null;
 
         function startTimer() {
-            const timerEl  = document.getElementById('elapsedTimer');
+            const timerEl = document.getElementById('elapsedTimer');
             const statusEl = document.getElementById('examStatusTimer');
             timerEl.className = 'timer-value running';
             statusEl.textContent = 'Aktif';
@@ -1557,9 +1815,9 @@
            Exam Actions
         ───────────────────────────────────── */
         async function startExam() {
-            examState    = 'running';
+            examState = 'running';
             examStartTime = Date.now();
-            pauseOffset  = 0;
+            pauseOffset = 0;
 
             setExamStateBadge('running');
             updateButtons();
@@ -1568,13 +1826,18 @@
 
             // API call (non-blocking)
             try {
-                await fetch('/api/admin/start_exam', {
+                const body = {
+                    language: loadedFile?.data?.language || 'python',
+                    exam_data: loadedFile?.data || null
+                };
+                const res = await fetch('/api/admin/start_exam', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({language: 'python'})
-                }).then(r => r.json()).then(console.log);
-
-            } catch { /* server may not be up in preview */ }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const result = await res.json();
+                if (!res.ok) showToast(result.error || 'Başlatma hatası.', 'danger');
+            } catch (e) { console.warn('start_exam API hatasyı:', e); }
         }
 
         async function pauseExam() {
@@ -1590,7 +1853,7 @@
             document.getElementById('elapsedTimer').className = 'timer-value paused';
 
             showToast('Sınav duraklatıldı.', 'warning');
-            try { await fetch('/api/admin/exam/pause', { method: 'POST' }); } catch { }
+            try { await fetch('/api/admin/pause_exam', { method: 'POST' }); } catch { }
         }
 
         async function resumeExam() {
@@ -1607,7 +1870,7 @@
             document.getElementById('elapsedTimer').className = 'timer-value running';
 
             showToast('Sınav devam ettiriliyor.', 'info');
-            try { await fetch('/api/admin/exam/resume', { method: 'POST' }); } catch { }
+            try { await fetch('/api/admin/resume_exam', { method: 'POST' }); } catch { }
         }
 
         function confirmEndExam() {
@@ -1633,11 +1896,11 @@
             document.getElementById('elapsedTimer').style.color = 'var(--accent-danger)';
 
             showToast('Sınav sona erdirildi.', 'danger', 4000);
-            try { await fetch('/api/admin/exam/end', { method: 'POST' }); } catch { }
+            try { await fetch('/api/admin/end_exam', { method: 'POST' }); } catch { }
         }
 
         // Close modal on overlay click
-        document.getElementById('confirmModal').addEventListener('click', function(e) {
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
             if (e.target === this) closeConfirmModal();
         });
 
@@ -1649,7 +1912,7 @@
                 const response = await fetch('/api/admin/students');
                 const data = await response.json();
 
-                const listBody   = document.getElementById('studentList');
+                const listBody = document.getElementById('studentList');
                 const emptyState = document.getElementById('emptyState');
                 listBody.innerHTML = '';
 
@@ -1686,10 +1949,85 @@
             }
         }
 
+        /* ─────────────────────────────────────
+           Sayfa Yenileme: Exam State Geri Yükle
+        ───────────────────────────────────── */
+        async function restoreExamState() {
+            try {
+                const res = await fetch('/api/admin/exam/status');
+                if (!res.ok) return;
+                const status = await res.json();
+
+                const state    = status.state;
+                const exam     = status.exam || {};
+                const questions = status.questions || {};
+                const qCount   = Object.keys(questions).length;
+
+                if (state === 'idle') return; // Geri yüklenecek bir şey yok
+
+                // ── examState'i geri al ──
+                examState = state;
+                jsonLoaded = true;
+
+                // ── Dosya yükleme göstergesini restore et ──
+                if (exam.name) {
+                    questionCount = qCount;
+                    loadedFile = { name: `${exam.name} (sunucudan)`, data: null, questions };
+
+                    document.getElementById('fileLoaded').classList.add('visible');
+                    document.getElementById('fileLoadedName').textContent = exam.name;
+                    document.getElementById('fileLoadedMeta').textContent =
+                        `${qCount} soru • ${exam.language || ''} • Sunucudan yüklendi`;
+
+                    document.getElementById('questionsInfo').style.display = 'flex';
+                    document.getElementById('qCount').textContent = qCount;
+                }
+
+                // ── Badge & butonlar ──
+                setExamStateBadge(state);
+                updateButtons();
+
+                // ── Elapsed timer'ı restore et ──
+                const timerEl  = document.getElementById('elapsedTimer');
+                const statusEl = document.getElementById('examStatusTimer');
+
+                if (state === 'running') {
+                    // started_at + elapsed hesapla
+                    if (status.started_at) {
+                        const startedAt  = new Date(status.started_at);
+                        examStartTime    = startedAt.getTime();
+                        pauseOffset      = 0; // pause bilgisi elimizde yok, 0 al
+
+                        timerEl.className    = 'timer-value running';
+                        statusEl.textContent = 'Aktif';
+                        statusEl.style.color = 'var(--accent-success)';
+                        startTimer();
+                    }
+                } else if (state === 'paused') {
+                    timerEl.className    = 'timer-value paused';
+                    statusEl.textContent = 'Duraklatıldı';
+                    statusEl.style.color = 'var(--accent-warning)';
+                } else if (state === 'ended') {
+                    timerEl.className        = 'timer-value';
+                    timerEl.style.color      = 'var(--accent-danger)';
+                    statusEl.textContent     = 'Sona Erdi';
+                    statusEl.style.color     = 'var(--accent-danger)';
+                }
+
+                showToast(`Sınav durumu geri yüklendi: ${state === 'running' ? 'Devam ediyor' : state === 'paused' ? 'Duraklatılmış' : 'Sona Erdi'}`, 'info');
+
+            } catch (e) {
+                console.warn('restoreExamState hatası:', e);
+            }
+        }
+
         // Init
         updateButtons();
+        restoreExamState();          // ← sayfa yenilenince durumu API'dan çek
         setInterval(fetchStudents, 5000);
         fetchStudents();
+
     </script>
 </body>
+
 </html>
