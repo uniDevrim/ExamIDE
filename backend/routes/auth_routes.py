@@ -18,7 +18,13 @@ def login():
         else:
             pass
 
+    if session.get('is_admin'):
+        return redirect(url_for('admin_bp.admin_dashboard'))
+
     if request.method == 'POST':
+        if session.get('is_admin'):
+            return redirect(url_for('admin_bp.admin_dashboard'))
+        session.permanent = True
         session['user'] = {
             'no': request.form.get('ogrenci_no'),
             'ad': request.form.get('ad'),
@@ -35,7 +41,7 @@ def login():
             'question': 1,
             'timestamp': datetime.datetime.now().strftime("%H:%M:%S")
         }
-        pool_manager.add_student(request.remote_addr, student_data)
+        pool_manager.add_student(request.form.get('ogrenci_no'), student_data)
         return redirect(url_for('index'))
 
 

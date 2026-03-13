@@ -8,7 +8,7 @@ frontend_client/config.js
 Thumbs.db
 
 .vscode/
-
+README.md
 grader/submissions/
 grader/test_cases/
 grader/temp_submissions/

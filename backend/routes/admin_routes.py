@@ -24,8 +24,8 @@ def get_students():
     all_students = pool_manager.get_all_students()
 
     formatted_data = {}
-    for ip, info in all_students.items():
-        formatted_data[ip] = {
+    for student_id, info in all_students.items():
+        formatted_data[student_id] = {
             "student_id": info.get('no'),
             "full_name": f"{info.get('ad', '')} {info.get('soyad', '')}",
             "current_question": info.get('question', 1),

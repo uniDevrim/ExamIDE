@@ -10,7 +10,9 @@ app = create_app()
 admin_token = secrets.token_urlsafe(16)
 app.config['ADMIN_LOGIN_TOKEN'] = admin_token
 
-print(f"Link: {os.getenv('BASE_URL')}/login?token={admin_token}")
+base_url = os.getenv('BASE_URL', 'http://127.0.0.1')
+print(f"Admin Login Link: {base_url}/login?token={admin_token}")
+print(f"Student Login Link: {base_url}/login")
 
 if __name__ == '__main__':
     PORT = int(os.getenv('PORT', 5000))

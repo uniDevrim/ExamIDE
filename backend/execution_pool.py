@@ -41,17 +41,17 @@ class WarmContainerPool:
 
         atexit.register(self.shutdown)
 
-    def add_student(self, ip, data):
-        self.students[ip] = data
+    def add_student(self, student_id, data):
+        self.students[student_id] = data
 
     def get_all_students(self):
         return self.students
 
-    def update_student_question(self, ip, question_no):
-        if ip in self.students:
-            self.students[ip]['question'] = question_no
+    def update_student_question(self, student_id, question_no):
+        if student_id in self.students:
+            self.students[student_id]['question'] = question_no
             from datetime import datetime
-            self.students[ip]['timestamp'] = datetime.now().strftime("%H:%M:%S")
+            self.students[student_id]['timestamp'] = datetime.now().strftime("%H:%M:%S")
 
     # ── Exam State ─────────────────────────────────────────────
     def set_exam_data(self, data: dict):
@@ -110,7 +110,7 @@ class WarmContainerPool:
 
     @staticmethod
     def _parse_time_secs(s: str) -> float:
-        """'90' -> 5400, '01:30:00' -> 5400"""
+
         if ":" in s:
             parts = list(map(float, s.split(":")))
             if len(parts) == 3:

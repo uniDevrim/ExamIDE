@@ -10,11 +10,7 @@ client_bp = Blueprint('client_bp', __name__)
 
 @client_bp.route('/exam/status', methods=['GET'])
 def exam_status():
-    """
-    Öğrencilerin her 3 saniyede bir polling yaptığı endpoint.
-    Giriş yapmış herhangi bir kullanıcı erişebilir (admin değil).
-    Test case CEVAPLARI döndürülmez — yalnızca örnek input/output.
-    """
+
     if 'user' not in session and not session.get('is_admin'):
         return jsonify({"error": "Unauthorized"}), 401
 
