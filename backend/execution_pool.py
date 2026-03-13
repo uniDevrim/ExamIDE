@@ -41,8 +41,23 @@ class WarmContainerPool:
 
         atexit.register(self.shutdown)
 
-    def add_student(self, student_id, data):
+    def add_student(self, student_id, data, ip=None):
+        """Add or update student record.
+
+        student_id is the unique identifier for the student (ogrenci_no).
+        ip is optional but helps show real client address in the admin UI.
+        """
+        if ip is not None:
+            data['ip'] = ip
         self.students[student_id] = data
+
+    def touch_student(self, student_id, ip=None):
+        """Update the student's last-seen timestamp (and optional IP)."""
+        if student_id in self.students:
+            from datetime import datetime, timezone
+            self.students[student_id]['timestamp'] = datetime.now(timezone.utc).isoformat()
+            if ip is not None:
+                self.students[student_id]['ip'] = ip
 
     def get_all_students(self):
         return self.students
@@ -50,8 +65,8 @@ class WarmContainerPool:
     def update_student_question(self, student_id, question_no):
         if student_id in self.students:
             self.students[student_id]['question'] = question_no
-            from datetime import datetime
-            self.students[student_id]['timestamp'] = datetime.now().strftime("%H:%M:%S")
+            from datetime import datetime, timezone
+            self.students[student_id]['timestamp'] = datetime.now(timezone.utc).isoformat()
 
     # ── Exam State ─────────────────────────────────────────────
     def set_exam_data(self, data: dict):

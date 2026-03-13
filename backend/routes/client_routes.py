@@ -14,6 +14,12 @@ def exam_status():
     if 'user' not in session and not session.get('is_admin'):
         return jsonify({"error": "Unauthorized"}), 401
 
+    # Update last-seen for the student on every poll (usually every few seconds)
+    if 'user' in session:
+        student_id = session['user'].get('no')
+        if student_id:
+            pool_manager.touch_student(student_id, request.remote_addr)
+
     return jsonify(pool_manager.get_exam_status()), 200
 
 @client_bp.route('/run', methods=['POST'])

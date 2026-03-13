@@ -1173,7 +1173,7 @@
 
         .student-name {
             font-weight: 500;
-            color: var(--text-primary);
+            color: #000;
         }
 
         .ip-code {
@@ -1928,16 +1928,17 @@
                 emptyState.style.display = 'none';
 
                 let totalQ = 0;
-                entries.forEach(([ip, info]) => {
+                entries.forEach(([key, info]) => {
+                    const displayIp = info.ip || key;
                     totalQ += Number(info.current_question) || 0;
                     listBody.innerHTML += `
                         <tr>
                             <td><span class="student-id">${info.student_id}</span></td>
                             <td><span class="student-name">${info.full_name}</span></td>
-                            <td><span class="ip-code">${ip}</span></td>
+                            <td><span class="ip-code">${displayIp}</span></td>
                             <td><span class="question-badge"><i class="bi bi-file-code"></i> Soru ${info.current_question}</span></td>
                             <td><span class="status-badge"><span class="status-dot"></span>Aktif</span></td>
-                            <td class="last-seen">${info.last_seen}</td>
+                            <td class="last-seen">${formatLastSeen(info.last_seen)}</td>
                         </tr>
                     `;
                 });
@@ -1947,6 +1948,13 @@
             } catch (err) {
                 console.error('Veri çekme hatası:', err);
             }
+        }
+
+        function formatLastSeen(isoString) {
+            if (!isoString) return '—';
+            const dt = new Date(isoString);
+            if (Number.isNaN(dt.getTime())) return isoString;
+            return dt.toLocaleTimeString();
         }
 
         /* ─────────────────────────────────────

@@ -28,6 +28,7 @@ def get_students():
         formatted_data[student_id] = {
             "student_id": info.get('no'),
             "full_name": f"{info.get('ad', '')} {info.get('soyad', '')}",
+            "ip": info.get('ip'),
             "current_question": info.get('question', 1),
             "last_seen": info.get('timestamp', '—')
         }
