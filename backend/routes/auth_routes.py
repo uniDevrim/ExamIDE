@@ -38,10 +38,13 @@ def login():
             'no': request.form.get('ogrenci_no'),
             'ad': request.form.get('ad'),
             'soyad': request.form.get('soyad'),
+            'bolum': request.form.get('bolum'),
+            'sinif': request.form.get('sinif'),
             'question': 1,
             'timestamp': datetime.datetime.now().strftime("%H:%M:%S")
         }
-        pool_manager.add_student(request.form.get('ogrenci_no'), student_data)
+        client_ip = request.remote_addr
+        pool_manager.add_student(client_ip, student_data, ip=client_ip)
         return redirect(url_for('index'))
 
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from ..execution_pool import pool_manager
+from .. import timemachine as tm
 import time
 import json
 import os
@@ -85,6 +86,22 @@ def run_code():
         return jsonify({"stdout": "", "stderr": f"System Error: {str(e)}", "exit_code": -1}), 500
         
     finally:
+        # TimeMachine: "Çalıştır" işlemi sırasında snapshot kaydet
+        code_to_save = data.get('code', '')
+        question_id  = data.get('question_id', 'q1')
+        user         = session.get('user', {})
+        student_no   = user.get('no', '')
+        if student_no and code_to_save:
+            try:
+                tm.save_code_snapshot(
+                    student_no=student_no,
+                    question_id=question_id,
+                    code=code_to_save,
+                    lang=lang,
+                    trigger='run'
+                )
+            except Exception as snap_err:
+                print(f"[TimeMachine] snapshot hatası: {snap_err}")
         if container:
             pool_manager.cleanup(container)
 
@@ -159,3 +176,58 @@ def submit():
         json.dump(submission, f, indent=2)
 
     return jsonify({"message": "Submitted successfully"}), 200
+
+
+# ── TimeMachine Endpoints ────────────────────────────────────────────────────
+
+@client_bp.route('/save_code', methods=['POST'])
+def save_code():
+    """
+    Frontend'den 10 saniyede bir gelen otomatik kaydetme isteği.
+    Body: { "question_id": "q1", "code": "...", "language": "python" }
+    """
+    user = session.get('user', {})
+    student_no = user.get('no', '')
+    if not student_no:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json or {}
+    question_id = data.get('question_id', 'q1')
+    code        = data.get('code', '')
+    lang        = data.get('language')
+
+    if not code:
+        return jsonify({"skipped": "empty code"}), 200
+
+    try:
+        tm.save_code_snapshot(
+            student_no=student_no,
+            question_id=question_id,
+            code=code,
+            lang=lang,
+            trigger='autosave'
+        )
+        return jsonify({"status": "saved"}), 200
+    except Exception as e:
+        print(f"[TimeMachine] save_code hatası: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@client_bp.route('/my_codes', methods=['GET'])
+def my_codes():
+    """
+    Öğrencinin tüm sorulardaki son kaydedilmiş kodlarını döner.
+    Sayfa yenilemesi / reconnect sonrası editörü restore etmek için kullanılır.
+    Dönüş: { "q1": { "code": "...", "lang": "python", "saved_at": "..." }, ... }
+    """
+    user = session.get('user', {})
+    student_no = user.get('no', '')
+    if not student_no:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        codes = tm.load_student_codes(student_no)
+        return jsonify(codes), 200
+    except Exception as e:
+        print(f"[TimeMachine] my_codes hatası: {e}")
+        return jsonify({"error": str(e)}), 500

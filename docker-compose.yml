@@ -25,6 +25,7 @@ services:
     volumes:
       - .:/app
       - ./frontend_client:/frontend_client
+      - grader_data:/app/grader
     env_file:
       - ./backend/.env
     environment:
@@ -57,3 +58,7 @@ services:
 networks:
   internal-network:
     driver: bridge
+
+volumes:
+  grader_data:
+    driver: local

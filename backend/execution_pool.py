@@ -5,6 +5,8 @@ import time
 import base64
 import atexit
 import os
+import json
+from backend import timemachine as tm
 
 DEFAULT_LANG = None  
 POOL_SIZE = 3  
@@ -39,6 +41,11 @@ class WarmContainerPool:
         self.exam_paused_at        = None     # datetime — son duraklama anı
         self.exam_total_paused_secs = 0.0    # toplam duraklatılan süre (saniye)
 
+        # ── TimeMachine: DB başlat ve önceki state'i yükle ──────────────
+        tm.init_db()
+        self._restore_from_db()
+        # ────────────────────────────────────────────────────────────────
+
         atexit.register(self.shutdown)
 
     def add_student(self, student_id, data, ip=None):
@@ -50,14 +57,29 @@ class WarmContainerPool:
         if ip is not None:
             data['ip'] = ip
         self.students[student_id] = data
+        # TimeMachine: DB'ye yaz
+        tm.save_student(
+            ip=ip or student_id,          # ip yoksa okul no'yu fallback olarak kullan
+            student_no=data.get('no', ''),
+            ad=data.get('ad', ''),
+            soyad=data.get('soyad', ''),
+            bolum=data.get('bolum'),
+            sinif=data.get('sinif'),
+            current_q=data.get('question', 1),
+            last_seen=data.get('timestamp'),
+        )
+        self._persist_session()
 
     def touch_student(self, student_id, ip=None):
         """Update the student's last-seen timestamp (and optional IP)."""
         if student_id in self.students:
             from datetime import datetime, timezone
-            self.students[student_id]['timestamp'] = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()
+            self.students[student_id]['timestamp'] = timestamp
             if ip is not None:
                 self.students[student_id]['ip'] = ip
+            tm.update_student_last_seen(student_id, timestamp, ip)
+            self._persist_session()
 
     def get_all_students(self):
         return self.students
@@ -66,12 +88,17 @@ class WarmContainerPool:
         if student_id in self.students:
             self.students[student_id]['question'] = question_no
             from datetime import datetime, timezone
-            self.students[student_id]['timestamp'] = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(timezone.utc).isoformat()
+            self.students[student_id]['timestamp'] = timestamp
+            # TimeMachine: DB'ye yaz
+            tm.update_student_question(student_id, question_no, timestamp)
+            self._persist_session()
 
     # ── Exam State ─────────────────────────────────────────────
     def set_exam_data(self, data: dict):
         """Admin JSON yükleyince çağrılır."""
         self.exam_data = data
+        self._persist_session()
 
     def set_exam_state(self, state: str):
         """idle | running | paused | ended"""
@@ -100,6 +127,7 @@ class WarmContainerPool:
                 self.exam_paused_at = None
 
         self.exam_state = state
+        self._persist_session()
 
     def _remaining_seconds(self) -> float:
         """Kalan süreyi saniye cinsinden hesaplar."""
@@ -164,6 +192,75 @@ class WarmContainerPool:
             "exam"              : exam_meta,
             "questions"         : questions_safe,
         }
+    # ────────────────────────────────────────────────────────────
+
+    # ── TimeMachine yardımcı metodları ──────────────────────────
+
+    def _persist_session(self):
+        """Mevcut exam state'ini TimeMachine DB'ye yazar."""
+        try:
+            tm.save_exam_session(
+                exam_id=self.exam_data.get("exam_id", "exam_001") if self.exam_data else "exam_001",
+                state=self.exam_state,
+                language=self.active_language,
+                exam_data_json=json.dumps(self.exam_data) if self.exam_data else None,
+                started_at=self.exam_started_at,
+                paused_at=self.exam_paused_at,
+                total_paused_secs=self.exam_total_paused_secs,
+            )
+        except Exception as e:
+            print(f"[TimeMachine] _persist_session hatası: {e}")
+
+    def _restore_from_db(self):
+        """
+        Uygulama başlangıcında DB'den önceki state'i yükler.
+        Elektrik kesintisi / restart sonrası kurtarma buradan olur.
+        """
+        try:
+            session = tm.load_exam_session()
+            if session:
+                from datetime import datetime, timezone
+                def parse_dt(s):
+                    if not s:
+                        return None
+                    try:
+                        return datetime.fromisoformat(s)
+                    except Exception:
+                        return None
+
+                self.exam_state            = session["state"]
+                self.active_language       = session.get("language")
+                self.exam_total_paused_secs = float(session.get("total_paused_secs") or 0.0)
+                self.exam_started_at       = parse_dt(session.get("started_at"))
+                self.exam_paused_at        = parse_dt(session.get("paused_at"))
+
+                raw_json = session.get("exam_data_json")
+                if raw_json:
+                    self.exam_data = json.loads(raw_json)
+
+                print(f"[TimeMachine] ✅ State kurtarıldı → state={self.exam_state}, "
+                      f"lang={self.active_language}, paused_secs={self.exam_total_paused_secs:.1f}")
+
+            # Öğrencileri de yükle
+            students = tm.load_all_students()
+            for s in students:
+                ip = s.get("ip", "")
+                self.students[ip] = {
+                    "no":        s.get("student_no", ""),
+                    "ad":        s.get("ad", ""),
+                    "soyad":     s.get("soyad", ""),
+                    "bolum":     s.get("bolum"),
+                    "sinif":     s.get("sinif"),
+                    "question":  s.get("current_q", 1),
+                    "timestamp": s.get("last_seen", ""),
+                    "ip":        ip,
+                }
+            if students:
+                print(f"[TimeMachine] ✅ {len(students)} öğrenci kurtarıldı.")
+
+        except Exception as e:
+            print(f"[TimeMachine] _restore_from_db hatası: {e}")
+
     # ────────────────────────────────────────────────────────────
 
     def run_grader_container(self, student_code, language, exam_id=None):
@@ -248,6 +345,7 @@ class WarmContainerPool:
     def set_exam_language(self, lang):
         print(f"[!] Switching Exam Language to: {lang}")
         self.active_language = lang
+        self._persist_session()
     
         for pool_lang, q in self.pools.items():
              if pool_lang != lang:

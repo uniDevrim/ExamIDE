@@ -1003,4 +1003,78 @@ function _loadQuestionsFromApi(questionsObj, examData) {
     currentQuestion = 0;
     initializeTabs();
     loadQuestion(0);
+
+    // TimeMachine: sorular yüklendikten sonra öğrenci kodlarını restore et
+    restoreCodesFromTimeMachine();
+    // TimeMachine: autosave başlat
+    startTimeMachineAutosave();
+}
+
+
+// ========================================
+// TimeMachine — Autosave & Restore
+// ========================================
+
+let _autosaveInterval = null;
+
+/**
+ * Her 10 saniyede bir aktif sorudaki kodu backend'e kaydeder.
+ * trigger = 'autosave'
+ */
+function startTimeMachineAutosave() {
+    if (_autosaveInterval) return; // zaten çalışıyor
+    _autosaveInterval = setInterval(() => {
+        if (!monacoEditor) return;
+        const code = monacoEditor.getValue();
+        if (!code || !code.trim()) return;
+
+        const q = questions[currentQuestion];
+        if (!q) return;
+
+        const qId = `q${q.id}`;
+        const lang = currentLanguage;
+
+        fetch('/api/client/save_code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question_id: qId,
+                code: code,
+                language: lang
+            })
+        }).catch(() => {
+            // ağ hatasında sessizce geç, kullanıcıyı rahatsız etme
+        });
+    }, 10000); // 10 saniye
+}
+
+/**
+ * Backend'deki son kaydedilmiş kodları getirir ve userCode map'ini doldurur.
+ * Sayfa yenilemesinden veya elektrik kesintisinden sonra editörü restore eder.
+ */
+async function restoreCodesFromTimeMachine() {
+    try {
+        const res = await fetch('/api/client/my_codes');
+        if (!res.ok) return;
+        const codesMap = await res.json(); // { "q1": { code, lang, saved_at }, ... }
+
+        let restoredCount = 0;
+        Object.entries(codesMap).forEach(([qId, snap]) => {
+            // qId = "q1" → numeric id = 1
+            const numId = parseInt(qId.replace('q', ''), 10);
+            const lang  = snap.lang || currentLanguage;
+            const key   = `${numId}_${lang}`;
+            userCode[key] = snap.code;
+            restoredCount++;
+        });
+
+        if (restoredCount > 0) {
+            // Aktif soruyu yeniden yükle (editoru restore edilmiş kodla aç)
+            loadCodeForCurrentQuestion();
+            showToast(`⏱️ ${restoredCount} sorudaki kodlar geri yüklendi`, 'info');
+            console.log('[TimeMachine] Restore tamamlandı:', restoredCount, 'soru');
+        }
+    } catch (e) {
+        console.warn('[TimeMachine] Restore hatası:', e);
+    }
 }
