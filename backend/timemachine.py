@@ -264,3 +264,73 @@ def load_all_snapshots() -> list[dict]:
         rows = conn.execute("SELECT * FROM code_snapshots").fetchall()
         conn.close()
     return [dict(r) for r in rows]
+
+
+def get_db_stats() -> dict:
+    """
+    Admin paneli için TimeMachine istatistiklerini döner.
+    Dönüş:
+        has_session   — kurtarılabilir oturum var mı
+        session_state — idle | running | paused | ended
+        exam_id       — kaydedilmiş sınav ID
+        started_at    — başlangıç zamanı
+        updated_at    — son güncelleme zamanı
+        student_count — DB'deki öğrenci sayısı
+        snapshot_count— toplam kod snapshot sayısı
+        db_path       — DB dosya yolu
+    """
+    with _lock:
+        conn = _get_conn()
+        row = conn.execute("SELECT * FROM exam_session WHERE id = 1").fetchone()
+        student_count   = conn.execute("SELECT COUNT(*) FROM students").fetchone()[0]
+        snapshot_count  = conn.execute("SELECT COUNT(*) FROM code_snapshots").fetchone()[0]
+        conn.close()
+
+    if row is None:
+        return {
+            "has_session": False,
+            "session_state": "idle",
+            "exam_id": None,
+            "started_at": None,
+            "updated_at": None,
+            "student_count": student_count,
+            "snapshot_count": snapshot_count,
+            "db_path": DB_PATH,
+        }
+
+    d = dict(row)
+    has_session = d["state"] not in ("idle",) or bool(d.get("started_at"))
+    return {
+        "has_session":    has_session,
+        "session_state":  d["state"],
+        "exam_id":        d["exam_id"],
+        "started_at":     d.get("started_at"),
+        "updated_at":     d.get("updated_at"),
+        "student_count":  student_count,
+        "snapshot_count": snapshot_count,
+        "db_path":        DB_PATH,
+    }
+
+
+def reset_db():
+    """
+    Tüm tabloları temizler (sınav arşivlendikten sonra sıfırlama için).
+    DB dosyasını silmez, sadece içini boşaltır.
+    """
+    with _lock:
+        conn = _get_conn()
+        with conn:
+            conn.executescript("""
+                DELETE FROM code_snapshots;
+                DELETE FROM students;
+                UPDATE exam_session SET
+                    state = 'idle',
+                    language = NULL,
+                    exam_data_json = NULL,
+                    started_at = NULL,
+                    paused_at = NULL,
+                    total_paused_secs = 0.0,
+                    updated_at = ''
+                WHERE id = 1;
+            """)
+        conn.close()

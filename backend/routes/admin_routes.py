@@ -168,3 +168,43 @@ def get_results(exam_id):
                 results.append(json.load(f))
 
     return jsonify(results), 200
+
+
+# ── TimeMachine Admin Endpoints ───────────────────────────────────────────────
+
+@admin_bp.route('/timemachine/status', methods=['GET'])
+def timemachine_status():
+    """TimeMachine DB istatistiklerini döner (startup banner + sekme için)."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    from .. import timemachine as tm
+    try:
+        stats = tm.get_db_stats()
+        return jsonify(stats), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@admin_bp.route('/timemachine/restore', methods=['POST'])
+def timemachine_restore():
+    """DB'den exam state + öğrencileri pool_manager'a yeniden yükler."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    try:
+        pool_manager._restore_from_db()
+        return jsonify({"status": "restored"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@admin_bp.route('/timemachine/reset', methods=['POST'])
+def timemachine_reset():
+    """TimeMachine DB'sini sıfırlar (sınav arşivlendikten sonra kullanılır)."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    from .. import timemachine as tm
+    try:
+        tm.reset_db()
+        return jsonify({"status": "reset"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

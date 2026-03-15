@@ -43,8 +43,9 @@ def login():
             'question': 1,
             'timestamp': datetime.datetime.now().strftime("%H:%M:%S")
         }
-        client_ip = request.remote_addr
-        pool_manager.add_student(client_ip, student_data, ip=client_ip)
+        client_ip  = request.remote_addr
+        student_no = request.form.get('ogrenci_no')
+        pool_manager.add_student(student_no, student_data, ip=client_ip)
         return redirect(url_for('index'))
 
 

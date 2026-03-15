@@ -1274,10 +1274,208 @@
                 grid-column: 1 / -1;
             }
         }
+        /* ── TimeMachine Banner ── */
+        .tm-banner {
+            position: sticky;
+            top: 52px;
+            z-index: 999;
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+            border-bottom: 1px solid rgba(139,92,246,0.3);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from { opacity:0; transform: translateY(-100%); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+        .tm-banner-icon {
+            width: 38px; height: 38px;
+            background: rgba(139,92,246,0.2);
+            border: 1px solid rgba(139,92,246,0.35);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: #a78bfa; flex-shrink: 0;
+        }
+        .tm-banner-text { flex:1; }
+        .tm-banner-title {
+            font-size: 0.85rem; font-weight: 700;
+            color: #c4b5fd; margin-bottom: 2px;
+        }
+        .tm-banner-sub {
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+        .tm-banner-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .btn-tm-load {
+            display: flex; align-items: center; gap: 6px;
+            padding: 0.45rem 1rem;
+            background: #7c3aed;
+            border: none; border-radius: 8px;
+            color: #fff; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn-tm-load:hover { background: #6d28d9; transform: translateY(-1px); }
+        .btn-tm-skip {
+            display: flex; align-items: center; gap: 6px;
+            padding: 0.45rem 1rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .btn-tm-skip:hover { color: var(--text-primary); border-color: var(--border-light); }
+
+        /* ── TimeMachine Skip Confirm Modal ── */
+        .tm-skip-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7); z-index: 3000;
+            align-items: center; justify-content: center;
+        }
+        .tm-skip-overlay.visible { display: flex; }
+        .tm-skip-box {
+            background: var(--bg-secondary);
+            border: 1px solid rgba(245,158,11,0.4);
+            border-radius: 16px; padding: 2rem; width: 360px;
+            max-width: 90vw; box-shadow: var(--shadow-lg);
+            animation: modalIn 0.25s ease;
+        }
+        .tm-skip-icon {
+            width: 48px; height: 48px;
+            background: rgba(245,158,11,0.12); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: var(--accent-warning); margin-bottom: 1rem;
+        }
+
+        /* ── TimeMachine Tab ── */
+        .tm-tab-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 1.75rem;
+            transition: background-color var(--transition-theme), border-color var(--transition-theme);
+        }
+        .tm-tab-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-navbar);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; user-select: none;
+        }
+        .tm-tab-title {
+            font-size: 0.88rem; font-weight: 600;
+            color: var(--text-primary);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tm-tab-title i { color: #a78bfa; }
+        .tm-tab-chevron { color: var(--text-muted); transition: transform 0.2s; }
+        .tm-tab-panel.open .tm-tab-chevron { transform: rotate(180deg); }
+        .tm-tab-body {
+            display: none; padding: 1.5rem;
+            background: linear-gradient(135deg,rgba(99,102,241,0.03),transparent);
+        }
+        .tm-tab-panel.open .tm-tab-body { display: block; }
+        .tm-stat-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0.85rem; margin-bottom: 1.25rem;
+        }
+        .tm-stat {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 0.85rem;
+        }
+        .tm-stat-label {
+            font-size: 0.7rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+            font-weight: 500; margin-bottom: 6px;
+        }
+        .tm-stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem; font-weight: 700;
+            color: var(--text-primary);
+        }
+        .tm-stat-value.purple { color: #a78bfa; }
+        .tm-stat-value.green  { color: var(--accent-success); }
+        .tm-stat-value.orange { color: var(--accent-warning); }
+        .tm-action-row {
+            display: flex; gap: 0.65rem; flex-wrap: wrap;
+        }
+        .btn-tm-action {
+            display: flex; align-items: center; gap: 7px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 9px;
+            font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; border: none;
+            transition: all 0.15s;
+        }
+        .btn-tm-restore {
+            background: #7c3aed; color: #fff;
+        }
+        .btn-tm-restore:hover { background: #6d28d9; transform: translateY(-1px); }
+        .btn-tm-refresh {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-secondary);
+        }
+        .btn-tm-refresh:hover { background: rgba(255,255,255,0.1); }
+        .btn-tm-reset {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25) !important;
+            color: var(--accent-danger);
+        }
+        .btn-tm-reset:hover { background: rgba(239,68,68,0.2); }
+        .tm-db-path {
+            margin-top: 0.85rem;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            padding: 0.5rem 0.85rem;
+            border-radius: 7px;
+            border: 1px solid var(--border-color);
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- TimeMachine Startup Banner (gizli, JS ile görünür yapılır) -->
+    <div class="tm-banner" id="tmStartupBanner" style="display:none;">
+        <div class="tm-banner-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="tm-banner-text">
+            <div class="tm-banner-title">⏱️ TimeMachine — Kaydedilmiş Oturum Bulundu</div>
+            <div class="tm-banner-sub" id="tmBannerInfo">Yükleniyor...</div>
+        </div>
+        <div class="tm-banner-actions">
+            <button class="btn-tm-load" onclick="tmLoadRestore()">
+                <i class="bi bi-arrow-counterclockwise"></i> Yeniden Yükle
+            </button>
+            <button class="btn-tm-skip" onclick="tmAskSkip()">
+                <i class="bi bi-x-lg"></i> Yoksay
+            </button>
+        </div>
+    </div>
+
+    <!-- TimeMachine Yoksay Onay Modalı -->
+    <div class="tm-skip-overlay" id="tmSkipOverlay">
+        <div class="tm-skip-box">
+            <div class="tm-skip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="modal-confirm-title">Emin misiniz?</div>
+            <div class="modal-confirm-desc">
+                TimeMachine oturumunu yoksayarsanız, kaydedilmiş sınav durumu ve öğrenci kodları 
+                <strong>bu seans için geçerli olmayacak</strong>. Veriler hala DB'de saklı kalacaktır.
+            </div>
+            <div class="modal-confirm-actions">
+                <button class="btn-modal-cancel" onclick="tmCloseSkipModal()">Geri Dön</button>
+                <button class="btn-modal-confirm" onclick="tmConfirmSkip()">
+                    <i class="bi bi-x-circle-fill"></i> Evet, Yoksay
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Navbar -->
     <nav class="admin-navbar">
@@ -1463,6 +1661,56 @@
                 </div>
             </div>
         </div>
+
+        <!-- TimeMachine Sekmesi -->
+        <div class="tm-tab-panel" id="tmTabPanel">
+            <div class="tm-tab-header" onclick="toggleTmTab()">
+                <div class="tm-tab-title">
+                    <i class="bi bi-clock-history"></i>
+                    TimeMachine
+                    <span id="tmTabBadge" style="font-size:0.7rem; padding:2px 8px;
+                        background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);
+                        border-radius:20px; color:#a78bfa; font-weight:700;">YEDEK</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span id="tmLastUpdate" style="font-size:0.72rem; color:var(--text-muted);"></span>
+                    <i class="bi bi-chevron-down tm-tab-chevron"></i>
+                </div>
+            </div>
+            <div class="tm-tab-body">
+                <div class="tm-stat-grid">
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Oturum Durumu</div>
+                        <div class="tm-stat-value purple" id="tmStateVal">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Kayitli Ogrenci</div>
+                        <div class="tm-stat-value green" id="tmStudentCount">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Kod Snapshot</div>
+                        <div class="tm-stat-value orange" id="tmSnapshotCount">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Sinav ID</div>
+                        <div class="tm-stat-value" id="tmExamId" style="font-size:0.85rem;">&mdash;</div>
+                    </div>
+                </div>
+                <div class="tm-action-row">
+                    <button class="btn-tm-action btn-tm-restore" onclick="tmLoadRestore()">
+                        <i class="bi bi-arrow-counterclockwise"></i> Oturumu Yeniden Yukle
+                    </button>
+                    <button class="btn-tm-action btn-tm-refresh" onclick="tmRefreshStats()">
+                        <i class="bi bi-arrow-clockwise"></i> Durumu Yenile
+                    </button>
+                    <button class="btn-tm-action btn-tm-reset" onclick="tmConfirmReset()">
+                        <i class="bi bi-trash3"></i> DB'yi Sifirla
+                    </button>
+                </div>
+                <div class="tm-db-path" id="tmDbPath">&mdash;</div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Confirm Modal -->
@@ -2034,6 +2282,136 @@
         restoreExamState();          // ← sayfa yenilenince durumu API'dan çek
         setInterval(fetchStudents, 5000);
         fetchStudents();
+
+
+        // ═══════════════════════════════════════════════
+        // TimeMachine Admin UI
+        // ═══════════════════════════════════════════════
+
+        let _tmSessionData = null;
+
+        /** Sayfa yüklenince TimeMachine durumunu kontrol eder. */
+        async function tmCheckStartup() {
+            try {
+                const res = await fetch('/api/admin/timemachine/status');
+                if (!res.ok) return;
+                const data = await res.json();
+                _tmSessionData = data;
+                tmUpdateTabStats(data);
+
+                if (data.has_session) {
+                    const banner   = document.getElementById('tmStartupBanner');
+                    const infoEl   = document.getElementById('tmBannerInfo');
+                    const sc       = data.student_count || 0;
+                    const snap     = data.snapshot_count || 0;
+                    const state    = data.session_state || 'idle';
+                    const startAt  = data.started_at ? new Date(data.started_at).toLocaleString('tr-TR') : '—';
+                    infoEl.textContent = `Durum: ${state} | ${sc} öğrenci | ${snap} kod snapshot | Başlangıç: ${startAt}`;
+                    banner.style.display = 'flex';
+                }
+            } catch(e) {
+                console.warn('[TimeMachine] startup check hatası:', e);
+            }
+        }
+
+        /** "Yeniden Yükle" butonuna basıldı */
+        async function tmLoadRestore() {
+            document.getElementById('tmStartupBanner').style.display = 'none';
+            try {
+                const res = await fetch('/api/admin/timemachine/restore', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'restored') {
+                    showToast('✅ TimeMachine: Oturum başarıyla yüklendi!', 'success');
+                    tmRefreshStats();
+                } else {
+                    showToast('⚠️ Restore sırasında hata: ' + (data.error || '?'), 'warning');
+                }
+            } catch(e) {
+                showToast('❌ Bağlantı hatası', 'danger');
+            }
+        }
+
+        /** "Yoksay" butonuna basıldı → onay modalını aç */
+        function tmAskSkip() {
+            document.getElementById('tmSkipOverlay').classList.add('visible');
+        }
+
+        /** Yoksay onay modalını kapat */
+        function tmCloseSkipModal() {
+            document.getElementById('tmSkipOverlay').classList.remove('visible');
+        }
+
+        /** Kullanıcı "Evet, Yoksay" dedi */
+        function tmConfirmSkip() {
+            tmCloseSkipModal();
+            document.getElementById('tmStartupBanner').style.display = 'none';
+            showToast('ℹ️ TimeMachine oturumu yoksayıldı.', 'info');
+        }
+
+        /** TimeMachine sekmesini aç/kapat */
+        function toggleTmTab() {
+            document.getElementById('tmTabPanel').classList.toggle('open');
+        }
+
+        /** DB istatistiklerini yenile */
+        async function tmRefreshStats() {
+            try {
+                const res = await fetch('/api/admin/timemachine/status');
+                if (!res.ok) return;
+                const data = await res.json();
+                tmUpdateTabStats(data);
+                document.getElementById('tmLastUpdate').textContent = 
+                    'Güncellendi: ' + new Date().toLocaleTimeString('tr-TR');
+                showToast('🔄 TimeMachine durumu güncellendi', 'success');
+            } catch(e) {
+                showToast('❌ TimeMachine durum alınamadı', 'danger');
+            }
+        }
+
+        /** Sekmedeki istatistik değerlerini günceller */
+        function tmUpdateTabStats(data) {
+            const stateMap = {idle:'Bekleme', running:'Çalışıyor', paused:'Duraklatıldı', ended:'Bitti'};
+            document.getElementById('tmStateVal').textContent    = stateMap[data.session_state] || data.session_state || '—';
+            document.getElementById('tmStudentCount').textContent = data.student_count ?? '—';
+            document.getElementById('tmSnapshotCount').textContent = data.snapshot_count ?? '—';
+            document.getElementById('tmExamId').textContent      = data.exam_id || '—';
+            document.getElementById('tmDbPath').textContent      = '📂 ' + (data.db_path || '—');
+            document.getElementById('tmLastUpdate').textContent  = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR');
+
+            const badge = document.getElementById('tmTabBadge');
+            if (data.has_session) {
+                badge.textContent = 'AKTİF';
+                badge.style.background = 'rgba(34,197,94,0.15)';
+                badge.style.borderColor = 'rgba(34,197,94,0.3)';
+                badge.style.color = '#22c55e';
+            } else {
+                badge.textContent = 'BOŞ';
+                badge.style.background = 'rgba(113,113,122,0.15)';
+                badge.style.borderColor = 'rgba(113,113,122,0.3)';
+                badge.style.color = '#71717a';
+            }
+        }
+
+        /** DB'yi sıfırla — önce confirm modal */
+        function tmConfirmReset() {
+            if (!confirm('TimeMachine veritabanını sıfırlamak istediğinizden emin misiniz?\nTüm snapshot ve öğrenci verileri silinir!')) return;
+            fetch('/api/admin/timemachine/reset', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'reset') {
+                        showToast('🗑️ TimeMachine DB sıfırlandı', 'success');
+                        tmRefreshStats();
+                    } else {
+                        showToast('❌ Sıfırlama hatası: ' + (data.error||'?'), 'danger');
+                    }
+                })
+                .catch(() => showToast('❌ Bağlantı hatası', 'danger'));
+        }
+
+        // Sayfa yüklenince TimeMachine startup kontrolü yap
+        window.addEventListener('DOMContentLoaded', () => {
+            tmCheckStartup();
+        });
 
     </script>
 </body>
