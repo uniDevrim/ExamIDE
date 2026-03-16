@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="dark">
+<html lang="tr">
 
 <head>
     <meta charset="UTF-8">
@@ -430,7 +430,6 @@
         }
 
         /* ── Upload Zone ── */
-        .upload-section {}
 
         .upload-label {
             font-size: 0.78rem;
@@ -562,7 +561,6 @@
         }
 
         /* ── Exam Actions ── */
-        .actions-section {}
 
         .actions-label {
             font-size: 0.78rem;
@@ -1801,6 +1799,23 @@
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
             document.getElementById('themeIcon').className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
         }
+
+        // Sistem renk tercihini uygula (ilk yükleme)
+        (function applySystemTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            // İkon sayfa yüklendikten sonra ayarlanacak
+            window.addEventListener('DOMContentLoaded', () => {
+                const icon = document.getElementById('themeIcon');
+                if (icon) icon.className = prefersDark ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            });
+            // OS'tan geçiş yapıldığında güncelle
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+                const icon = document.getElementById('themeIcon');
+                if (icon) icon.className = e.matches ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            });
+        })();
 
         /* ─────────────────────────────────────
            State

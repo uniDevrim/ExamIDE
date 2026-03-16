@@ -209,7 +209,11 @@ let solvedQuestions = new Set();
 let examTimeSeconds = 90 * 60; // 90 minutes
 let timerInterval = null;
 let monacoEditor = null;
-let currentTheme = 'dark';
+// Sistem renk tercihini al, fallback: dark
+const _sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let currentTheme = _sysDark ? 'dark' : 'light';
+// Hemen uygula (flash önlemek için script sırasında)
+document.documentElement.setAttribute('data-theme', currentTheme);
 
 // Language mapping for Monaco
 const monacoLanguageMap = {
@@ -223,9 +227,22 @@ const monacoLanguageMap = {
 // Initialize
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Tema ikonunu başlangıçta doğru ayarla
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+        themeIcon.className = currentTheme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    }
+
     setupResizer();
     setupOutputPanel();
     initMonacoEditor();
+
+    // Sistem tema değişikliğini dinle (kullanıcı OS'tan geçiş yaparsa)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (currentTheme !== (e.matches ? 'dark' : 'light')) {
+            toggleTheme();
+        }
+    });
 
     // Language selector
     document.getElementById('languageSelect').addEventListener('change', (e) => {
