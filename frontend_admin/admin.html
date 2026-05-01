@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Paneli | Sınav Takip Sistemi</title>
+    <title>Sınav Takip Paneli</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
@@ -1276,7 +1276,7 @@
         .tm-banner {
             position: sticky;
             top: 52px;
-            z-index: 999;
+            z-index: 1900;
             background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
             border-bottom: 1px solid rgba(139,92,246,0.3);
             padding: 0.75rem 1.5rem;
@@ -1347,35 +1347,39 @@
             font-size: 1.4rem; color: var(--accent-warning); margin-bottom: 1rem;
         }
 
-        /* ── TimeMachine Tab ── */
-        .tm-tab-panel {
+        /* ── Accordion Panels (General) ── */
+        .accordion-panel {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 14px;
             overflow: hidden;
-            margin-top: 1.75rem;
+            margin-bottom: 1.75rem;
             transition: background-color var(--transition-theme), border-color var(--transition-theme);
         }
-        .tm-tab-header {
+        .accordion-header {
             padding: 1rem 1.5rem;
             background: var(--bg-navbar);
             border-bottom: 1px solid var(--border-color);
             display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; user-select: none;
         }
-        .tm-tab-title {
+        .accordion-title {
             font-size: 0.88rem; font-weight: 600;
             color: var(--text-primary);
             display: flex; align-items: center; gap: 8px;
         }
-        .tm-tab-title i { color: #a78bfa; }
-        .tm-tab-chevron { color: var(--text-muted); transition: transform 0.2s; }
-        .tm-tab-panel.open .tm-tab-chevron { transform: rotate(180deg); }
-        .tm-tab-body {
+        .accordion-chevron { color: var(--text-muted); transition: transform 0.2s; }
+        .accordion-panel.open .accordion-chevron { transform: rotate(180deg); }
+        .accordion-body {
             display: none; padding: 1.5rem;
-            background: linear-gradient(135deg,rgba(99,102,241,0.03),transparent);
         }
-        .tm-tab-panel.open .tm-tab-body { display: block; }
+        .accordion-panel.open .accordion-body { display: block; }
+
+        /* ── TimeMachine Tab (Inherit or specific) ── */
+        .tm-tab-panel {
+            margin-top: 1.75rem;
+        }
+        .tm-tab-title i { color: #a78bfa; }
         .tm-stat-grid {
             display: grid; grid-template-columns: repeat(4, 1fr);
             gap: 0.85rem; margin-bottom: 1.25rem;
@@ -1480,7 +1484,7 @@
         <div class="inner">
             <a class="navbar-brand" href="#">
                 <i class="bi bi-shield-lock-fill"></i>
-                Admin Monitoring
+                Sınav Takip ve Yönetim Paneli
             </a>
             <div class="navbar-right">
                 <div class="live-badge">
@@ -1532,29 +1536,29 @@
             </div>
         </div>
 
-        <!-- ═══ EXAM CONTROL PANEL ═══ -->
-        <div class="control-panel">
-            <div class="control-panel-header">
-                <div class="control-panel-title">
+        <!-- ═══ EXAM CONTROL PANEL (Accordion) ═══ -->
+        <div class="accordion-panel open" id="controlAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('controlAccordion')">
+                <div class="accordion-title">
                     <i class="bi bi-sliders2"></i>
                     Sınav Kontrolü
                 </div>
-                <div class="exam-state-badge idle" id="examStateBadge">
-                    <span class="state-dot-badge"></span>
-                    <span id="examStateText">Bekleniyor</span>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div class="exam-state-badge idle" id="examStateBadge" onclick="event.stopPropagation()">
+                        <span class="state-dot-badge"></span>
+                        <span id="examStateText">Bekleniyor</span>
+                    </div>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
                 </div>
             </div>
-
-            <div class="control-panel-body">
+            <div class="accordion-body">
                 <div class="control-layout">
-
                     <!-- Upload Section -->
                     <div class="upload-section">
                         <div class="upload-label">
                             <i class="bi bi-file-earmark-code"></i>
                             Soru Dosyası (JSON)
                         </div>
-
                         <div class="upload-dropzone" id="dropzone">
                             <input type="file" accept=".json" id="jsonFileInput" onchange="handleFileSelect(event)">
                             <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
@@ -1563,107 +1567,88 @@
                                 <span style="font-size:0.72rem; opacity:0.7;">Yalnızca .json uzantılı dosyalar</span>
                             </div>
                         </div>
-
                         <div class="file-loaded" id="fileLoaded">
-                            <div class="file-loaded-icon">
-                                <i class="bi bi-file-earmark-check-fill"></i>
-                            </div>
+                            <div class="file-loaded-icon"><i class="bi bi-file-earmark-check-fill"></i></div>
                             <div class="file-loaded-info">
                                 <div class="file-loaded-name" id="fileLoadedName">sorular.json</div>
                                 <div class="file-loaded-meta" id="fileLoadedMeta">— soru yüklendi</div>
                             </div>
-                            <button class="btn-remove-file" onclick="removeFile()" title="Dosyayı Kaldır">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
+                            <button class="btn-remove-file" onclick="removeFile()" title="Dosyayı Kaldır"><i class="bi bi-x-lg"></i></button>
                         </div>
                     </div>
-
                     <!-- Actions Section -->
                     <div class="actions-section">
-                        <div class="actions-label">
-                            <i class="bi bi-play-circle"></i>
-                            Sınav İşlemleri
-                        </div>
-
+                        <div class="actions-label"><i class="bi bi-play-circle"></i> Sınav İşlemleri</div>
                         <div class="actions-grid">
-                            <button class="btn-exam btn-start" id="btnStart" onclick="startExam()" disabled>
-                                <i class="bi bi-play-fill"></i>
-                                Sınavı Başlat
-                            </button>
-                            <button class="btn-exam btn-pause" id="btnPause" onclick="pauseExam()" disabled>
-                                <i class="bi bi-pause-fill"></i>
-                                Duraklat
-                            </button>
-                            <button class="btn-exam btn-resume" id="btnResume" onclick="resumeExam()" disabled>
-                                <i class="bi bi-skip-forward-fill"></i>
-                                Devam Et
-                            </button>
-                            <button class="btn-exam btn-end" id="btnEnd" onclick="confirmEndExam()" disabled>
-                                <i class="bi bi-stop-fill"></i>
-                                Sınavı Bitir
-                            </button>
+                            <button class="btn-exam btn-start" id="btnStart" onclick="startExam()" disabled><i class="bi bi-play-fill"></i> Sınavı Başlat</button>
+                            <button class="btn-exam btn-pause" id="btnPause" onclick="pauseExam()" disabled><i class="bi bi-pause-fill"></i> Duraklat</button>
+                            <button class="btn-exam btn-resume" id="btnResume" onclick="resumeExam()" disabled><i class="bi bi-skip-forward-fill"></i> Devam Et</button>
+                            <button class="btn-exam btn-end" id="btnEnd" onclick="confirmEndExam()" disabled><i class="bi bi-stop-fill"></i> Sınavı Bitir</button>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Timer row -->
-            <div class="timer-row">
-                <div class="timer-block">
-                    <div class="timer-label">Geçen Süre</div>
-                    <div class="timer-value" id="elapsedTimer">00:00:00</div>
-                </div>
-                <div class="divider-v"></div>
-                <div class="timer-block">
-                    <div class="timer-label">Sınav Durumu</div>
-                    <div class="timer-value" id="examStatusTimer" style="color: var(--text-muted);">—</div>
-                </div>
-                <div class="questions-loaded-info" id="questionsInfo" style="display:none;">
-                    <i class="bi bi-list-check"></i>
-                    <span class="q-count" id="qCount">0</span>
-                    <span>soru yüklendi</span>
+                <!-- Timer row -->
+                <div class="timer-row">
+                    <div class="timer-block">
+                        <div class="timer-label">Geçen Süre</div>
+                        <div class="timer-value" id="elapsedTimer">00:00:00</div>
+                    </div>
+                    <div class="divider-v"></div>
+                    <div class="timer-block">
+                        <div class="timer-label">Sınav Durumu</div>
+                        <div class="timer-value" id="examStatusTimer" style="color: var(--text-muted);">—</div>
+                    </div>
+                    <div class="questions-loaded-info" id="questionsInfo" style="display:none;">
+                        <i class="bi bi-list-check"></i>
+                        <span class="q-count" id="qCount">0</span>
+                        <span>soru yüklendi</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Student Table -->
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <div class="table-panel-title">
+        <!-- Student Table (Accordion) -->
+        <div class="accordion-panel" id="tableAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('tableAccordion')">
+                <div class="accordion-title">
                     <i class="bi bi-table"></i>
                     Öğrenci Listesi
                 </div>
-                <div class="refresh-hint">
-                    <i class="bi bi-arrow-clockwise"></i>
-                    Her 5 saniyede güncellenir
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div class="refresh-hint" style="margin:0; border:none; background:transparent;" onclick="event.stopPropagation()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Her 5 saniyede güncellenir
+                    </div>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
                 </div>
             </div>
-
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Öğrenci No</th>
-                            <th>Ad Soyad</th>
-                            <th>IP Adresi</th>
-                            <th>Mevcut Soru</th>
-                            <th>Durum</th>
-                            <th>Son Görülme</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentList"></tbody>
-                </table>
-                <div id="emptyState" class="empty-state" style="display:none;">
-                    <i class="bi bi-inbox"></i>
-                    <p>Henüz bağlı öğrenci yok.</p>
+            <div class="accordion-body" style="padding:0;">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Öğrenci No</th>
+                                <th>Ad Soyad</th>
+                                <th>IP Adresi</th>
+                                <th>Mevcut Soru</th>
+                                <th>Durum</th>
+                                <th>Son Görülme</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentList"></tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="bi bi-inbox"></i>
+                        <p>Henüz bağlı öğrenci yok.</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TimeMachine Sekmesi -->
-        <div class="tm-tab-panel" id="tmTabPanel">
-            <div class="tm-tab-header" onclick="toggleTmTab()">
-                <div class="tm-tab-title">
+        <!-- TimeMachine Sekmesi (Accordion) -->
+        <div class="accordion-panel tm-tab-panel" id="tmTabPanel">
+            <div class="accordion-header" onclick="toggleAccordion('tmTabPanel')">
+                <div class="accordion-title tm-tab-title">
                     <i class="bi bi-clock-history"></i>
                     TimeMachine
                     <span id="tmTabBadge" style="font-size:0.7rem; padding:2px 8px;
@@ -1672,17 +1657,17 @@
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <span id="tmLastUpdate" style="font-size:0.72rem; color:var(--text-muted);"></span>
-                    <i class="bi bi-chevron-down tm-tab-chevron"></i>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
                 </div>
             </div>
-            <div class="tm-tab-body">
+            <div class="accordion-body">
                 <div class="tm-stat-grid">
                     <div class="tm-stat">
                         <div class="tm-stat-label">Oturum Durumu</div>
                         <div class="tm-stat-value purple" id="tmStateVal">&mdash;</div>
                     </div>
                     <div class="tm-stat">
-                        <div class="tm-stat-label">Kayitli Ogrenci</div>
+                        <div class="tm-stat-label">Kayıtlı Öğrenci</div>
                         <div class="tm-stat-value green" id="tmStudentCount">&mdash;</div>
                     </div>
                     <div class="tm-stat">
@@ -1690,7 +1675,7 @@
                         <div class="tm-stat-value orange" id="tmSnapshotCount">&mdash;</div>
                     </div>
                     <div class="tm-stat">
-                        <div class="tm-stat-label">Sinav ID</div>
+                        <div class="tm-stat-label">Sınav ID</div>
                         <div class="tm-stat-value" id="tmExamId" style="font-size:0.85rem;">&mdash;</div>
                     </div>
                 </div>
@@ -1702,7 +1687,7 @@
                         <i class="bi bi-arrow-clockwise"></i> Durumu Yenile
                     </button>
                     <button class="btn-tm-action btn-tm-reset" onclick="tmConfirmReset()">
-                        <i class="bi bi-trash3"></i> DB'yi Sifirla
+                        <i class="bi bi-trash3"></i> Veritabanını Sıfırla
                     </button>
                 </div>
                 <div class="tm-db-path" id="tmDbPath">&mdash;</div>
@@ -2363,9 +2348,9 @@
             showToast('ℹ️ TimeMachine oturumu yoksayıldı.', 'info');
         }
 
-        /** TimeMachine sekmesini aç/kapat */
-        function toggleTmTab() {
-            document.getElementById('tmTabPanel').classList.toggle('open');
+        /** Accordion aç/kapat */
+        function toggleAccordion(panelId) {
+            document.getElementById(panelId).classList.toggle('open');
         }
 
         /** DB istatistiklerini yenile */
@@ -2385,7 +2370,7 @@
 
         /** Sekmedeki istatistik değerlerini günceller */
         function tmUpdateTabStats(data) {
-            const stateMap = {idle:'Bekleme', running:'Çalışıyor', paused:'Duraklatıldı', ended:'Bitti'};
+            const stateMap = {idle:'Beklemede', running:'Çalışıyor', paused:'Duraklatıldı', ended:'Bitti'};
             document.getElementById('tmStateVal').textContent    = stateMap[data.session_state] || data.session_state || '—';
             document.getElementById('tmStudentCount').textContent = data.student_count ?? '—';
             document.getElementById('tmSnapshotCount').textContent = data.snapshot_count ?? '—';
