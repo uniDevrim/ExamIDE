@@ -14,9 +14,8 @@ document.documentElement.setAttribute('data-theme', currentTheme);
 // Language mapping for Monaco
 const monacoLanguageMap = {
     'python': 'python',
-    'java': 'java',
-    'c': 'c',
-    'cpp': 'cpp'
+    'cpp': 'cpp',
+    'csharp': 'csharp'
 };
 
 // ========================================
@@ -808,7 +807,7 @@ function _loadQuestionsFromApi(questionsObj, examData) {
     // Dil: API'dan gelen language alanı
     const lang = (examData.language || 'python').toLowerCase();
     if (['python', 'cpp', 'csharp'].includes(lang)) {
-        currentLanguage = lang === 'csharp' ? 'cpp' : lang;
+        currentLanguage = lang;
         const sel = document.getElementById('languageSelect');
         if (sel) sel.value = currentLanguage;
     }
