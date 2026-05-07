@@ -84,8 +84,8 @@ def init_db():
 def save_exam_session(
     exam_id: str,
     state: str,
-    language: str | None,
-    exam_data_json: str | None,
+    language,
+    exam_data_json,
     started_at,        # datetime | None
     paused_at,         # datetime | None
     total_paused_secs: float,
