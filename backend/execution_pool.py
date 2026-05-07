@@ -290,18 +290,7 @@ class WarmContainerPool:
 
     def run_with_stdin(self, code: str, lang: str, stdin_input: str, expected_output: str) -> bool:
         container = None
-        image = IMAGE_MAP.get(lang)
-
         try:
-            container = self.client.containers.run(
-                image,
-                command="sleep 30",
-                detach=True,
-                mem_limit="128m",
-                network_disabled=True,
-                working_dir="/tmp",
-                auto_remove=True
-            )
             container = self.get_container(lang)
             if container is None:
                 print("[-] run_with_stdin: No container available")
@@ -340,6 +329,9 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[-] run_with_stdin error: {e}")
             return False
+        finally:
+            if container:
+                self.cleanup(container)
 
 
     def set_exam_language(self, lang):
