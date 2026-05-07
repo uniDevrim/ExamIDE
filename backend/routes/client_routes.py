@@ -64,6 +64,11 @@ def run_code():
             pool_manager.copy_code(container, "Program.cs", code)
             exec_cmd = "cd /tmp && dotnet run"
 
+        stdin_input = data.get('stdin_input', '')
+        if stdin_input:
+            pool_manager.copy_code(container, "stdin.txt", stdin_input)
+            exec_cmd = f"{exec_cmd} < /tmp/stdin.txt"
+
         start_time = time.time()
         
         exit_code, output_bytes = container.exec_run(
