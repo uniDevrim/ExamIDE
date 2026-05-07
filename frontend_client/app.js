@@ -1,207 +1,3 @@
-/* ========================================
-   LeetCode-Style Exam Page - JavaScript
-   Monaco Editor + Light/Dark Theme
-   ======================================== */
-
-// ========================================
-// Question Data
-// ========================================
-
-const questions = [
-    {
-        id: 1,
-        title: "İki Sayının Toplamı",
-        difficulty: "easy",
-        points: 15,
-        category: "Dizi",
-        description: `Bir tam sayı dizisi <code>nums</code> ve bir tam sayı <code>target</code> verildiğinde, toplamları <code>target</code>'a eşit olan iki sayının indekslerini döndürün.
-
-Her girdinin <strong>tam olarak bir çözümü</strong> olduğunu varsayabilirsiniz ve aynı elemanı iki kez kullanamazsınız.
-
-Cevabı herhangi bir sırada döndürebilirsiniz.`,
-        examples: [
-            {
-                input: "nums = [2, 7, 11, 15], target = 9",
-                output: "[0, 1]",
-                explanation: "nums[0] + nums[1] = 2 + 7 = 9 olduğundan [0, 1] döndürülür."
-            },
-            {
-                input: "nums = [3, 2, 4], target = 6",
-                output: "[1, 2]",
-                explanation: "nums[1] + nums[2] = 2 + 4 = 6"
-            }
-        ],
-        constraints: [
-            "<code>2 ≤ nums.length ≤ 10<sup>4</sup></code>",
-            "<code>-10<sup>9</sup> ≤ nums[i] ≤ 10<sup>9</sup></code>",
-            "<code>-10<sup>9</sup> ≤ target ≤ 10<sup>9</sup></code>",
-            "Yalnızca bir geçerli cevap vardır."
-        ],
-        starterCode: {
-            python: `def iki_sayi_toplami(nums, target):\n    # Kodunuzu buraya yazın\n    pass\n\n# Örnek kullanım\nnums = [2, 7, 11, 15]\ntarget = 9\nprint(iki_sayi_toplami(nums, target))`,
-            java: `import java.util.*;\n\npublic class Solution {\n    public int[] ikiSayiToplami(int[] nums, int target) {\n        // Kodunuzu buraya yazın\n        return new int[]{};\n    }\n\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        int[] nums = {2, 7, 11, 15};\n        int target = 9;\n        System.out.println(Arrays.toString(sol.ikiSayiToplami(nums, target)));\n    }\n}`,
-            c: `#include <stdio.h>\n#include <stdlib.h>\n\nint* ikiSayiToplami(int* nums, int numsSize, int target, int* returnSize) {\n    // Kodunuzu buraya yazın\n    *returnSize = 2;\n    int* result = (int*)malloc(2 * sizeof(int));\n    return result;\n}\n\nint main() {\n    int nums[] = {2, 7, 11, 15};\n    int target = 9;\n    int returnSize;\n    int* result = ikiSayiToplami(nums, 4, target, &returnSize);\n    printf("[%d, %d]\\n", result[0], result[1]);\n    free(result);\n    return 0;\n}`,
-            cpp: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> ikiSayiToplami(vector<int>& nums, int target) {\n        // Kodunuzu buraya yazın\n        return {};\n    }\n};\n\nint main() {\n    Solution sol;\n    vector<int> nums = {2, 7, 11, 15};\n    int target = 9;\n    vector<int> result = sol.ikiSayiToplami(nums, target);\n    cout << "[" << result[0] << ", " << result[1] << "]" << endl;\n    return 0;\n}`
-        }
-    },
-    {
-        id: 2,
-        title: "Palindrom Sayı",
-        difficulty: "easy",
-        points: 15,
-        category: "Matematik",
-        description: `Bir tam sayı <code>x</code> verildiğinde, <code>x</code> bir palindrom ise <code>true</code> döndürün.
-
-Bir tam sayı, soldan sağa ve sağdan sola okunduğunda aynıysa palindromdur.
-
-<strong>Örneğin:</strong> 121 bir palindromdur, 123 değildir. -121 de palindrom değildir çünkü soldan sağa okunduğunda "-121", sağdan sola "121-" olur.`,
-        examples: [
-            {
-                input: "x = 121",
-                output: "true",
-                explanation: "121 soldan sağa ve sağdan sola okunduğunda aynıdır."
-            },
-            {
-                input: "x = -121",
-                output: "false",
-                explanation: "Soldan sağa: -121. Sağdan sola: 121-. Bu yüzden palindrom değildir."
-            },
-            {
-                input: "x = 10",
-                output: "false",
-                explanation: "Sağdan sola okunduğunda 01 olur. Bu yüzden palindrom değildir."
-            }
-        ],
-        constraints: [
-            "<code>-2<sup>31</sup> ≤ x ≤ 2<sup>31</sup> - 1</code>",
-            "Sayıyı stringe çevirmeden çözmeye çalışın."
-        ],
-        starterCode: {
-            python: `def palindrom_sayi(x):\n    # Kodunuzu buraya yazın\n    pass\n\n# Örnek kullanım\nprint(palindrom_sayi(121))\nprint(palindrom_sayi(-121))\nprint(palindrom_sayi(10))`,
-            java: `public class Solution {\n    public boolean palindromSayi(int x) {\n        // Kodunuzu buraya yazın\n        return false;\n    }\n\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        System.out.println(sol.palindromSayi(121));\n        System.out.println(sol.palindromSayi(-121));\n        System.out.println(sol.palindromSayi(10));\n    }\n}`,
-            c: `#include <stdio.h>\n#include <stdbool.h>\n\nbool palindromSayi(int x) {\n    // Kodunuzu buraya yazın\n    return false;\n}\n\nint main() {\n    printf("%s\\n", palindromSayi(121) ? "true" : "false");\n    printf("%s\\n", palindromSayi(-121) ? "true" : "false");\n    printf("%s\\n", palindromSayi(10) ? "true" : "false");\n    return 0;\n}`,
-            cpp: `#include <iostream>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool palindromSayi(int x) {\n        // Kodunuzu buraya yazın\n        return false;\n    }\n};\n\nint main() {\n    Solution sol;\n    cout << boolalpha;\n    cout << sol.palindromSayi(121) << endl;\n    cout << sol.palindromSayi(-121) << endl;\n    cout << sol.palindromSayi(10) << endl;\n    return 0;\n}`
-        }
-    },
-    {
-        id: 3,
-        title: "En Uzun Ortak Önek",
-        difficulty: "medium",
-        points: 20,
-        category: "String",
-        description: `Bir string dizisi içindeki en uzun ortak öneki bulun.
-
-Ortak önek yoksa boş bir string <code>""</code> döndürün.
-
-Tüm girdiler yalnızca küçük İngilizce harflerden oluşur.`,
-        examples: [
-            {
-                input: 'strs = ["flower", "flow", "flight"]',
-                output: '"fl"',
-                explanation: '"fl" tüm stringlerin ortak önekidir.'
-            },
-            {
-                input: 'strs = ["dog", "racecar", "car"]',
-                output: '""',
-                explanation: "Girdiler arasında ortak önek yoktur."
-            }
-        ],
-        constraints: [
-            "<code>1 ≤ strs.length ≤ 200</code>",
-            "<code>0 ≤ strs[i].length ≤ 200</code>",
-            "<code>strs[i]</code> yalnızca küçük İngilizce harflerden oluşur."
-        ],
-        starterCode: {
-            python: `def en_uzun_ortak_onek(strs):\n    # Kodunuzu buraya yazın\n    pass\n\n# Örnek kullanım\nprint(en_uzun_ortak_onek(["flower", "flow", "flight"]))\nprint(en_uzun_ortak_onek(["dog", "racecar", "car"]))`,
-            java: `public class Solution {\n    public String enUzunOrtakOnek(String[] strs) {\n        // Kodunuzu buraya yazın\n        return "";\n    }\n\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        System.out.println(sol.enUzunOrtakOnek(new String[]{"flower", "flow", "flight"}));\n        System.out.println(sol.enUzunOrtakOnek(new String[]{"dog", "racecar", "car"}));\n    }\n}`,
-            c: `#include <stdio.h>\n#include <string.h>\n\nchar* enUzunOrtakOnek(char** strs, int strsSize) {\n    // Kodunuzu buraya yazın\n    static char result[201];\n    result[0] = '\\0';\n    return result;\n}\n\nint main() {\n    char* strs1[] = {"flower", "flow", "flight"};\n    printf("%s\\n", enUzunOrtakOnek(strs1, 3));\n    return 0;\n}`,
-            cpp: `#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    string enUzunOrtakOnek(vector<string>& strs) {\n        // Kodunuzu buraya yazın\n        return "";\n    }\n};\n\nint main() {\n    Solution sol;\n    vector<string> strs1 = {"flower", "flow", "flight"};\n    cout << sol.enUzunOrtakOnek(strs1) << endl;\n    return 0;\n}`
-        }
-    },
-    {
-        id: 4,
-        title: "Geçerli Parantezler",
-        difficulty: "medium",
-        points: 25,
-        category: "Stack",
-        description: `Yalnızca <code>'('</code>, <code>')'</code>, <code>'{'</code>, <code>'}'</code>, <code>'['</code> ve <code>']'</code> karakterlerini içeren bir string <code>s</code> verildiğinde, giriş stringinin geçerli olup olmadığını belirleyin.
-
-Bir giriş stringi şu durumlarda geçerlidir:
-<ul style="color: var(--text-primary); margin: 10px 0; padding-left: 20px;">
-<li>Açık parantezler aynı türdeki parantezlerle kapatılmalıdır.</li>
-<li>Açık parantezler doğru sırada kapatılmalıdır.</li>
-<li>Her kapatma parantezinin karşılık gelen bir açma parantezi vardır.</li>
-</ul>`,
-        examples: [
-            {
-                input: 's = "()"',
-                output: "true",
-                explanation: "Tek bir çift parantez, geçerli."
-            },
-            {
-                input: 's = "()[]{}"',
-                output: "true",
-                explanation: "Her parantez çifti doğru şekilde eşleşmiş."
-            },
-            {
-                input: 's = "(]"',
-                output: "false",
-                explanation: "Açık parantez farklı türde bir parantezle kapatılmış."
-            }
-        ],
-        constraints: [
-            "<code>1 ≤ s.length ≤ 10<sup>4</sup></code>",
-            "<code>s</code> yalnızca <code>'()[]{}'</code> karakterlerinden oluşur."
-        ],
-        starterCode: {
-            python: `def gecerli_parantezler(s):\n    # Kodunuzu buraya yazın\n    pass\n\n# Örnek kullanım\nprint(gecerli_parantezler("()"))\nprint(gecerli_parantezler("()[]{}"))\nprint(gecerli_parantezler("(]"))`,
-            java: `import java.util.Stack;\n\npublic class Solution {\n    public boolean gecerliParantezler(String s) {\n        // Kodunuzu buraya yazın\n        return false;\n    }\n\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        System.out.println(sol.gecerliParantezler("()"));\n        System.out.println(sol.gecerliParantezler("()[]{}"));\n        System.out.println(sol.gecerliParantezler("(]"));\n    }\n}`,
-            c: `#include <stdio.h>\n#include <stdbool.h>\n#include <string.h>\n\nbool gecerliParantezler(char* s) {\n    // Kodunuzu buraya yazın\n    return false;\n}\n\nint main() {\n    printf("%s\\n", gecerliParantezler("()") ? "true" : "false");\n    printf("%s\\n", gecerliParantezler("()[]{}") ? "true" : "false");\n    printf("%s\\n", gecerliParantezler("(]") ? "true" : "false");\n    return 0;\n}`,
-            cpp: `#include <iostream>\n#include <stack>\n#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool gecerliParantezler(string s) {\n        // Kodunuzu buraya yazın\n        return false;\n    }\n};\n\nint main() {\n    Solution sol;\n    cout << boolalpha;\n    cout << sol.gecerliParantezler("()") << endl;\n    cout << sol.gecerliParantezler("()[]{}") << endl;\n    cout << sol.gecerliParantezler("(]") << endl;\n    return 0;\n}`
-        }
-    },
-    {
-        id: 5,
-        title: "Matris Çarpımı",
-        difficulty: "hard",
-        points: 25,
-        category: "Matris",
-        description: `İki matris <code>A</code> (m×n) ve <code>B</code> (n×p) verildiğinde, bu iki matrisin çarpımını hesaplayan bir fonksiyon yazın.
-
-Matris çarpımında, sonuç matrisinin her elemanı <code>C[i][j]</code>, A'nın i. satırı ile B'nin j. sütununun iç çarpımıdır:
-
-<code>C[i][j] = Σ(k=0 → n-1) A[i][k] × B[k][j]</code>
-
-Eğer matrisler çarpılamıyorsa (boyut uyumsuzluğu), boş bir matris döndürün.`,
-        examples: [
-            {
-                input: "A = [[1, 2], [3, 4]], B = [[5, 6], [7, 8]]",
-                output: "[[19, 22], [43, 50]]",
-                explanation: "C[0][0] = 1×5 + 2×7 = 19, C[0][1] = 1×6 + 2×8 = 22, C[1][0] = 3×5 + 4×7 = 43, C[1][1] = 3×6 + 4×8 = 50"
-            },
-            {
-                input: "A = [[1, 0, 2]], B = [[3], [1], [2]]",
-                output: "[[7]]",
-                explanation: "C[0][0] = 1×3 + 0×1 + 2×2 = 7"
-            }
-        ],
-        constraints: [
-            "<code>1 ≤ m, n, p ≤ 100</code>",
-            "<code>-100 ≤ A[i][j], B[i][j] ≤ 100</code>",
-            "A'nın sütun sayısı B'nin satır sayısına eşit olmalıdır."
-        ],
-        starterCode: {
-            python: `def matris_carpimi(A, B):\n    # Kodunuzu buraya yazın\n    pass\n\n# Örnek kullanım\nA = [[1, 2], [3, 4]]\nB = [[5, 6], [7, 8]]\nsonuc = matris_carpimi(A, B)\nprint(sonuc)`,
-            java: `public class Solution {\n    public int[][] matrisCarpimi(int[][] A, int[][] B) {\n        // Kodunuzu buraya yazın\n        return new int[][]{};\n    }\n\n    public static void main(String[] args) {\n        Solution sol = new Solution();\n        int[][] A = {{1, 2}, {3, 4}};\n        int[][] B = {{5, 6}, {7, 8}};\n        int[][] sonuc = sol.matrisCarpimi(A, B);\n        for (int[] row : sonuc) {\n            for (int val : row) System.out.print(val + " ");\n            System.out.println();\n        }\n    }\n}`,
-            c: `#include <stdio.h>\n#include <stdlib.h>\n\nvoid matrisCarpimi(int** A, int m, int n, int** B, int p, int** C) {\n    // Kodunuzu buraya yazın\n}\n\nint main() {\n    // Matris oluşturma ve test kodu\n    printf("Matris carpimi sonucu:\\n");\n    return 0;\n}`,
-            cpp: `#include <iostream>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> matrisCarpimi(vector<vector<int>>& A, vector<vector<int>>& B) {\n        // Kodunuzu buraya yazın\n        return {};\n    }\n};\n\nint main() {\n    Solution sol;\n    vector<vector<int>> A = {{1, 2}, {3, 4}};\n    vector<vector<int>> B = {{5, 6}, {7, 8}};\n    auto sonuc = sol.matrisCarpimi(A, B);\n    for (auto& row : sonuc) {\n        for (int val : row) cout << val << " ";\n        cout << endl;\n    }\n    return 0;\n}`
-        }
-    }
-];
-
-// ========================================
-// State Management
-// ========================================
 let currentQuestion = 0;
 let currentLanguage = 'python';
 let userCode = {};  // { questionId_lang: code }
@@ -560,8 +356,8 @@ function setupOutputPanel() {
 // ========================================
 function runCode(event) {
     if (event) event.preventDefault();
-    
-    const code = monacoEditor.getValue(); 
+
+    const code = monacoEditor.getValue();
     const language = document.getElementById('languageSelect').value.toLowerCase();
     const outputElement = document.getElementById('outputBody');
 
@@ -570,76 +366,107 @@ function runCode(event) {
     outputElement.innerText = "Kod konteynerde derleniyor...";
     document.querySelector('.output-panel').classList.remove('collapsed');
 
-    fetch('/api/client/run', { 
+    fetch('/api/client/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: code, language: language })
     })
-    .then(response => {
-        // Eğer backend 500 dönerse burası yakalar
-        if (!response.ok) {
-            return response.json().then(err => { throw new Error(err.stderr || "Sunucu hatası"); });
-        }
-        return response.json();
-    })
-    .then(data => {
-        outputElement.innerText = data.stdout || data.stderr || "Program çıktı vermedi.";
-    })
-    .catch(error => {
-        console.error('Hata Detayı:', error);
-        outputElement.innerText = "Hata: " + error.message;
-        outputElement.style.color = "red";
-    });
+        .then(response => {
+            // Eğer backend 500 dönerse burası yakalar
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.stderr || "Sunucu hatası"); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            outputElement.innerText = data.stdout || data.stderr || "Program çıktı vermedi.";
+        })
+        .catch(error => {
+            console.error('Hata Detayı:', error);
+            outputElement.innerText = "Hata: " + error.message;
+            outputElement.style.color = "red";
+        });
 }
 
-function submitCode() {
+async function submitCode() {
     saveCurrentCode();
+    const q = questions[currentQuestion];
     const outputBody = document.getElementById('outputBody');
     const outputPanel = document.querySelector('.output-panel');
+    const code = monacoEditor.getValue();
+    const language = currentLanguage;
 
     outputPanel.classList.remove('collapsed');
     outputBody.className = 'output-body';
     outputBody.innerHTML = '<i class="bi bi-hourglass-split"></i> Test senaryoları çalıştırılıyor...';
 
-    // Simulate submission
-    setTimeout(() => {
-        const passed = Math.random() > 0.3;
+    const testCases = q.examples || [];
+    if (testCases.length === 0) {
+        showToast('Bu soru için test senaryosu tanımlı değil.', 'info');
+        outputBody.innerHTML = 'Test senaryosu bulunamadı.';
+        return;
+    }
 
-        if (passed) {
-            const q = questions[currentQuestion];
-            solvedQuestions.add(q.id);
+    let passed = 0;
+    let resultsHTML = '';
 
-            document.getElementById(`tab-${currentQuestion}`).classList.add('solved');
-            updateProgressDots();
+    for (let i = 0; i < testCases.length; i++) {
+        const tc = testCases[i];
+        const stdin = tc.input || '';
+        const expected = (tc.output || '').trim();
 
-            outputBody.className = 'output-body success';
-            outputBody.innerHTML = `
-                <div style="font-size: 1rem; margin-bottom: 10px;">✅ <strong>Kabul Edildi!</strong></div>
-                <div style="margin-bottom: 6px;">Geçen test senaryoları: <strong>${q.examples.length}/${q.examples.length}</strong></div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">
-                    Çalışma süresi: ${Math.floor(Math.random() * 50 + 10)}ms | 
-                    Bellek: ${(Math.random() * 5 + 10).toFixed(1)} MB |
-                    Puan: ${q.points}/${q.points}
-                </div>
-            `;
+        try {
+            const res = await fetch('/api/client/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language, stdin_input: stdin })
+            });
+            const data = await res.json();
+            const actual = (data.stdout || '').trim();
+            const ok = expected ? (actual === expected) : (data.exit_code === 0);
 
-            showToast(`Soru ${q.id} başarıyla çözüldü! +${q.points} puan`, 'success');
-        } else {
-            const failedTest = Math.floor(Math.random() * 3) + 2;
-            outputBody.className = 'output-body error';
-            outputBody.innerHTML = `
-                <div style="font-size: 1rem; margin-bottom: 10px;">❌ <strong>Yanlış Cevap</strong></div>
-                <div style="margin-bottom: 6px;">Test senaryosu ${failedTest} başarısız oldu.</div>
-                <div style="padding: 8px; background: rgba(0,0,0,0.15); border-radius: 6px; margin-top: 8px;">
-                    <div>Girdi: [3, 5, -2, 8, 1]</div>
-                    <div>Beklenen: [1, 2]</div>
-                    <div>Üretilen: [0, 3]</div>
-                </div>
-            `;
+            if (ok) passed++;
 
-            showToast('Test senaryosu başarısız oldu', 'error');
+            resultsHTML += `
+                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;
+                            padding:8px 10px;border-radius:8px;
+                            background:${ok ? 'rgba(34,197,94,0.07)' : 'rgba(239,68,68,0.07)'};
+                            border:1px solid ${ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'};">
+                    <span style="font-size:1rem;flex-shrink:0;">${ok ? '✅' : '❌'}</span>
+                    <div style="font-size:0.78rem;line-height:1.6;min-width:0;">
+                        <strong>Test ${i + 1}</strong><br>
+                        <span style="color:var(--text-muted);">Girdi:</span> <code>${stdin || '—'}</code><br>
+                        <span style="color:var(--text-muted);">Beklenen:</span> <code>${expected || '—'}</code><br>
+                        <span style="color:var(--text-muted);">Üretilen:</span>
+                        <code style="color:${ok ? 'var(--accent-success)' : 'var(--accent-danger)'};">
+                            ${actual || data.stderr?.slice(0, 120) || '(çıktı yok)'}
+                        </code>
+                    </div>
+                </div>`;
+        } catch (err) {
+            resultsHTML += `<div style="color:var(--accent-danger);font-size:0.8rem;">Test ${i + 1}: Sunucu hatası — ${err.message}</div>`;
         }
-    }, 2000);
+    }
+
+    const allPassed = passed === testCases.length;
+
+    if (allPassed) {
+        solvedQuestions.add(q.id);
+        document.getElementById(`tab-${currentQuestion}`).classList.add('solved');
+        updateProgressDots();
+        showToast(`Soru ${q.id} başarıyla çözüldü! +${q.points} puan`, 'success');
+    } else {
+        showToast(`${passed}/${testCases.length} test geçti`, 'error');
+    }
+
+    outputBody.className = `output-body ${allPassed ? 'success' : 'error'}`;
+    outputBody.innerHTML = `
+        <div style="font-size:0.95rem;margin-bottom:10px;font-weight:600;">
+            ${allPassed
+                ? `✅ Tüm testler geçti! <span style="color:var(--accent-success)">${q.points}/${q.points} puan</span>`
+                : `❌ ${passed}/${testCases.length} test geçti`}
+        </div>
+        ${resultsHTML}`;
 }
 
 // ========================================
@@ -743,19 +570,19 @@ function confirmFinishExam() {
             questions: questionsPayload
         })
     })
-    .then(r => r.json())
-    .then(data => {
-        if (data.message === 'Submitted successfully') {
-            finishExam(false);
-        } else if (data.error === 'Already submitted') {
-            showToast('⚠️ Bu sınav zaten gönderilmiş.', 'error');
-        } else {
-            showToast('❌ Hata: ' + (data.error || 'Bilinmeyen hata'), 'error');
-        }
-    })
-    .catch(() => {
-        showToast('❌ Sunucuya bağlanılamadı.', 'error');
-    });
+        .then(r => r.json())
+        .then(data => {
+            if (data.message === 'Submitted successfully') {
+                finishExam(false);
+            } else if (data.error === 'Already submitted') {
+                showToast('⚠️ Bu sınav zaten gönderilmiş.', 'error');
+            } else {
+                showToast('❌ Hata: ' + (data.error || 'Bilinmeyen hata'), 'error');
+            }
+        })
+        .catch(() => {
+            showToast('❌ Sunucuya bağlanılamadı.', 'error');
+        });
 }
 
 function finishExam(timeUp) {
@@ -837,7 +664,7 @@ function showToast(message, type = 'info') {
 // Exam Status Polling
 // ========================================
 
-let _lastExamState   = null;   // önceki state (ilk yüklemeyi tetiklemek için)
+let _lastExamState = null;   // önceki state (ilk yüklemeyi tetiklemek için)
 let _questionsLoaded = false;  // sorular bir kez yüklenince false'a dönmesin
 let _pollingInterval = null;
 
@@ -866,8 +693,8 @@ async function doPoll() {
  * @param {Object} status - { state, exam, questions, started_at }
  */
 function handleExamStatus(status) {
-    const state     = status.state;         // idle | running | paused | ended
-    const examData  = status.exam || {};
+    const state = status.state;         // idle | running | paused | ended
+    const examData = status.exam || {};
     const questions_api = status.questions || {};
 
     const stateChanged = (state !== _lastExamState);
@@ -875,9 +702,9 @@ function handleExamStatus(status) {
 
     // ─── Overlay kontrolü ───────────────────────────────────────────
     const overlays = {
-        waiting : document.getElementById('overlayWaiting'),
-        paused  : document.getElementById('overlayPaused'),
-        ended   : document.getElementById('overlayEnded'),
+        waiting: document.getElementById('overlayWaiting'),
+        paused: document.getElementById('overlayPaused'),
+        ended: document.getElementById('overlayEnded'),
     };
 
     // Tümünü kapat, sonra doğrusunu aç
@@ -959,8 +786,8 @@ function _parseTimeSecs(time) {
     const s = String(time).trim();
     if (s.includes(':')) {
         const parts = s.split(':').map(Number);
-        if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
-        if (parts.length === 2) return parts[0]*60 + parts[1];
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        if (parts.length === 2) return parts[0] * 60 + parts[1];
     }
     const n = parseInt(s, 10);
     return isNaN(n) ? 0 : n * 60; // düzce sayı ise dakika kabul et
@@ -991,27 +818,27 @@ function _loadQuestionsFromApi(questionsObj, examData) {
     Object.keys(questionsObj).forEach((key, idx) => {
         const q = questionsObj[key];
         const examples = (q['test-cases'] || []).map((tc, i) => ({
-            input       : tc.input  ?? '',
-            output      : tc.output ?? '',
-            explanation : ''
+            input: tc.input ?? '',
+            output: tc.output ?? '',
+            explanation: ''
         }));
         questions.push({
-            id          : parseInt(key, 10) || (idx + 1),
-            title       : q.title || `Soru ${key}`,
-            difficulty  : 'medium',
-            points      : q.points || 0,
-            category    : '',
-            description : q.description || '',
+            id: parseInt(key, 10) || (idx + 1),
+            title: q.title || `Soru ${key}`,
+            difficulty: 'medium',
+            points: q.points || 0,
+            category: '',
+            description: q.description || '',
             examples,
-            constraints : [
+            constraints: [
                 `Çalışma süresi sınırı: ${q['run-time-limit']} saniye`,
                 `Bellek sınırı: ${q['memory-limit']} MB`,
             ],
-            starterCode : {
-                python : `# Kodunuzu buraya yazın\n`,
-                cpp    : `// Kodunuzu buraya yazın\n`,
-                java   : `// Kodunuzu buraya yazın\n`,
-                c      : `// Kodunuzu buraya yazın\n`,
+            starterCode: {
+                python: `# Kodunuzu buraya yazın\n`,
+                cpp: `// Kodunuzu buraya yazın\n`,
+                java: `// Kodunuzu buraya yazın\n`,
+                c: `// Kodunuzu buraya yazın\n`,
             }
         });
     });
@@ -1079,8 +906,8 @@ async function restoreCodesFromTimeMachine() {
         Object.entries(codesMap).forEach(([qId, snap]) => {
             // qId = "q1" → numeric id = 1
             const numId = parseInt(qId.replace('q', ''), 10);
-            const lang  = snap.lang || currentLanguage;
-            const key   = `${numId}_${lang}`;
+            const lang = snap.lang || currentLanguage;
+            const key = `${numId}_${lang}`;
             userCode[key] = snap.code;
             restoredCount++;
         });
