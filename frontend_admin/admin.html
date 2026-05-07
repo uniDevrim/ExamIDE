@@ -1696,6 +1696,57 @@
 
     </div>
 
+    <!-- Sonuçlar ve Değerlendirme Sekmesi (Accordion) -->
+    <div class="accordion-panel" id="resultsAccordion">
+        <div class="accordion-header" onclick="toggleAccordion('resultsAccordion'); loadResults();">
+            <div class="accordion-title">
+                <i class="bi bi-journal-check"></i>
+                Sonuçlar ve Değerlendirme
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="event.stopPropagation(); loadResults();">
+                    <i class="bi bi-arrow-clockwise"></i> Yenile
+                </button>
+                <i class="bi bi-chevron-down accordion-chevron"></i>
+            </div>
+        </div>
+        <div class="accordion-body" style="padding:0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Öğrenci No</th>
+                            <th>Teslim Zamanı</th>
+                            <th>Çözülen Soru Sayısı</th>
+                            <th>Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsList"></tbody>
+                </table>
+                <div id="resultsEmptyState" class="empty-state" style="display:none;">
+                    <i class="bi bi-inbox"></i>
+                    <p>Henüz teslim edilmiş sınav bulunmamaktadır.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Viewer Modal -->
+    <div class="modal-confirm-overlay" id="resultModal">
+        <div class="modal-confirm-box" style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; text-align: left; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--text-primary);">Öğrenci Kodu ve Sonuçları</h3>
+                <button onclick="closeResultModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="resultModalBody" style="color: var(--text-secondary);">
+                <!-- Dynamic Content Goes Here -->
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-outline-secondary" onclick="closeResultModal()">Kapat</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Confirm Modal -->
     <div class="modal-confirm-overlay" id="confirmModal">
         <div class="modal-confirm-box">
