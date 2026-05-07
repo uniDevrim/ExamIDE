@@ -1,7 +1,7 @@
 let currentQuestion = 0;
 let currentLanguage = 'python';
 let userCode = {};  // { questionId_lang: code }
-let solvedQuestions = new Set();
+
 let examTimeSeconds = 90 * 60; // 90 minutes
 let timerInterval = null;
 let monacoEditor = null;
@@ -387,86 +387,6 @@ function runCode(event) {
         });
 }
 
-async function submitCode() {
-    saveCurrentCode();
-    const q = questions[currentQuestion];
-    const outputBody = document.getElementById('outputBody');
-    const outputPanel = document.querySelector('.output-panel');
-    const code = monacoEditor.getValue();
-    const language = currentLanguage;
-
-    outputPanel.classList.remove('collapsed');
-    outputBody.className = 'output-body';
-    outputBody.innerHTML = '<i class="bi bi-hourglass-split"></i> Test senaryoları çalıştırılıyor...';
-
-    const testCases = q.examples || [];
-    if (testCases.length === 0) {
-        showToast('Bu soru için test senaryosu tanımlı değil.', 'info');
-        outputBody.innerHTML = 'Test senaryosu bulunamadı.';
-        return;
-    }
-
-    let passed = 0;
-    let resultsHTML = '';
-
-    for (let i = 0; i < testCases.length; i++) {
-        const tc = testCases[i];
-        const stdin = tc.input || '';
-        const expected = (tc.output || '').trim();
-
-        try {
-            const res = await fetch('/api/client/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, language, stdin_input: stdin })
-            });
-            const data = await res.json();
-            const actual = (data.stdout || '').trim();
-            const ok = expected ? (actual === expected) : (data.exit_code === 0);
-
-            if (ok) passed++;
-
-            resultsHTML += `
-                <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;
-                            padding:8px 10px;border-radius:8px;
-                            background:${ok ? 'rgba(34,197,94,0.07)' : 'rgba(239,68,68,0.07)'};
-                            border:1px solid ${ok ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'};">
-                    <span style="font-size:1rem;flex-shrink:0;">${ok ? '✅' : '❌'}</span>
-                    <div style="font-size:0.78rem;line-height:1.6;min-width:0;">
-                        <strong>Test ${i + 1}</strong><br>
-                        <span style="color:var(--text-muted);">Girdi:</span> <code>${stdin || '—'}</code><br>
-                        <span style="color:var(--text-muted);">Beklenen:</span> <code>${expected || '—'}</code><br>
-                        <span style="color:var(--text-muted);">Üretilen:</span>
-                        <code style="color:${ok ? 'var(--accent-success)' : 'var(--accent-danger)'};">
-                            ${actual || data.stderr?.slice(0, 120) || '(çıktı yok)'}
-                        </code>
-                    </div>
-                </div>`;
-        } catch (err) {
-            resultsHTML += `<div style="color:var(--accent-danger);font-size:0.8rem;">Test ${i + 1}: Sunucu hatası — ${err.message}</div>`;
-        }
-    }
-
-    const allPassed = passed === testCases.length;
-
-    if (allPassed) {
-        solvedQuestions.add(q.id);
-        document.getElementById(`tab-${currentQuestion}`).classList.add('solved');
-        updateProgressDots();
-        showToast(`Soru ${q.id} başarıyla çözüldü! +${q.points} puan`, 'success');
-    } else {
-        showToast(`${passed}/${testCases.length} test geçti`, 'error');
-    }
-
-    outputBody.className = `output-body ${allPassed ? 'success' : 'error'}`;
-    outputBody.innerHTML = `
-        <div style="font-size:0.95rem;margin-bottom:10px;font-weight:600;">
-            ${allPassed
-                ? `✅ Tüm testler geçti! <span style="color:var(--accent-success)">${q.points}/${q.points} puan</span>`
-                : `❌ ${passed}/${testCases.length} test geçti`}
-        </div>
-        ${resultsHTML}`;
-}
 
 // ========================================
 // Navigation
@@ -502,12 +422,10 @@ function updateProgressDots() {
         const dot = document.createElement('div');
         dot.className = 'progress-dot';
         if (i === currentQuestion) dot.classList.add('active');
-        if (solvedQuestions.has(q.id)) dot.classList.add('solved');
         dotsContainer.appendChild(dot);
     });
 
-    document.getElementById('progressText').textContent =
-        `${solvedQuestions.size}/${questions.length} çözüldü`;
+    document.getElementById('progressText').textContent = `${questions.length} Soru`;
 }
 
 // ========================================
@@ -515,29 +433,16 @@ function updateProgressDots() {
 // ========================================
 function showFinishModal() {
     const summaryEl = document.getElementById('examSummary');
-    let totalPoints = 0;
-    let earnedPoints = 0;
-
-    let summaryHTML = '';
+    
+    let summaryHTML = '<div style="margin-bottom: 15px; color: var(--text-secondary);">Cevaplarınız kaydedildi. Sınavı bitirmek istediğinize emin misiniz?</div>';
     questions.forEach(q => {
-        totalPoints += q.points;
-        const solved = solvedQuestions.has(q.id);
-        if (solved) earnedPoints += q.points;
-
         summaryHTML += `
             <div class="exam-summary-item">
                 <span class="label">Soru ${q.id}: ${q.title}</span>
-                <span class="value ${solved ? 'success' : ''}">${solved ? `${q.points} puan ✓` : 'Çözülmedi'}</span>
+                <span class="value success">Kaydedildi</span>
             </div>
         `;
     });
-
-    summaryHTML += `
-        <div class="exam-summary-item" style="margin-top: 8px; padding-top: 12px; border-top: 2px solid var(--border-color);">
-            <span class="label" style="font-weight: 700; color: var(--text-primary);">Toplam</span>
-            <span class="value success" style="font-size: 1rem;">${earnedPoints}/${totalPoints} puan</span>
-        </div>
-    `;
 
     summaryEl.innerHTML = summaryHTML;
 
@@ -603,13 +508,6 @@ function finishExam(timeUp) {
     }
 
     setTimeout(() => {
-        let totalPoints = 0;
-        let earnedPoints = 0;
-        questions.forEach(q => {
-            totalPoints += q.points;
-            if (solvedQuestions.has(q.id)) earnedPoints += q.points;
-        });
-
         const overlay = document.createElement('div');
         overlay.style.cssText = `
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -620,13 +518,9 @@ function finishExam(timeUp) {
             <div style="text-align: center; color: white;">
                 <div style="font-size: 4rem; margin-bottom: 16px;">📝</div>
                 <h2 style="font-size: 1.8rem; margin-bottom: 8px;">Sınav Tamamlandı</h2>
-                <p style="color: #a1a1aa; margin-bottom: 24px;">Cevaplarınız kaydedildi</p>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 16px; padding: 24px 48px; display: inline-block;">
-                    <div style="font-size: 3rem; font-weight: 700; color: #22c55e;">${earnedPoints}/${totalPoints}</div>
-                    <div style="color: #a1a1aa; margin-top: 4px;">Toplam Puan</div>
-                </div>
+                <p style="color: #a1a1aa; margin-bottom: 24px;">Cevaplarınız başarıyla sisteme gönderildi.</p>
                 <div style="margin-top: 16px; color: #71717a; font-size: 0.85rem;">
-                    ${solvedQuestions.size} soru çözüldü / ${questions.length} soru
+                    Çıkış yapabilirsiniz.
                 </div>
             </div>
         `;
