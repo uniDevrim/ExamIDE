@@ -41,9 +41,9 @@ class WarmContainerPool:
         self.exam_paused_at        = None     # datetime — son duraklama anı
         self.exam_total_paused_secs = 0.0    # toplam duraklatılan süre (saniye)
 
-        # ── TimeMachine: DB başlat ve önceki state'i yükle ──────────────
+        # ── TimeMachine: DB başlat, her açılışta temiz slate ──────────────
         tm.init_db()
-        self._restore_from_db()
+        self._reset_db()
         # ────────────────────────────────────────────────────────────────
 
         atexit.register(self.shutdown)
@@ -211,6 +211,17 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[TimeMachine] _persist_session hatası: {e}")
 
+    def _reset_db(self):
+        """
+        Sunucu her başladığında DB'yi sıfırlar.
+        Öğrenci listesi ve sınav state'i temizlenir.
+        """
+        try:
+            tm.reset_db()
+            print("[TimeMachine] 🔄 DB sıfırlandı — temiz başlangıç.")
+        except Exception as e:
+            print(f"[TimeMachine] _reset_db hatası: {e}")
+
     def _restore_from_db(self):
         """
         Uygulama başlangıcında DB'den önceki state'i yükler.
@@ -244,16 +255,16 @@ class WarmContainerPool:
             # Öğrencileri de yükle
             students = tm.load_all_students()
             for s in students:
-                ip = s.get("ip", "")
-                self.students[ip] = {
-                    "no":        s.get("student_no", ""),
+                student_no = s.get("student_no", "")
+                self.students[student_no] = {
+                    "no":        student_no,
                     "ad":        s.get("ad", ""),
                     "soyad":     s.get("soyad", ""),
                     "bolum":     s.get("bolum"),
                     "sinif":     s.get("sinif"),
                     "question":  s.get("current_q", 1),
                     "timestamp": s.get("last_seen", ""),
-                    "ip":        ip,
+                    "ip":        s.get("ip", ""),
                 }
             if students:
                 print(f"[TimeMachine] ✅ {len(students)} öğrenci kurtarıldı.")

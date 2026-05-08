@@ -52,8 +52,8 @@ def init_db():
                 VALUES (1, '');
 
                 CREATE TABLE IF NOT EXISTS students (
-                    ip            TEXT    PRIMARY KEY,
-                    student_no    TEXT    NOT NULL,
+                    student_no    TEXT    PRIMARY KEY,
+                    ip            TEXT    NOT NULL,
                     ad            TEXT    NOT NULL DEFAULT '',
                     soyad         TEXT    NOT NULL DEFAULT '',
                     bolum         TEXT,
@@ -120,7 +120,7 @@ def save_exam_session(
         conn.close()
 
 
-def load_exam_session() -> dict | None:
+def load_exam_session():
     """
     DB'deki exam_session satırını dict olarak döner.
     state='idle' ve started_at=None ise None döner (taze başlangıç).
@@ -144,8 +144,8 @@ def load_exam_session() -> dict | None:
 # ── students ──────────────────────────────────────────────────────────────────
 
 def save_student(ip: str, student_no: str, ad: str, soyad: str,
-                 bolum: str | None, sinif: str | None,
-                 current_q: int = 1, last_seen: str | None = None):
+                 bolum, sinif,
+                 current_q: int = 1, last_seen = None):
     """Öğrenciyi DB'ye ekler veya günceller."""
     joined = datetime.now(timezone.utc).isoformat()
     with _lock:
@@ -153,23 +153,23 @@ def save_student(ip: str, student_no: str, ad: str, soyad: str,
         with conn:
             conn.execute("""
                 INSERT INTO students
-                    (ip, student_no, ad, soyad, bolum, sinif,
+                    (student_no, ip, ad, soyad, bolum, sinif,
                      current_q, last_seen, joined_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(ip) DO UPDATE SET
-                    student_no = excluded.student_no,
+                ON CONFLICT(student_no) DO UPDATE SET
+                    ip         = excluded.ip,
                     ad         = excluded.ad,
                     soyad      = excluded.soyad,
                     bolum      = excluded.bolum,
                     sinif      = excluded.sinif,
                     current_q  = excluded.current_q,
                     last_seen  = excluded.last_seen
-            """, (ip, student_no, ad, soyad, bolum, sinif,
+            """, (student_no, ip, ad, soyad, bolum, sinif,
                   current_q, last_seen, joined))
         conn.close()
 
 
-def update_student_question(ip: str, question_no: int, last_seen: str):
+def update_student_question(student_no: str, question_no: int, last_seen: str):
     """Öğrencinin bulunduğu soruyu ve son görülme zamanını günceller."""
     with _lock:
         conn = _get_conn()
@@ -177,24 +177,24 @@ def update_student_question(ip: str, question_no: int, last_seen: str):
             conn.execute("""
                 UPDATE students
                 SET current_q = ?, last_seen = ?
-                WHERE ip = ?
-            """, (question_no, last_seen, ip))
+                WHERE student_no = ?
+            """, (question_no, last_seen, student_no))
         conn.close()
 
 
-def update_student_last_seen(ip: str, last_seen: str, new_ip: str | None = None):
+def update_student_last_seen(student_no: str, last_seen: str, new_ip = None):
     """Öğrencinin son görülme zamanını (ve opsiyonel IP'yi) günceller."""
     with _lock:
         conn = _get_conn()
         with conn:
             if new_ip:
                 conn.execute("""
-                    UPDATE students SET last_seen = ?, ip = ? WHERE ip = ?
-                """, (last_seen, new_ip, ip))
+                    UPDATE students SET last_seen = ?, ip = ? WHERE student_no = ?
+                """, (last_seen, new_ip, student_no))
             else:
                 conn.execute("""
-                    UPDATE students SET last_seen = ? WHERE ip = ?
-                """, (last_seen, ip))
+                    UPDATE students SET last_seen = ? WHERE student_no = ?
+                """, (last_seen, student_no))
         conn.close()
 
 
@@ -210,7 +210,7 @@ def load_all_students() -> list[dict]:
 # ── code_snapshots ────────────────────────────────────────────────────────────
 
 def save_code_snapshot(student_no: str, question_id: str,
-                       code: str, lang: str | None,
+                       code: str, lang,
                        trigger: str = "autosave"):
     """
     Öğrencinin bir soruda yazdığı son kodu DB'ye kaydeder.

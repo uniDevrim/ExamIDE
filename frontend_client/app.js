@@ -1,6 +1,7 @@
 let currentQuestion = 0;
 let currentLanguage = 'python';
 let userCode = {};  // { questionId_lang: code }
+const questions = []; // Sorular API'den yüklenecek
 
 let examTimeSeconds = 90 * 60; // 90 minutes
 let timerInterval = null;
@@ -71,8 +72,8 @@ function initMonacoEditor() {
     };
 
     require(['vs/editor/editor.main'], function () {
-        const q = questions[currentQuestion];
-        const startCode = q.starterCode[currentLanguage] || '';
+        const q = questions && questions.length > 0 ? questions[currentQuestion] : null;
+        const startCode = q && q.starterCode ? (q.starterCode[currentLanguage] || '') : '';
 
         monacoEditor = monaco.editor.create(document.getElementById('monacoEditorContainer'), {
             value: startCode,
@@ -104,8 +105,10 @@ function initMonacoEditor() {
             }
         });
 
-        // Load the first question
-        loadQuestion(0);
+        // Sadece sorular yüklüyse ilk soruyu göster (aksi halde _loadQuestionsFromApi halledecek)
+        if (q) {
+            loadQuestion(0);
+        }
     });
 }
 
