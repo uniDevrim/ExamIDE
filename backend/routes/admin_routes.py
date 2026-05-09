@@ -103,6 +103,28 @@ def admin_exam_status():
     return jsonify(pool_manager.get_exam_status()), 200
 
 
+@admin_bp.route("/api/admin/playback/<exam_id>/<student_no>/<question_id>", methods=["GET"])
+def get_code_playback(exam_id, student_no, question_id):
+    history_file = os.path.join("grader", "history", exam_id, f"{student_no}.jsonl")
+    
+    if not os.path.exists(history_file):
+        return jsonify({"error": "No history found for this student."}), 404
+        
+    playback_frames = []
+    
+    # Read the file line by line (memory efficient)
+    with open(history_file, "r", encoding="utf-8") as f:
+        for line in f:
+            record = json.loads(line)
+            # Only grab the frames for the requested question
+            if record.get("question_id") == str(question_id):
+                playback_frames.append({
+                    "timestamp": record["timestamp"],
+                    "code": record["code"]
+                })
+                
+    return jsonify({"frames": playback_frames}), 200
+
 # ---------------------------------------------------------------
 # test case hazırlanımı
 #

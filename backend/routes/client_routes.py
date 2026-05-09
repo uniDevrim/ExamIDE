@@ -212,6 +212,8 @@ def save_code():
             lang=lang,
             trigger='autosave'
         )
+        exam_id = pool_manager.exam_data.get('exam_id', 'exam_001') if pool_manager.exam_data else 'exam_001'
+        tm.append_history(exam_id, student_no, question_id, code)
         return jsonify({"status": "saved"}), 200
     except Exception as e:
         print(f"[TimeMachine] save_code hatası: {e}")

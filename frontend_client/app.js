@@ -556,10 +556,6 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// ========================================
-// Exam Status Polling
-// ========================================
-
 let _lastExamState = null;   // önceki state (ilk yüklemeyi tetiklemek için)
 let _questionsLoaded = false;  // sorular bir kez yüklenince false'a dönmesin
 let _pollingInterval = null;
@@ -567,7 +563,8 @@ let _pollingInterval = null;
 /**
  * Her 3 saniyede bir /api/client/exam/status'a istek atar.
  * State değiştikçe UI'yi günceller.
- */
+*/
+
 function startStatusPolling() {
     doPoll();                           // hemen ilk istek
     _pollingInterval = setInterval(doPoll, 3000);

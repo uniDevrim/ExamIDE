@@ -78,9 +78,6 @@ def init_db():
             """)
         conn.close()
 
-
-# ── exam_session ──────────────────────────────────────────────────────────────
-
 def save_exam_session(
     exam_id: str,
     state: str,
@@ -334,3 +331,16 @@ def reset_db():
                 WHERE id = 1;
             """)
         conn.close()
+
+def append_history(exam_id: str, student_no: str, question_id: str, code: str):
+    import json
+    history_dir = os.path.join("grader", "history", str(exam_id))
+    os.makedirs(history_dir, exist_ok=True)
+    history_file = os.path.join(history_dir, f"{student_no}.jsonl")
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "question_id": str(question_id),
+        "code": code
+    }
+    with open(history_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
