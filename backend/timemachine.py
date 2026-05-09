@@ -7,7 +7,7 @@ kodu kurtarmak için kullanılır.
 
 Tablolar:
   exam_session   — sınav durum bilgisi (tek satır, id=1)
-  students       — bağlanan öğrenciler (ip PRIMARY KEY)
+  students       — bağlanan öğrenciler (student_no PRIMARY KEY)
   code_snapshots — her öğrenci/soru için son kod (INSERT OR REPLACE)
 """
 
@@ -62,6 +62,10 @@ def init_db():
                     last_seen     TEXT,
                     joined_at     TEXT
                 );
+
+
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_student_no
+                    ON students (student_no);
 
                 CREATE TABLE IF NOT EXISTS code_snapshots (
                     id            INTEGER PRIMARY KEY AUTOINCREMENT,

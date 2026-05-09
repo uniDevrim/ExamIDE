@@ -1719,7 +1719,7 @@
             </div>
         </div>
 
-    </div>
+
 
     <!-- Sonuçlar ve Değerlendirme Sekmesi (Accordion) -->
     <div class="accordion-panel" id="resultsAccordion">
@@ -1754,6 +1754,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Result Viewer Modal -->
@@ -2501,6 +2502,7 @@
                 const res = await fetch('/api/admin/timemachine/status');
                 if (!res.ok) return;
                 const data = await res.json();
+                _tmSessionData = data;
                 tmUpdateTabStats(data);
                 document.getElementById('tmLastUpdate').textContent = 
                     'Güncellendi: ' + new Date().toLocaleTimeString('tr-TR');

@@ -105,10 +105,16 @@ def admin_exam_status():
 
 @admin_bp.route("/api/admin/playback/<exam_id>/<student_no>/<question_id>", methods=["GET"])
 def get_code_playback(exam_id, student_no, question_id):
-    history_file = os.path.join("grader", "history", exam_id, f"{student_no}.jsonl")
+    # Ensure absolute path to grader/history
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    history_file = os.path.join(base_dir, "grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
     
     if not os.path.exists(history_file):
-        return jsonify({"error": "No history found for this student."}), 404
+        # Fallback check relative to CWD just in case
+        history_file_alt = os.path.join("grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
+        if not os.path.exists(history_file_alt):
+            return jsonify({"error": "No history found", "path": history_file}), 404
+        history_file = history_file_alt
         
     playback_frames = []
     
