@@ -50,3 +50,24 @@
             document.getElementById(panelId).classList.toggle('open');
         }
 
+        /** View Değiştirme (Dashboard / Exam Builder) */
+        function switchView(viewId, menuItem) {
+            // Görünümleri gizle
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.style.display = 'none';
+            });
+            
+            // Seçilen görünümü göster
+            const activeView = document.getElementById(viewId);
+            if (activeView) {
+                activeView.style.display = 'block';
+            }
+            
+            // Menü aktifliğini ayarla
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (menuItem) {
+                menuItem.classList.add('active');
+            }
+        }

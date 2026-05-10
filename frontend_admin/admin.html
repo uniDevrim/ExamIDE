@@ -45,7 +45,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard -->
-            <div class="dashboard-container">
+            <div class="dashboard-container view-section" id="dashboardView">
 
         <!-- Header -->
         <div class="page-header">
@@ -70,6 +70,9 @@
 
 
         {% include "modules/results.html" %}
+            </div>
+
+            {% include "modules/exam_builder.html" %}
         </main>
     </div>
 
@@ -92,6 +95,7 @@
     <script src="{{ url_for("admin_bp.static", filename="js/timemachine.js") }}"></script>
     <script src="{{ url_for("admin_bp.static", filename="js/playback.js") }}"></script>
     <script src="{{ url_for("admin_bp.static", filename="js/results.js") }}"></script>
+    <script src="{{ url_for("admin_bp.static", filename="js/exam_builder.js") }}"></script>
     <script src="{{ url_for("admin_bp.static", filename="js/main.js") }}"></script>
 </body>
 

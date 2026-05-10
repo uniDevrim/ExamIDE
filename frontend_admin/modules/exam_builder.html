@@ -1,0 +1,71 @@
+<div class="dashboard-container view-section" id="builderView" style="display: none;">
+    <!-- Header -->
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div>
+            <div class="page-title">
+                <i class="bi bi-file-earmark-plus-fill"></i>
+                Sınav Oluşturma
+            </div>
+            <div class="page-subtitle">Yeni bir sınav dosyası oluşturun, soruları ve test senaryolarını yapılandırın</div>
+        </div>
+        <div class="header-actions" style="margin-top: 10px;">
+            <button class="btn btn-primary" onclick="generateExamJson()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; padding: 10px 20px; font-weight: 500; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                <i class="bi bi-download"></i> JSON Oluştur ve İndir
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam General Info -->
+    <div class="accordion-panel open" id="panelGeneralInfo">
+        <div class="accordion-header" style="cursor: pointer;" onclick="toggleAccordion('panelGeneralInfo')">
+            <div class="accordion-title">
+                <i class="bi bi-info-circle"></i> Genel Sınav Bilgileri
+            </div>
+            <i class="bi bi-chevron-down toggle-icon" style="transition: transform 0.3s; color: var(--text-muted);"></i>
+        </div>
+        <div class="accordion-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="examName" placeholder="Sınav Adı" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                        <label for="examName" style="color: var(--text-muted);">Sınav Adı</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="examTime" placeholder="Süre" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                        <label for="examTime" style="color: var(--text-muted);">Süre (Dakika)</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="examLanguage" style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                            <option value="Python" selected>Python</option>
+                            <option value="Cpp">C++</option>
+                            <option value="CSharp">C#</option>
+                        </select>
+                        <label for="examLanguage" style="color: var(--text-muted);">Dil</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-floating">
+                        <textarea class="form-control" id="examDescription" placeholder="Açıklama" style="height: 100px; background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+                        <label for="examDescription" style="color: var(--text-muted);">Sınav hakkında genel kurallar ve açıklamalar</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions Container -->
+    <div id="questionsContainer" style="margin-top: 25px;">
+        <!-- Dynamic questions will be appended here -->
+    </div>
+
+    <!-- Add Question Button -->
+    <div style="margin-top: 20px; text-align: center; margin-bottom: 50px;">
+        <button class="btn btn-outline-primary" onclick="addQuestionCard()" style="width: 100%; padding: 15px; border: 2px dashed var(--accent-primary); background: transparent; color: var(--accent-primary); font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.1)'" onmouseout="this.style.background='transparent'">
+            <i class="bi bi-plus-circle-fill"></i> Yeni Soru Ekle
+        </button>
+    </div>
+</div>
