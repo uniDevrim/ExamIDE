@@ -1,0 +1,38 @@
+        <!-- Student Table (Accordion) -->
+        <div class="accordion-panel" id="tableAccordion">
+            <div class="accordion-header" onclick="toggleAccordion('tableAccordion')">
+                <div class="accordion-title">
+                    <i class="bi bi-table"></i>
+                    Öğrenci Listesi
+                </div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div class="refresh-hint" style="margin:0; border:none; background:transparent;" onclick="event.stopPropagation()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Her 5 saniyede güncellenir
+                    </div>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
+                </div>
+            </div>
+            <div class="accordion-body" style="padding:0;">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Öğrenci No</th>
+                                <th>Ad Soyad</th>
+                                <th>IP Adresi</th>
+                                <th>Mevcut Soru</th>
+                                <th>Durum</th>
+                                <th>Son Görülme</th>
+                                <th>Aksiyonlar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentList"></tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state" style="display:none;">
+                        <i class="bi bi-inbox"></i>
+                        <p>Henüz bağlı öğrenci yok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>

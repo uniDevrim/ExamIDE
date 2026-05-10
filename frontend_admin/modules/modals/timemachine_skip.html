@@ -1,0 +1,18 @@
+    <!-- TimeMachine Yoksay Onay Modalı -->
+    <div class="tm-skip-overlay" id="tmSkipOverlay">
+        <div class="tm-skip-box">
+            <div class="tm-skip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="modal-confirm-title">Emin misiniz?</div>
+            <div class="modal-confirm-desc">
+                TimeMachine oturumunu yoksayarsanız, kaydedilmiş sınav durumu ve öğrenci kodları 
+                <strong>bu seans için geçerli olmayacak</strong>. Veriler hala DB'de saklı kalacaktır.
+            </div>
+            <div class="modal-confirm-actions">
+                <button class="btn-modal-cancel" onclick="tmCloseSkipModal()">Geri Dön</button>
+                <button class="btn-modal-confirm" onclick="tmConfirmSkip()">
+                    <i class="bi bi-x-circle-fill"></i> Evet, Yoksay
+                </button>
+            </div>
+        </div>
+    </div>
+

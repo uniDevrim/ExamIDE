@@ -17,41 +17,8 @@
 
 <body>
 
-    <!-- TimeMachine Startup Banner (gizli, JS ile görünür yapılır) -->
-    <div class="tm-banner" id="tmStartupBanner" style="display:none;">
-        <div class="tm-banner-icon"><i class="bi bi-clock-history"></i></div>
-        <div class="tm-banner-text">
-            <div class="tm-banner-title">⏱️ TimeMachine — Kaydedilmiş Oturum Bulundu</div>
-            <div class="tm-banner-sub" id="tmBannerInfo">Yükleniyor...</div>
-        </div>
-        <div class="tm-banner-actions">
-            <button class="btn-tm-load" onclick="tmLoadRestore()">
-                <i class="bi bi-arrow-counterclockwise"></i> Yeniden Yükle
-            </button>
-            <button class="btn-tm-skip" onclick="tmAskSkip()">
-                <i class="bi bi-x-lg"></i> Yoksay
-            </button>
-        </div>
-    </div>
-
-    <!-- TimeMachine Yoksay Onay Modalı -->
-    <div class="tm-skip-overlay" id="tmSkipOverlay">
-        <div class="tm-skip-box">
-            <div class="tm-skip-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <div class="modal-confirm-title">Emin misiniz?</div>
-            <div class="modal-confirm-desc">
-                TimeMachine oturumunu yoksayarsanız, kaydedilmiş sınav durumu ve öğrenci kodları 
-                <strong>bu seans için geçerli olmayacak</strong>. Veriler hala DB'de saklı kalacaktır.
-            </div>
-            <div class="modal-confirm-actions">
-                <button class="btn-modal-cancel" onclick="tmCloseSkipModal()">Geri Dön</button>
-                <button class="btn-modal-confirm" onclick="tmConfirmSkip()">
-                    <i class="bi bi-x-circle-fill"></i> Evet, Yoksay
-                </button>
-            </div>
-        </div>
-    </div>
-
+    {% include "modules/modals/timemachine_banner.html" %}
+    {% include "modules/modals/timemachine_skip.html" %}
     <!-- Navbar -->
     <nav class="admin-navbar">
         <div class="inner">
@@ -73,26 +40,7 @@
 
     <!-- App Wrapper -->
     <div class="app-wrapper">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-menu">
-                <a href="#" class="sidebar-item active">
-                    <i class="bi bi-sliders2"></i>
-                    Sınav Kontrolü
-                </a>
-                <a href="#" class="sidebar-item">
-                    <i class="bi bi-plus-circle"></i>
-                    Sınav Oluşturma
-                </a>
-                
-                <div style="flex: 1;"></div>
-                
-                <a href="/logout" class="sidebar-item text-danger">
-                    <i class="bi bi-box-arrow-left"></i>
-                    Çıkış Yap
-                </a>
-            </div>
-        </aside>
+        {% include "modules/sidebar.html" %}
 
         <!-- Main Content -->
         <main class="main-content">
@@ -109,341 +57,27 @@
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stats-card blue">
-                <div class="stats-icon blue"><i class="bi bi-people-fill"></i></div>
-                <div class="stats-info">
-                    <div class="stats-label">Toplam Öğrenci</div>
-                    <div class="stats-number blue" id="totalStudents">0</div>
-                </div>
-            </div>
-            <div class="stats-card orange">
-                <div class="stats-icon orange"><i class="bi bi-question-circle-fill"></i></div>
-                <div class="stats-info">
-                    <div class="stats-label">Aktif Soru Ortalaması</div>
-                    <div class="stats-number orange" id="avgQuestion">—</div>
-                </div>
-            </div>
-            <div class="stats-card green">
-                <div class="stats-icon green"><i class="bi bi-check-circle-fill"></i></div>
-                <div class="stats-info">
-                    <div class="stats-label">Sistem Durumu</div>
-                    <div class="stats-number green" style="font-size:1.1rem; padding-top:4px;">Çalışıyor</div>
-                </div>
-            </div>
-        </div>
+        {% include "modules/stats_grid.html" %}
 
-        <!-- ═══ EXAM CONTROL PANEL (Accordion) ═══ -->
-        <div class="accordion-panel open" id="controlAccordion">
-            <div class="accordion-header" onclick="toggleAccordion('controlAccordion')">
-                <div class="accordion-title">
-                    <i class="bi bi-sliders2"></i>
-                    Sınav Kontrolü
-                </div>
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div class="exam-state-badge idle" id="examStateBadge" onclick="event.stopPropagation()">
-                        <span class="state-dot-badge"></span>
-                        <span id="examStateText">Bekleniyor</span>
-                    </div>
-                    <i class="bi bi-chevron-down accordion-chevron"></i>
-                </div>
-            </div>
-            <div class="accordion-body">
-                <div class="control-layout">
-                    <!-- Upload Section -->
-                    <div class="upload-section">
-                        <div class="upload-label">
-                            <i class="bi bi-file-earmark-code"></i>
-                            Soru Dosyası (JSON)
-                        </div>
-                        <div class="upload-dropzone" id="dropzone">
-                            <input type="file" accept=".json" id="jsonFileInput" onchange="handleFileSelect(event)">
-                            <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
-                            <div class="upload-hint">
-                                <strong>Dosya seçin</strong> veya buraya sürükleyin<br>
-                                <span style="font-size:0.72rem; opacity:0.7;">Yalnızca .json uzantılı dosyalar</span>
-                            </div>
-                        </div>
-                        <div class="file-loaded" id="fileLoaded">
-                            <div class="file-loaded-icon"><i class="bi bi-file-earmark-check-fill"></i></div>
-                            <div class="file-loaded-info">
-                                <div class="file-loaded-name" id="fileLoadedName">sorular.json</div>
-                                <div class="file-loaded-meta" id="fileLoadedMeta">— soru yüklendi</div>
-                            </div>
-                            <button class="btn-remove-file" onclick="removeFile()" title="Dosyayı Kaldır"><i class="bi bi-x-lg"></i></button>
-                        </div>
-                    </div>
-                    <!-- Actions Section -->
-                    <div class="actions-section">
-                        <div class="actions-label"><i class="bi bi-play-circle"></i> Sınav İşlemleri</div>
-                        <div class="actions-grid">
-                            <button class="btn-exam btn-start" id="btnStart" onclick="startExam()" disabled><i class="bi bi-play-fill"></i> Sınavı Başlat</button>
-                            <button class="btn-exam btn-pause" id="btnPause" onclick="pauseExam()" disabled><i class="bi bi-pause-fill"></i> Duraklat</button>
-                            <button class="btn-exam btn-resume" id="btnResume" onclick="resumeExam()" disabled><i class="bi bi-skip-forward-fill"></i> Devam Et</button>
-                            <button class="btn-exam btn-end" id="btnEnd" onclick="confirmEndExam()" disabled><i class="bi bi-stop-fill"></i> Sınavı Bitir</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Timer row -->
-                <div class="timer-row">
-                    <div class="timer-block">
-                        <div class="timer-label">Geçen Süre</div>
-                        <div class="timer-value" id="elapsedTimer">00:00:00</div>
-                    </div>
-                    <div class="divider-v"></div>
-                    <div class="timer-block">
-                        <div class="timer-label">Sınav Durumu</div>
-                        <div class="timer-value" id="examStatusTimer" style="color: var(--text-muted);">—</div>
-                    </div>
-                    <div class="questions-loaded-info" id="questionsInfo" style="display:none;">
-                        <i class="bi bi-list-check"></i>
-                        <span class="q-count" id="qCount">0</span>
-                        <span>soru yüklendi</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "modules/exam_control.html" %}
 
-        <!-- Student Table (Accordion) -->
-        <div class="accordion-panel" id="tableAccordion">
-            <div class="accordion-header" onclick="toggleAccordion('tableAccordion')">
-                <div class="accordion-title">
-                    <i class="bi bi-table"></i>
-                    Öğrenci Listesi
-                </div>
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div class="refresh-hint" style="margin:0; border:none; background:transparent;" onclick="event.stopPropagation()">
-                        <i class="bi bi-arrow-clockwise"></i>
-                        Her 5 saniyede güncellenir
-                    </div>
-                    <i class="bi bi-chevron-down accordion-chevron"></i>
-                </div>
-            </div>
-            <div class="accordion-body" style="padding:0;">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Öğrenci No</th>
-                                <th>Ad Soyad</th>
-                                <th>IP Adresi</th>
-                                <th>Mevcut Soru</th>
-                                <th>Durum</th>
-                                <th>Son Görülme</th>
-                                <th>Aksiyonlar</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentList"></tbody>
-                    </table>
-                    <div id="emptyState" class="empty-state" style="display:none;">
-                        <i class="bi bi-inbox"></i>
-                        <p>Henüz bağlı öğrenci yok.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% include "modules/student_list.html" %}
 
-        <!-- TimeMachine Sekmesi (Accordion) -->
-        <div class="accordion-panel tm-tab-panel" id="tmTabPanel">
-            <div class="accordion-header" onclick="toggleAccordion('tmTabPanel')">
-                <div class="accordion-title tm-tab-title">
-                    <i class="bi bi-clock-history"></i>
-                    TimeMachine
-                    <span id="tmTabBadge" style="font-size:0.7rem; padding:2px 8px;
-                        background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);
-                        border-radius:20px; color:#a78bfa; font-weight:700;">YEDEK</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span id="tmLastUpdate" style="font-size:0.72rem; color:var(--text-muted);"></span>
-                    <i class="bi bi-chevron-down accordion-chevron"></i>
-                </div>
-            </div>
-            <div class="accordion-body">
-                <div class="tm-stat-grid">
-                    <div class="tm-stat">
-                        <div class="tm-stat-label">Oturum Durumu</div>
-                        <div class="tm-stat-value purple" id="tmStateVal">&mdash;</div>
-                    </div>
-                    <div class="tm-stat">
-                        <div class="tm-stat-label">Kayıtlı Öğrenci</div>
-                        <div class="tm-stat-value green" id="tmStudentCount">&mdash;</div>
-                    </div>
-                    <div class="tm-stat">
-                        <div class="tm-stat-label">Kod Snapshot</div>
-                        <div class="tm-stat-value orange" id="tmSnapshotCount">&mdash;</div>
-                    </div>
-                    <div class="tm-stat">
-                        <div class="tm-stat-label">Sınav ID</div>
-                        <div class="tm-stat-value" id="tmExamId" style="font-size:0.85rem;">&mdash;</div>
-                    </div>
-                </div>
-                <div class="tm-action-row">
-                    <button class="btn-tm-action btn-tm-restore" onclick="tmLoadRestore()">
-                        <i class="bi bi-arrow-counterclockwise"></i> Oturumu Yeniden Yukle
-                    </button>
-                    <button class="btn-tm-action btn-tm-refresh" onclick="tmRefreshStats()">
-                        <i class="bi bi-arrow-clockwise"></i> Durumu Yenile
-                    </button>
-                    <button class="btn-tm-action btn-tm-reset" onclick="tmConfirmReset()">
-                        <i class="bi bi-trash3"></i> Veritabanını Sıfırla
-                    </button>
-                </div>
-                <div class="tm-db-path" id="tmDbPath">&mdash;</div>
-            </div>
-        </div>
+        {% include "modules/timemachine.html" %}
 
-        <!-- Playback Panel -->
-        <div class="accordion-panel" id="playbackAccordion" style="display:none;">
-            <div class="accordion-header" onclick="toggleAccordion('playbackAccordion')">
-                <div class="accordion-title">
-                    <i class="bi bi-camera-video"></i>
-                    Kod İzleme (Playback)
-                </div>
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <span id="playbackStatus" style="font-size:0.72rem; color:var(--text-muted);"></span>
-                    <i class="bi bi-chevron-down accordion-chevron"></i>
-                </div>
-            </div>
-            <div class="accordion-body">
-                <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-                    <button id="btnPlayPause" class="btn btn-sm btn-primary" onclick="togglePlayback()">
-                        <i class="bi bi-play-fill" id="playIcon"></i> Oynat
-                    </button>
-                    <input type="range" id="playbackSlider" class="form-range" min="0" max="0" value="0" style="flex:1;" oninput="onSliderInput()">
-                    <span id="playbackTime" style="font-family: monospace; font-size: 0.8rem; min-width: 150px; text-align: right;"></span>
-                </div>
-                <textarea id="playbackCode" class="form-control" style="font-family: monospace; font-size: 0.85rem; height: 300px; background: var(--bg-editor); color: var(--text-primary); border: 1px solid var(--border-color);" readonly></textarea>
-            </div>
-        </div>
+        {% include "modules/playback.html" %}
 
 
 
-    <!-- Sonuçlar ve Değerlendirme Sekmesi (Accordion) -->
-    <div class="accordion-panel" id="resultsAccordion">
-        <div class="accordion-header" onclick="toggleAccordion('resultsAccordion'); loadResults();">
-            <div class="accordion-title">
-                <i class="bi bi-journal-check"></i>
-                Sonuçlar ve Değerlendirme
-            </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <button class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="event.stopPropagation(); loadResults();">
-                    <i class="bi bi-arrow-clockwise"></i> Yenile
-                </button>
-                <i class="bi bi-chevron-down accordion-chevron"></i>
-            </div>
-        </div>
-        <div class="accordion-body" style="padding:0;">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Öğrenci No</th>
-                            <th>Teslim Zamanı</th>
-                            <th>Çözülen Soru Sayısı</th>
-                            <th>Aksiyon</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsList"></tbody>
-                </table>
-                <div id="resultsEmptyState" class="empty-state" style="display:none;">
-                    <i class="bi bi-inbox"></i>
-                    <p>Henüz teslim edilmiş sınav bulunmamaktadır.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+        {% include "modules/results.html" %}
         </main>
     </div>
 
-    <!-- Result Viewer Modal -->
-    <div class="modal-confirm-overlay" id="resultModal">
-        <div class="modal-confirm-box" style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; text-align: left; padding: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: var(--text-primary);">Öğrenci Kodu ve Sonuçları</h3>
-                <button onclick="closeResultModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
-            </div>
-            <div id="resultModalBody" style="color: var(--text-secondary);">
-                <!-- Dynamic Content Goes Here -->
-            </div>
-            <div style="margin-top: 20px; text-align: right;">
-                <button class="btn btn-outline-secondary" onclick="closeResultModal()">Kapat</button>
-            </div>
-        </div>
-    </div>
+    {% include "modules/modals/result_viewer.html" %}
 
-    <!-- Confirm Modal -->
-    <div class="modal-confirm-overlay" id="confirmModal">
-        <div class="modal-confirm-box">
-            <div class="modal-confirm-icon">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
-            <div class="modal-confirm-title">Sınavı Bitir</div>
-            <div class="modal-confirm-desc">
-                Sınavı bitirmek istediğinizden emin misiniz? Bu işlem geri alınamaz ve tüm öğrencilerin bağlantısı
-                kesilecektir.
-            </div>
-            <div class="modal-confirm-actions">
-                <button class="btn-modal-cancel" onclick="closeConfirmModal()">İptal</button>
-                <button class="btn-modal-confirm" onclick="endExam()">
-                    <i class="bi bi-stop-fill"></i> Evet, Bitir
-                </button>
-            </div>
-        </div>
-    </div>
+    {% include "modules/modals/confirm_end.html" %}
 
-    <!-- JSON Schema Error Modal -->
-    <div class="json-error-overlay" id="jsonErrorOverlay" onclick="closeJsonErrorModal(event)">
-        <div class="json-error-box">
-            <div class="json-error-header">
-                <div class="json-error-header-icon">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div class="json-error-header-text">
-                    <div class="json-error-title">Geçersiz Sınav JSON Yapısı</div>
-                    <div class="json-error-subtitle" id="jsonErrorSubtitle">Yüklenen dosya beklenen şemaya uymuyor.
-                    </div>
-                </div>
-            </div>
-            <div class="json-error-body">
-                <div class="json-error-section-label">
-                    <i class="bi bi-x-circle-fill"></i> Tespit Edilen Hatalar
-                </div>
-                <ul class="json-error-list" id="jsonErrorList">
-                    <!-- Hata öğeleri buraya eklenir -->
-                </ul>
-
-                <div class="json-error-section-label" style="margin-top:0.25rem">
-                    <i class="bi bi-braces"></i> Beklenen Yapı
-                </div>
-                <div class="json-schema-block"><span class="sch-req">{</span>
-                    <span class="sch-key">"name"</span>: <span class="sch-str">"Sınav Adı"</span>,
-                    <span class="sch-key">"description"</span>: <span class="sch-str">"Sınav Açıklaması"</span>,
-                    <span class="sch-key">"time"</span>: <span class="sch-str">"Sınav Süresi"</span>,
-                    <span class="sch-key">"language"</span>: <span class="sch-str">"Python"</span>,
-                    <span class="sch-key">"questions"</span>: <span class="sch-req">{</span>
-                    <span class="sch-key">"1"</span>: <span class="sch-req">{</span>
-                    <span class="sch-key">"title"</span>: <span class="sch-str">"Soru Başlığı"</span>,
-                    <span class="sch-key">"description"</span>: <span class="sch-str">"Soru Açıklaması"</span>,
-                    <span class="sch-key">"test-cases"</span>: [ <span class="sch-req">{</span> <span
-                        class="sch-key">"input"</span>: <span class="sch-str">"…"</span>, <span
-                        class="sch-key">"output"</span>: <span class="sch-str">"…"</span> <span class="sch-req">}</span>
-                    ],
-                    <span class="sch-key">"run-time-limit"</span>: <span class="sch-num">5</span>,
-                    <span class="sch-key">"memory-limit"</span>: <span class="sch-num">1024</span>,
-                    <span class="sch-key">"points"</span>: <span class="sch-num">10</span>
-                    <span class="sch-req">}</span>
-                    <span class="sch-req">}</span>
-                    <span class="sch-req">}</span>
-                </div>
-            </div>
-            <div class="json-error-footer">
-                <button class="btn-json-close" onclick="closeJsonErrorModal()">
-                    <i class="bi bi-x-lg"></i> Kapat
-                </button>
-            </div>
-        </div>
-    </div>
+    {% include "modules/modals/json_error.html" %}
 
     <!-- Toast Container -->
     <div class="toast-container-custom" id="toastContainer"></div>

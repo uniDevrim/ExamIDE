@@ -1,0 +1,15 @@
+    <!-- Result Viewer Modal -->
+    <div class="modal-confirm-overlay" id="resultModal">
+        <div class="modal-confirm-box" style="max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; text-align: left; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--text-primary);">Öğrenci Kodu ve Sonuçları</h3>
+                <button onclick="closeResultModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="resultModalBody" style="color: var(--text-secondary);">
+                <!-- Dynamic Content Goes Here -->
+            </div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-outline-secondary" onclick="closeResultModal()">Kapat</button>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,34 @@
+    <!-- Sonuçlar ve Değerlendirme Sekmesi (Accordion) -->
+    <div class="accordion-panel" id="resultsAccordion">
+        <div class="accordion-header" onclick="toggleAccordion('resultsAccordion'); loadResults();">
+            <div class="accordion-title">
+                <i class="bi bi-journal-check"></i>
+                Sonuçlar ve Değerlendirme
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 0.8rem;" onclick="event.stopPropagation(); loadResults();">
+                    <i class="bi bi-arrow-clockwise"></i> Yenile
+                </button>
+                <i class="bi bi-chevron-down accordion-chevron"></i>
+            </div>
+        </div>
+        <div class="accordion-body" style="padding:0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Öğrenci No</th>
+                            <th>Teslim Zamanı</th>
+                            <th>Çözülen Soru Sayısı</th>
+                            <th>Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsList"></tbody>
+                </table>
+                <div id="resultsEmptyState" class="empty-state" style="display:none;">
+                    <i class="bi bi-inbox"></i>
+                    <p>Henüz teslim edilmiş sınav bulunmamaktadır.</p>
+                </div>
+            </div>
+        </div>
+    </div>

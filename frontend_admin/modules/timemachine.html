@@ -1,0 +1,48 @@
+        <!-- TimeMachine Sekmesi (Accordion) -->
+        <div class="accordion-panel tm-tab-panel" id="tmTabPanel">
+            <div class="accordion-header" onclick="toggleAccordion('tmTabPanel')">
+                <div class="accordion-title tm-tab-title">
+                    <i class="bi bi-clock-history"></i>
+                    TimeMachine
+                    <span id="tmTabBadge" style="font-size:0.7rem; padding:2px 8px;
+                        background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);
+                        border-radius:20px; color:#a78bfa; font-weight:700;">YEDEK</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span id="tmLastUpdate" style="font-size:0.72rem; color:var(--text-muted);"></span>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
+                </div>
+            </div>
+            <div class="accordion-body">
+                <div class="tm-stat-grid">
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Oturum Durumu</div>
+                        <div class="tm-stat-value purple" id="tmStateVal">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Kayıtlı Öğrenci</div>
+                        <div class="tm-stat-value green" id="tmStudentCount">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Kod Snapshot</div>
+                        <div class="tm-stat-value orange" id="tmSnapshotCount">&mdash;</div>
+                    </div>
+                    <div class="tm-stat">
+                        <div class="tm-stat-label">Sınav ID</div>
+                        <div class="tm-stat-value" id="tmExamId" style="font-size:0.85rem;">&mdash;</div>
+                    </div>
+                </div>
+                <div class="tm-action-row">
+                    <button class="btn-tm-action btn-tm-restore" onclick="tmLoadRestore()">
+                        <i class="bi bi-arrow-counterclockwise"></i> Oturumu Yeniden Yukle
+                    </button>
+                    <button class="btn-tm-action btn-tm-refresh" onclick="tmRefreshStats()">
+                        <i class="bi bi-arrow-clockwise"></i> Durumu Yenile
+                    </button>
+                    <button class="btn-tm-action btn-tm-reset" onclick="tmConfirmReset()">
+                        <i class="bi bi-trash3"></i> Veritabanını Sıfırla
+                    </button>
+                </div>
+                <div class="tm-db-path" id="tmDbPath">&mdash;</div>
+            </div>
+        </div>

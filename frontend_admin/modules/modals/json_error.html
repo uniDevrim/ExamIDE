@@ -1,0 +1,52 @@
+    <!-- JSON Schema Error Modal -->
+    <div class="json-error-overlay" id="jsonErrorOverlay" onclick="closeJsonErrorModal(event)">
+        <div class="json-error-box">
+            <div class="json-error-header">
+                <div class="json-error-header-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="json-error-header-text">
+                    <div class="json-error-title">Geçersiz Sınav JSON Yapısı</div>
+                    <div class="json-error-subtitle" id="jsonErrorSubtitle">Yüklenen dosya beklenen şemaya uymuyor.
+                    </div>
+                </div>
+            </div>
+            <div class="json-error-body">
+                <div class="json-error-section-label">
+                    <i class="bi bi-x-circle-fill"></i> Tespit Edilen Hatalar
+                </div>
+                <ul class="json-error-list" id="jsonErrorList">
+                    <!-- Hata öğeleri buraya eklenir -->
+                </ul>
+
+                <div class="json-error-section-label" style="margin-top:0.25rem">
+                    <i class="bi bi-braces"></i> Beklenen Yapı
+                </div>
+                <div class="json-schema-block"><span class="sch-req">{</span>
+                    <span class="sch-key">"name"</span>: <span class="sch-str">"Sınav Adı"</span>,
+                    <span class="sch-key">"description"</span>: <span class="sch-str">"Sınav Açıklaması"</span>,
+                    <span class="sch-key">"time"</span>: <span class="sch-str">"Sınav Süresi"</span>,
+                    <span class="sch-key">"language"</span>: <span class="sch-str">"Python"</span>,
+                    <span class="sch-key">"questions"</span>: <span class="sch-req">{</span>
+                    <span class="sch-key">"1"</span>: <span class="sch-req">{</span>
+                    <span class="sch-key">"title"</span>: <span class="sch-str">"Soru Başlığı"</span>,
+                    <span class="sch-key">"description"</span>: <span class="sch-str">"Soru Açıklaması"</span>,
+                    <span class="sch-key">"test-cases"</span>: [ <span class="sch-req">{</span> <span
+                        class="sch-key">"input"</span>: <span class="sch-str">"…"</span>, <span
+                        class="sch-key">"output"</span>: <span class="sch-str">"…"</span> <span class="sch-req">}</span>
+                    ],
+                    <span class="sch-key">"run-time-limit"</span>: <span class="sch-num">5</span>,
+                    <span class="sch-key">"memory-limit"</span>: <span class="sch-num">1024</span>,
+                    <span class="sch-key">"points"</span>: <span class="sch-num">10</span>
+                    <span class="sch-req">}</span>
+                    <span class="sch-req">}</span>
+                    <span class="sch-req">}</span>
+                </div>
+            </div>
+            <div class="json-error-footer">
+                <button class="btn-json-close" onclick="closeJsonErrorModal()">
+                    <i class="bi bi-x-lg"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,23 @@
+        <!-- Playback Panel -->
+        <div class="accordion-panel" id="playbackAccordion" style="display:none;">
+            <div class="accordion-header" onclick="toggleAccordion('playbackAccordion')">
+                <div class="accordion-title">
+                    <i class="bi bi-camera-video"></i>
+                    Kod İzleme (Playback)
+                </div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <span id="playbackStatus" style="font-size:0.72rem; color:var(--text-muted);"></span>
+                    <i class="bi bi-chevron-down accordion-chevron"></i>
+                </div>
+            </div>
+            <div class="accordion-body">
+                <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+                    <button id="btnPlayPause" class="btn btn-sm btn-primary" onclick="togglePlayback()">
+                        <i class="bi bi-play-fill" id="playIcon"></i> Oynat
+                    </button>
+                    <input type="range" id="playbackSlider" class="form-range" min="0" max="0" value="0" style="flex:1;" oninput="onSliderInput()">
+                    <span id="playbackTime" style="font-family: monospace; font-size: 0.8rem; min-width: 150px; text-align: right;"></span>
+                </div>
+                <textarea id="playbackCode" class="form-control" style="font-family: monospace; font-size: 0.85rem; height: 300px; background: var(--bg-editor); color: var(--text-primary); border: 1px solid var(--border-color);" readonly></textarea>
+            </div>
+        </div>
