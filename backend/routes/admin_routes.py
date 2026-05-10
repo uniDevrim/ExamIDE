@@ -4,7 +4,7 @@ import os
 import json
 
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../frontend_admin'))
-admin_bp = Blueprint('admin_bp', __name__, template_folder=template_dir)
+admin_bp = Blueprint('admin_bp', __name__, template_folder=template_dir, static_folder=template_dir, static_url_path='/static_admin')
 
 students_db = {}
 
