@@ -98,9 +98,4 @@
             document.getElementById('resultModal').style.display = 'none';
         }
 
-        // Sayfa yüklenince TimeMachine startup kontrolü yap
-        window.addEventListener('DOMContentLoaded', () => {
-            tmCheckStartup();
-        });
 
-    

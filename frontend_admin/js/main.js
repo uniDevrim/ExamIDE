@@ -1,6 +1,10 @@
         // Init
         updateButtons();
-        restoreExamState();          // ← sayfa yenilenince durumu API'dan çek
+        restoreExamState().then(() => {
+            if (typeof tmCheckStartup === 'function') {
+                tmCheckStartup();
+            }
+        });
         setInterval(fetchStudents, 5000);
         fetchStudents();
 

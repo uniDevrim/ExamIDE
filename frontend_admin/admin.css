@@ -1262,13 +1262,14 @@
             position: sticky;
             top: 52px;
             z-index: 1900;
-            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
-            border-bottom: 1px solid rgba(139,92,246,0.3);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-bottom: 1px solid #4f46e5;
             padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
             gap: 1rem;
             animation: slideDown 0.4s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
         }
         @keyframes slideDown {
             from { opacity:0; transform: translateY(-100%); }
@@ -1276,40 +1277,40 @@
         }
         .tm-banner-icon {
             width: 38px; height: 38px;
-            background: rgba(139,92,246,0.2);
-            border: 1px solid rgba(139,92,246,0.35);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: #a78bfa; flex-shrink: 0;
+            font-size: 1.1rem; color: #fff; flex-shrink: 0;
         }
         .tm-banner-text { flex:1; }
         .tm-banner-title {
-            font-size: 0.85rem; font-weight: 700;
-            color: #c4b5fd; margin-bottom: 2px;
+            font-size: 0.88rem; font-weight: 700;
+            color: #ffffff; margin-bottom: 2px;
         }
         .tm-banner-sub {
-            font-size: 0.75rem; color: var(--text-muted);
+            font-size: 0.78rem; color: rgba(255, 255, 255, 0.85);
         }
         .tm-banner-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         .btn-tm-load {
             display: flex; align-items: center; gap: 6px;
             padding: 0.45rem 1rem;
-            background: #7c3aed;
+            background: #ffffff;
             border: none; border-radius: 8px;
-            color: #fff; font-size: 0.8rem; font-weight: 600;
+            color: #6d28d9; font-size: 0.8rem; font-weight: 700;
             cursor: pointer; transition: all 0.15s;
         }
-        .btn-tm-load:hover { background: #6d28d9; transform: translateY(-1px); }
+        .btn-tm-load:hover { background: #f3f4f6; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-tm-skip {
             display: flex; align-items: center; gap: 6px;
             padding: 0.45rem 1rem;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 8px;
-            color: var(--text-muted); font-size: 0.8rem; font-weight: 600;
+            color: #ffffff; font-size: 0.8rem; font-weight: 600;
             cursor: pointer; transition: all 0.15s;
         }
-        .btn-tm-skip:hover { color: var(--text-primary); border-color: var(--border-light); }
+        .btn-tm-skip:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }
 
         /* ── TimeMachine Skip Confirm Modal ── */
         .tm-skip-overlay {
