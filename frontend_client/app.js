@@ -371,7 +371,11 @@ function runCode(event) {
     fetch('/api/client/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code, language: language })
+        body: JSON.stringify({
+            code: code,
+            language: language,
+            question_id: questions[currentQuestion] ? 'q' + questions[currentQuestion].id : 'q1'
+        })
     })
         .then(response => {
             // Eğer backend 500 dönerse burası yakalar

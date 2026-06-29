@@ -35,7 +35,7 @@
                             <td class="last-seen">${formatLastSeen(info.last_seen)}</td>
                             <td style="display:flex; gap:6px; flex-wrap:wrap;">
                                 <button class="btn btn-sm btn-outline-success" style="padding: 2px 8px; font-size: 0.75rem;" onclick="openLiveCode('${info.student_id}', '${info.full_name}')"><i class="bi bi-eye"></i> Canlı</button>
-                                <button class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 0.75rem;" onclick="loadPlayback('${info.student_id}', 'q${info.current_question}')"><i class="bi bi-play-circle"></i> İzle</button>
+                                <button class="btn btn-sm btn-outline-primary" style="padding: 2px 8px; font-size: 0.75rem;" onclick="loadPlayback('${info.student_id}', '${info.full_name}')"><i class="bi bi-play-circle"></i> İzle</button>
                             </td>
                         </tr>
                     `;

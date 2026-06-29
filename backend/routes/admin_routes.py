@@ -131,6 +131,34 @@ def get_code_playback(exam_id, student_no, question_id):
                 
     return jsonify({"frames": playback_frames}), 200
 
+
+@admin_bp.route("/api/admin/playback/<exam_id>/<student_no>", methods=["GET"])
+def get_all_playback(exam_id, student_no):
+    """Returns ALL questions' playback frames for a student, grouped by question_id."""
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    history_file = os.path.join(base_dir, "grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
+    
+    if not os.path.exists(history_file):
+        history_file_alt = os.path.join("grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
+        if not os.path.exists(history_file_alt):
+            return jsonify({"error": "No history found"}), 404
+        history_file = history_file_alt
+    
+    # Group frames by question_id
+    grouped = {}
+    with open(history_file, "r", encoding="utf-8") as f:
+        for line in f:
+            record = json.loads(line)
+            qid = record.get("question_id", "q1")
+            if qid not in grouped:
+                grouped[qid] = []
+            grouped[qid].append({
+                "timestamp": record["timestamp"],
+                "code": record["code"]
+            })
+    
+    return jsonify({"questions": grouped}), 200
+
 # ---------------------------------------------------------------
 # test case hazırlanımı
 #

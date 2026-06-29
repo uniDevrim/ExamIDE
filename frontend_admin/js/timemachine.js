@@ -86,12 +86,11 @@
 
         /** Sekmedeki istatistik değerlerini günceller */
         function tmUpdateTabStats(data) {
-            const stateMap = {idle:'Beklemede', running:'Çalışıyor', paused:'Duraklatıldı', ended:'Bitti'};
+            const stateMap = {idle:'⏸️ Sınav Yok', running:'✅ Sınav Devam Ediyor', paused:'⏯️ Duraklatıldı', ended:'🏁 Sınav Bitti'};
             document.getElementById('tmStateVal').textContent    = stateMap[data.session_state] || data.session_state || '—';
             document.getElementById('tmStudentCount').textContent = data.student_count ?? '—';
             document.getElementById('tmSnapshotCount').textContent = data.snapshot_count ?? '—';
             document.getElementById('tmExamId').textContent      = data.exam_id || '—';
-            document.getElementById('tmDbPath').textContent      = '📂 ' + (data.db_path || '—');
             document.getElementById('tmLastUpdate').textContent  = 'Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR');
 
             const badge = document.getElementById('tmTabBadge');

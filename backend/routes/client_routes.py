@@ -91,7 +91,7 @@ def run_code():
         return jsonify({"stdout": "", "stderr": f"System Error: {str(e)}", "exit_code": -1}), 500
         
     finally:
-        # TimeMachine: "Çalıştır" işlemi sırasında snapshot kaydet
+        # TimeMachine: "Çalıştır" işlemi sırasında snapshot + history kaydet
         code_to_save = data.get('code', '')
         question_id  = data.get('question_id', 'q1')
         user         = session.get('user', {})
@@ -105,6 +105,9 @@ def run_code():
                     lang=lang,
                     trigger='run'
                 )
+                # Playback geçmişine de ekle
+                exam_id = pool_manager.exam_data.get('exam_id', 'exam_001') if pool_manager.exam_data else 'exam_001'
+                tm.append_history(exam_id, student_no, question_id, code_to_save)
             except Exception as snap_err:
                 print(f"[TimeMachine] snapshot hatası: {snap_err}")
         if container:
