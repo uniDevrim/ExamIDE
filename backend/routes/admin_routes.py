@@ -225,6 +225,19 @@ def timemachine_restore():
         return jsonify({"error": str(e)}), 500
 
 
+@admin_bp.route('/student/<student_no>/live_code', methods=['GET'])
+def student_live_code(student_no):
+    """Returns the latest saved code snapshots for a specific student (all questions)."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    from .. import timemachine as tm
+    try:
+        codes = tm.load_student_codes(student_no)
+        return jsonify(codes), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @admin_bp.route('/timemachine/reset', methods=['POST'])
 def timemachine_reset():
     """TimeMachine DB'sini sıfırlar (sınav arşivlendikten sonra kullanılır)."""

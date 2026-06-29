@@ -41,9 +41,9 @@ class WarmContainerPool:
         self.exam_paused_at        = None     # datetime — son duraklama anı
         self.exam_total_paused_secs = 0.0    # toplam duraklatılan süre (saniye)
 
-        # ── TimeMachine: DB başlat, her açılışta temiz slate ──────────────
+        # ── TimeMachine: DB başlat, önceki state'i kurtar ───────────────
         tm.init_db()
-        self._reset_db()
+        self._restore_from_db()
         # ────────────────────────────────────────────────────────────────
 
         atexit.register(self.shutdown)

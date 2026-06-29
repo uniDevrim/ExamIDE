@@ -1,0 +1,61 @@
+<!-- Live Code Viewer Modal -->
+<div class="modal fade" id="liveCodeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 16px 22px;">
+                <div>
+                    <h5 class="modal-title" style="font-weight:600; font-size:1rem; margin:0;" id="liveCodeModalTitle">
+                        <i class="bi bi-eye-fill" style="color: var(--accent-primary);"></i>
+                        Canlı Kod İzleme
+                    </h5>
+                    <div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;" id="liveCodeModalSubtitle">—</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; margin-left:auto;">
+                    <span id="liveCodeStatus" style="font-size:0.72rem; color: var(--accent-success); display:flex; align-items:center; gap:5px;">
+                        <span style="width:7px; height:7px; border-radius:50%; background:var(--accent-success); display:inline-block; animation: pulse 1.5s infinite;"></span>
+                        Canlı
+                    </span>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="stopLiveCodePoll()"></button>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding: 0;">
+                <!-- Question Tabs -->
+                <div id="liveCodeTabs" style="display:flex; gap:4px; padding: 12px 20px 0; border-bottom: 1px solid var(--border-color); overflow-x:auto; flex-wrap:nowrap;">
+                    <!-- Tabs injected by JS -->
+                </div>
+
+                <!-- Code Display -->
+                <div style="position:relative; padding: 16px 20px;">
+                    <div style="position:absolute; top:24px; right:28px; font-size:0.7rem; color:var(--text-muted);" id="liveCodeSavedAt">—</div>
+                    <textarea id="liveCodeContent"
+                        readonly
+                        style="
+                            width:100%;
+                            height: 420px;
+                            background: var(--bg-editor, #0d1117);
+                            color: #e6edf3;
+                            border: 1px solid var(--border-color);
+                            border-radius: 8px;
+                            font-family: 'JetBrains Mono', monospace;
+                            font-size: 0.82rem;
+                            padding: 14px 16px;
+                            resize: none;
+                            line-height: 1.6;
+                        "
+                        placeholder="Bu soru için henüz kayıt yok..."></textarea>
+                </div>
+
+                <div style="padding: 0 20px 16px; display:flex; align-items:center; justify-content:space-between;">
+                    <span style="font-size:0.72rem; color:var(--text-muted);">
+                        <i class="bi bi-info-circle"></i>
+                        Her 5 saniyede otomatik güncellenir (autosave veya çalıştır anında)
+                    </span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="refreshLiveCode()">
+                        <i class="bi bi-arrow-clockwise"></i> Şimdi Yenile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
