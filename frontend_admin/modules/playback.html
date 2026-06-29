@@ -1,9 +1,9 @@
-        <!-- Playback Panel -->
+        <!-- Unified Code Viewer (İzle) -->
         <div class="accordion-panel" id="playbackAccordion" style="display:none;">
             <div class="accordion-header" onclick="toggleAccordion('playbackAccordion')">
                 <div class="accordion-title">
-                    <i class="bi bi-camera-video"></i>
-                    Kod İzleme (Playback)
+                    <i class="bi bi-eye-fill"></i>
+                    Kod İzleme
                 </div>
                 <div style="display:flex; align-items:center; gap:15px;">
                     <span id="playbackStatus" style="font-size:0.72rem; color:var(--text-muted);"></span>
@@ -11,36 +11,44 @@
                 </div>
             </div>
             <div class="accordion-body">
-                <!-- Student info bar -->
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:8px 12px; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); border-radius:8px;">
+                <!-- Student info + mode toggle -->
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding:8px 12px; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); border-radius:8px; flex-wrap:wrap; gap:8px;">
                     <div>
                         <span style="font-weight:600; font-size:0.85rem;" id="playbackStudentName">—</span>
                         <span style="font-size:0.72rem; color:var(--text-muted); margin-left:8px;" id="playbackStudentNo"></span>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <!-- Live follow toggle -->
-                        <button id="btnLiveFollow" class="btn btn-sm" style="padding:3px 10px; font-size:0.72rem; border-radius:6px; border:1px solid rgba(34,197,94,0.3); background:rgba(34,197,94,0.08); color:var(--accent-success); cursor:pointer;" onclick="toggleLiveFollow()">
-                            <i class="bi bi-broadcast" id="liveFollowIcon"></i> Canlı Takip
+                    <!-- Mode toggle buttons -->
+                    <div style="display:flex; gap:4px;">
+                        <button id="btnModeLive" class="mode-toggle-btn active" onclick="_pbSetLiveMode()">
+                            <span style="width:7px; height:7px; border-radius:50%; background:var(--accent-success); display:inline-block; animation: pulse 1.5s infinite;"></span>
+                            Canlı
                         </button>
-                        <span id="playbackFrameInfo" style="font-size:0.72rem; color:var(--text-muted);"></span>
+                        <button id="btnModeHistory" class="mode-toggle-btn" onclick="_pbSetHistoryMode()">
+                            <i class="bi bi-clock-history" style="font-size:0.7rem;"></i>
+                            Geçmiş Kayıtları
+                        </button>
                     </div>
                 </div>
 
                 <!-- Question Tabs -->
                 <div id="playbackQuestionTabs" style="display:flex; gap:4px; margin-bottom:10px; overflow-x:auto; flex-wrap:nowrap;">
-                    <!-- Tabs injected by JS -->
                 </div>
 
-                <!-- Player controls -->
-                <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+                <!-- History slider (hidden in live mode) -->
+                <div id="playbackSliderRow" style="display:none; gap:10px; margin-bottom:10px; align-items:center;">
                     <button id="btnPlayPause" class="btn btn-sm btn-primary" onclick="togglePlayback()" style="min-width:75px;">
                         <i class="bi bi-play-fill" id="playIcon"></i> Oynat
                     </button>
                     <input type="range" id="playbackSlider" class="form-range" min="0" max="0" value="0" style="flex:1;" oninput="onSliderInput()">
-                    <span id="playbackTime" style="font-family: monospace; font-size: 0.8rem; min-width: 150px; text-align: right;"></span>
+                    <span id="playbackTime" style="font-family: monospace; font-size: 0.78rem; min-width: 140px; text-align: right; color:var(--text-secondary);"></span>
                 </div>
 
                 <!-- Code display -->
-                <textarea id="playbackCode" class="form-control" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; height: 350px; background: var(--bg-editor); color: var(--text-primary); border: 1px solid var(--border-color); resize: none; line-height:1.6;" readonly placeholder="Kayıt bulunamadı. Öğrenci henüz kod yazmamış olabilir."></textarea>
+                <textarea id="playbackCode" class="form-control" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; height: 400px; background: var(--bg-editor); color: var(--text-primary); border: 1px solid var(--border-color); resize: none; line-height:1.6;" readonly placeholder="Öğrenci henüz kod yazmadı..."></textarea>
+
+                <div style="padding:8px 0 0; font-size:0.7rem; color:var(--text-muted);">
+                    <i class="bi bi-info-circle"></i>
+                    Canlı modda her 3 saniyede güncellenir. Geçmiş modda sınav boyunca kaydedilen tüm kod değişikliklerini slider ile izleyebilirsiniz.
+                </div>
             </div>
         </div>
