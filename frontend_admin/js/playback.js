@@ -54,7 +54,7 @@
             _pbRefreshInterval = setInterval(async () => {
                 await _pbFetchLiveCode();
                 if (_pbHistoryMode) {
-                    await _pbFetchHistory();
+                    await _pbFetchHistory(true);
                 }
             }, 3000);
         }
@@ -119,7 +119,7 @@
             _pbActiveQuestion = questionId;
             _pbRenderTabs();
             if (_pbHistoryMode) {
-                _pbShowHistoryForQuestion();
+                _pbShowHistoryForQuestion(false);
             } else {
                 _pbShowLiveCode();
             }
@@ -143,7 +143,7 @@
 
         // ── History (from JSONL files — for slider/playback) ──────────
 
-        async function _pbFetchHistory() {
+        async function _pbFetchHistory(preserveCurrentFrame = false) {
             if (!_pbStudentNo || !_pbExamId) return;
             try {
                 const res = await fetch(`/api/admin/playback/${encodeURIComponent(_pbExamId)}/${encodeURIComponent(_pbStudentNo)}`);
@@ -151,7 +151,7 @@
                 const data = await res.json();
                 _pbHistoryData = data.questions || {};
                 if (_pbHistoryMode) {
-                    _pbShowHistoryForQuestion();
+                    _pbShowHistoryForQuestion(preserveCurrentFrame);
                 }
                 // Update tabs to include any new questions from history
                 _pbRenderTabs();
@@ -160,10 +160,15 @@
             }
         }
 
-        function _pbShowHistoryForQuestion() {
-            _pbHistoryFrames = (_pbHistoryData[_pbActiveQuestion] || []);
+        function _pbShowHistoryForQuestion(preserveCurrentFrame = false) {
             const slider = document.getElementById('playbackSlider');
-            slider.max = Math.max(0, _pbHistoryFrames.length - 1);
+            const oldVal = parseInt(slider.value) || 0;
+            const oldMax = parseInt(slider.max) || 0;
+            const wasAtEnd = oldVal >= oldMax;
+
+            _pbHistoryFrames = (_pbHistoryData[_pbActiveQuestion] || []);
+            const newMax = Math.max(0, _pbHistoryFrames.length - 1);
+            slider.max = newMax;
 
             if (_pbHistoryFrames.length === 0) {
                 document.getElementById('playbackCode').value = '';
@@ -173,8 +178,11 @@
                 return;
             }
 
-            // Show last frame by default
-            slider.value = _pbHistoryFrames.length - 1;
+            if (preserveCurrentFrame && !wasAtEnd) {
+                slider.value = Math.min(oldVal, newMax);
+            } else {
+                slider.value = newMax;
+            }
             onSliderInput();
         }
 
@@ -206,7 +214,7 @@
             document.getElementById('playbackSliderRow').style.display = 'flex';
             document.getElementById('btnModeHistory').classList.add('active');
             document.getElementById('btnModeLive').classList.remove('active');
-            _pbFetchHistory();
+            _pbFetchHistory(false);
         }
 
         /* Auto-play for history mode (post-exam review) */
