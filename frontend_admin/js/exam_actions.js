@@ -5,6 +5,7 @@
             examState = 'running';
             examStartTime = Date.now();
             pauseOffset = 0;
+            globalExamId = loadedFile?.data?.exam_id || 'exam_001';
 
             setExamStateBadge('running');
             updateButtons();
@@ -111,6 +112,7 @@
                 // ── examState'i geri al ──
                 examState = state;
                 jsonLoaded = true;
+                globalExamId = exam.exam_id || 'exam_001';
 
                 // ── Dosya yükleme göstergesini restore et ──
                 if (exam.name) {

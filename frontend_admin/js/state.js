@@ -7,6 +7,7 @@
         let questionCount = 0;
         let examStartTime = null;
         let timerInterval = null;
+        let globalExamId = 'exam_001';
 
 
         /* ─────────────────────────────────────

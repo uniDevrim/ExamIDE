@@ -22,7 +22,7 @@
         async function loadPlayback(studentNo, studentName) {
             _pbStudentNo   = studentNo;
             _pbStudentName = studentName || studentNo;
-            _pbExamId      = _tmSessionData?.exam_id || 'exam_001';
+            _pbExamId      = _tmSessionData?.exam_id || (typeof globalExamId !== 'undefined' ? globalExamId : 'exam_001');
             _pbLiveData    = {};
             _pbHistoryData = {};
             _pbActiveQuestion = null;
