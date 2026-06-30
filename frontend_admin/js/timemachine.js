@@ -13,58 +13,73 @@
                 _tmSessionData = data;
                 tmUpdateTabStats(data);
 
-                // Eğer zaten bir sınav yüklüyse (manuel yükleme veya az önce restore yapılmışsa) banner gösterme
+                // Eğer zaten bir sınav yüklüyse (manuel yükleme veya az önce restore yapılmışsa) overlay gösterme
                 if (examState !== 'idle') return;
 
                 if (data.has_session) {
-                    const banner   = document.getElementById('tmStartupBanner');
-                    const infoEl   = document.getElementById('tmBannerInfo');
-                    const sc       = data.student_count || 0;
-                    const snap     = data.snapshot_count || 0;
-                    const state    = data.session_state || 'idle';
-                    const startAt  = data.started_at ? new Date(data.started_at).toLocaleString('tr-TR') : '—';
-                    infoEl.textContent = `Durum: ${state} | ${sc} öğrenci | ${snap} kod snapshot | Başlangıç: ${startAt}`;
-                    banner.style.display = 'flex';
+                    const overlay = document.getElementById('tmStartupOverlay');
+                    const infoEl  = document.getElementById('tmStartupInfo');
+                    const sc      = data.student_count || 0;
+                    const snap    = data.snapshot_count || 0;
+                    const state   = data.session_state || 'idle';
+                    const stateLabels = { idle: 'Beklemede', running: 'Devam Ediyor', paused: 'Duraklatılmış', ended: 'Sona Ermiş' };
+                    const startAt = data.started_at ? new Date(data.started_at).toLocaleString('tr-TR') : '—';
+                    infoEl.innerHTML = `
+                        <strong>${stateLabels[state] || state}</strong> · ${sc} öğrenci · ${snap} snapshot<br>
+                        Başlangıç: ${startAt}
+                    `;
+                    overlay.classList.add('visible');
                 }
             } catch(e) {
                 console.warn('[TimeMachine] startup check hatası:', e);
             }
         }
 
-        /** "Yeniden Yükle" butonuna basıldı */
-        async function tmLoadRestore() {
-            document.getElementById('tmStartupBanner').style.display = 'none';
+        /** "Devam Et" butonuna basıldı */
+        async function tmResumeExam() {
+            document.getElementById('tmStartupOverlay').classList.remove('visible');
             try {
                 const res = await fetch('/api/admin/timemachine/restore', { method: 'POST' });
                 const data = await res.json();
                 if (data.status === 'restored') {
-                    showToast('✅ TimeMachine: Oturum başarıyla yüklendi!', 'success');
+                    showToast('✅ Önceki sınav oturumu yüklendi!', 'success');
                     tmRefreshStats();
                     // Sayfayı yenilemek en garantisi çünkü tüm state değişiyor
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast('⚠️ Restore sırasında hata: ' + (data.error || '?'), 'warning');
+                    showToast('⚠️ Yükleme sırasında hata: ' + (data.error || '?'), 'warning');
                 }
             } catch(e) {
                 showToast('❌ Bağlantı hatası', 'danger');
             }
         }
 
-        /** "Yoksay" butonuna basıldı → onay modalını aç */
-        function tmAskSkip() {
-            document.getElementById('tmSkipOverlay').classList.add('visible');
+        /** "Yeni Sınav" butonuna basıldı → onay modalını aç */
+        function tmAskNewExam() {
+            document.getElementById('tmNewExamOverlay').classList.add('visible');
         }
 
-        /** Yoksay onay modalını kapat */
-        function tmCloseSkipModal() {
-            document.getElementById('tmSkipOverlay').classList.remove('visible');
+        /** Yeni Sınav onay modalını kapat */
+        function tmCloseNewExamModal() {
+            document.getElementById('tmNewExamOverlay').classList.remove('visible');
         }
 
-        /** Kullanıcı "Evet, Yoksay" dedi */
-        function tmConfirmSkip() {
-            tmCloseSkipModal();
-            document.getElementById('tmStartupBanner').style.display = 'none';
-            showToast('ℹ️ TimeMachine oturumu yoksayıldı.', 'info');
+        /** Kullanıcı "Evet, Yeni Sınav" dedi → DB + geçmiş temizle */
+        async function tmConfirmNewExam() {
+            tmCloseNewExamModal();
+            document.getElementById('tmStartupOverlay').classList.remove('visible');
+            try {
+                const res = await fetch('/api/admin/timemachine/full_reset', { method: 'POST' });
+                const data = await res.json();
+                if (data.status === 'full_reset') {
+                    showToast('🗑️ Eski veriler silindi — yeni sınav hazır!', 'success');
+                    tmRefreshStats();
+                } else {
+                    showToast('❌ Sıfırlama hatası: ' + (data.error || '?'), 'danger');
+                }
+            } catch(e) {
+                showToast('❌ Bağlantı hatası', 'danger');
+            }
         }
 
 
@@ -110,12 +125,11 @@
         /** DB'yi sıfırla — önce confirm modal */
         function tmConfirmReset() {
             if (!confirm('TimeMachine veritabanını sıfırlamak istediğinizden emin misiniz?\nTüm snapshot ve öğrenci verileri silinir!')) return;
-            fetch('/api/admin/timemachine/reset', { method: 'POST' })
+            fetch('/api/admin/timemachine/full_reset', { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.status === 'reset') {
-                        showToast('🗑️ TimeMachine DB sıfırlandı', 'success');
-                        document.getElementById('tmStartupBanner').style.display = 'none';
+                    if (data.status === 'full_reset') {
+                        showToast('🗑️ TimeMachine DB ve geçmiş sıfırlandı', 'success');
                         tmRefreshStats();
                     } else {
                         showToast('❌ Sıfırlama hatası: ' + (data.error||'?'), 'danger');
@@ -123,4 +137,3 @@
                 })
                 .catch(() => showToast('❌ Bağlantı hatası', 'danger'));
         }
-

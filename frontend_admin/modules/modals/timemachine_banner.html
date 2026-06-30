@@ -1,17 +1,23 @@
-    <!-- TimeMachine Startup Banner (gizli, JS ile görünür yapılır) -->
-    <div class="tm-banner" id="tmStartupBanner" style="display:none;">
-        <div class="tm-banner-icon"><i class="bi bi-clock-history"></i></div>
-        <div class="tm-banner-text">
-            <div class="tm-banner-title">⏱️ TimeMachine — Kaydedilmiş Oturum Bulundu</div>
-            <div class="tm-banner-sub" id="tmBannerInfo">Yükleniyor...</div>
-        </div>
-        <div class="tm-banner-actions">
-            <button class="btn-tm-load" onclick="tmLoadRestore()">
-                <i class="bi bi-arrow-counterclockwise"></i> Yeniden Yükle
-            </button>
-            <button class="btn-tm-skip" onclick="tmAskSkip()">
-                <i class="bi bi-x-lg"></i> Yoksay
-            </button>
+    <!-- TimeMachine Startup Overlay (yeni sınav mı, devam mı?) -->
+    <div class="tm-startup-overlay" id="tmStartupOverlay">
+        <div class="tm-startup-box">
+            <div class="tm-startup-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="tm-startup-title">Önceki Sınav Oturumu Bulundu</div>
+            <div class="tm-startup-info" id="tmStartupInfo">Yükleniyor...</div>
+
+            <div class="tm-startup-actions">
+                <button class="btn-tm-resume" onclick="tmResumeExam()">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Devam Et
+                    <span class="tm-btn-hint">Kaldığı yerden devam eder</span>
+                </button>
+                <button class="btn-tm-new" onclick="tmAskNewExam()">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    Yeni Sınav
+                    <span class="tm-btn-hint">Eski verileri temizler</span>
+                </button>
+            </div>
         </div>
     </div>
-

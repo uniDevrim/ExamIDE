@@ -1258,79 +1258,107 @@
             }
         }
         /* ── TimeMachine Banner ── */
-        .tm-banner {
-            position: sticky;
-            top: 52px;
-            z-index: 1900;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            border-bottom: 1px solid #4f46e5;
-            padding: 0.75rem 1.5rem;
-            display: flex;
+        /* ── TimeMachine Startup Overlay ── */
+        .tm-startup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 3000;
             align-items: center;
-            gap: 1rem;
-            animation: slideDown 0.4s ease;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+            justify-content: center;
+            padding: 1rem;
         }
-        @keyframes slideDown {
-            from { opacity:0; transform: translateY(-100%); }
-            to   { opacity:1; transform: translateY(0); }
+        .tm-startup-overlay.visible {
+            display: flex;
         }
-        .tm-banner-icon {
-            width: 38px; height: 38px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 10px;
+        .tm-startup-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.5rem 2rem 2rem;
+            width: 440px;
+            max-width: 95vw;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            animation: modalIn 0.3s ease;
+            text-align: center;
+        }
+        .tm-startup-icon {
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+            border: 1px solid rgba(99,102,241,0.3);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: #fff; flex-shrink: 0;
+            font-size: 1.8rem; color: #8b5cf6;
+            margin: 0 auto 1.25rem;
         }
-        .tm-banner-text { flex:1; }
-        .tm-banner-title {
-            font-size: 0.88rem; font-weight: 700;
-            color: #ffffff; margin-bottom: 2px;
+        .tm-startup-title {
+            font-size: 1.15rem; font-weight: 700;
+            color: var(--text-primary); margin-bottom: 0.5rem;
         }
-        .tm-banner-sub {
-            font-size: 0.78rem; color: rgba(255, 255, 255, 0.85);
+        .tm-startup-info {
+            font-size: 0.8rem; color: var(--text-muted);
+            line-height: 1.6; margin-bottom: 1.75rem;
         }
-        .tm-banner-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
-        .btn-tm-load {
-            display: flex; align-items: center; gap: 6px;
-            padding: 0.45rem 1rem;
-            background: #ffffff;
-            border: none; border-radius: 8px;
-            color: #6d28d9; font-size: 0.8rem; font-weight: 700;
-            cursor: pointer; transition: all 0.15s;
+        .tm-startup-actions {
+            display: flex; flex-direction: column; gap: 0.65rem;
         }
-        .btn-tm-load:hover { background: #f3f4f6; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-tm-skip {
-            display: flex; align-items: center; gap: 6px;
-            padding: 0.45rem 1rem;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            color: #ffffff; font-size: 0.8rem; font-weight: 600;
-            cursor: pointer; transition: all 0.15s;
+        .btn-tm-resume, .btn-tm-new {
+            display: flex; align-items: center;
+            gap: 10px; padding: 0.85rem 1.25rem;
+            border-radius: 12px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; border: none;
+            position: relative;
         }
-        .btn-tm-skip:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }
+        .btn-tm-resume {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 18px rgba(99,102,241,0.3);
+        }
+        .btn-tm-resume:hover {
+            box-shadow: 0 6px 24px rgba(99,102,241,0.45);
+            transform: translateY(-1px);
+        }
+        .btn-tm-new {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-secondary);
+        }
+        .btn-tm-new:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--text-muted) !important;
+            color: var(--text-primary);
+        }
+        .tm-btn-hint {
+            font-size: 0.72rem; color: rgba(255,255,255,0.6);
+            margin-left: auto; font-weight: 400;
+        }
+        .btn-tm-new .tm-btn-hint {
+            color: var(--text-muted);
+        }
 
-        /* ── TimeMachine Skip Confirm Modal ── */
+        /* ── TimeMachine New Exam Confirm Modal ── */
         .tm-skip-overlay {
             display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.7); z-index: 3000;
+            background: rgba(0,0,0,0.7); z-index: 3500;
             align-items: center; justify-content: center;
         }
         .tm-skip-overlay.visible { display: flex; }
         .tm-skip-box {
             background: var(--bg-secondary);
-            border: 1px solid rgba(245,158,11,0.4);
-            border-radius: 16px; padding: 2rem; width: 360px;
+            border: 1px solid rgba(239,68,68,0.4);
+            border-radius: 16px; padding: 2rem; width: 380px;
             max-width: 90vw; box-shadow: var(--shadow-lg);
             animation: modalIn 0.25s ease;
         }
         .tm-skip-icon {
             width: 48px; height: 48px;
-            background: rgba(245,158,11,0.12); border-radius: 12px;
+            background: rgba(239,68,68,0.12); border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem; color: var(--accent-warning); margin-bottom: 1rem;
+            font-size: 1.4rem; color: var(--accent-danger); margin-bottom: 1rem;
         }
 
         /* ── Accordion Panels (General) ── */
