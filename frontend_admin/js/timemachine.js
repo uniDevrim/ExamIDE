@@ -13,8 +13,8 @@
                 _tmSessionData = data;
                 tmUpdateTabStats(data);
 
-                // Eğer zaten bir sınav yüklüyse (manuel yükleme veya az önce restore yapılmışsa) overlay gösterme
-                if (examState !== 'idle') return;
+                // Eğer bu tarayıcı sekmesinde zaten karar verildiyse overlay gösterme
+                if (sessionStorage.getItem('tm_resolved') === 'true') return;
 
                 if (data.has_session) {
                     const overlay = document.getElementById('tmStartupOverlay');
@@ -37,6 +37,7 @@
 
         /** "Devam Et" butonuna basıldı */
         async function tmResumeExam() {
+            sessionStorage.setItem('tm_resolved', 'true');
             document.getElementById('tmStartupOverlay').classList.remove('visible');
             try {
                 const res = await fetch('/api/admin/timemachine/restore', { method: 'POST' });
@@ -67,6 +68,7 @@
         /** Kullanıcı "Evet, Yeni Sınav" dedi → DB + geçmiş temizle */
         async function tmConfirmNewExam() {
             tmCloseNewExamModal();
+            sessionStorage.setItem('tm_resolved', 'true');
             document.getElementById('tmStartupOverlay').classList.remove('visible');
             try {
                 const res = await fetch('/api/admin/timemachine/full_reset', { method: 'POST' });
@@ -74,6 +76,7 @@
                 if (data.status === 'full_reset') {
                     showToast('🗑️ Eski veriler silindi — yeni sınav hazır!', 'success');
                     tmRefreshStats();
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     showToast('❌ Sıfırlama hatası: ' + (data.error || '?'), 'danger');
                 }
