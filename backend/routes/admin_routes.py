@@ -103,7 +103,7 @@ def admin_exam_status():
     return jsonify(pool_manager.get_exam_status()), 200
 
 
-@admin_bp.route("/api/admin/playback/<exam_id>/<student_no>/<question_id>", methods=["GET"])
+@admin_bp.route("/playback/<exam_id>/<student_no>/<question_id>", methods=["GET"])
 def get_code_playback(exam_id, student_no, question_id):
     # Ensure absolute path to grader/history
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -132,7 +132,7 @@ def get_code_playback(exam_id, student_no, question_id):
     return jsonify({"frames": playback_frames}), 200
 
 
-@admin_bp.route("/api/admin/playback/<exam_id>/<student_no>", methods=["GET"])
+@admin_bp.route("/playback/<exam_id>/<student_no>", methods=["GET"])
 def get_all_playback(exam_id, student_no):
     """Returns ALL questions' playback frames for a student, grouped by question_id."""
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
