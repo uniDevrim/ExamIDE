@@ -6,15 +6,15 @@
 
         /** Sayfa yüklenince TimeMachine durumunu kontrol eder. */
         async function tmCheckStartup() {
-            // Eğer zaten bir sınav yüklüyse (manuel yükleme veya az önce restore yapılmışsa) banner gösterme
-            if (examState !== 'idle') return;
-
             try {
                 const res = await fetch('/api/admin/timemachine/status');
                 if (!res.ok) return;
                 const data = await res.json();
                 _tmSessionData = data;
                 tmUpdateTabStats(data);
+
+                // Eğer zaten bir sınav yüklüyse (manuel yükleme veya az önce restore yapılmışsa) banner gösterme
+                if (examState !== 'idle') return;
 
                 if (data.has_session) {
                     const banner   = document.getElementById('tmStartupBanner');

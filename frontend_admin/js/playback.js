@@ -207,7 +207,6 @@
             document.getElementById('btnModeHistory').classList.add('active');
             document.getElementById('btnModeLive').classList.remove('active');
             _pbFetchHistory();
-            _pbShowHistoryForQuestion();
         }
 
         /* Auto-play for history mode (post-exam review) */

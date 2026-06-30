@@ -184,6 +184,7 @@ class WarmContainerPool:
             "description" : self.exam_data.get("description", ""),
             "time"        : self.exam_data.get("time", ""),
             "language"    : self.exam_data.get("language", ""),
+            "exam_id"     : self.exam_data.get("exam_id", "exam_001")
         } if self.exam_data else {}
         return {
             "state"             : self.exam_state,
