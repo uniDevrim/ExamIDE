@@ -277,3 +277,17 @@ def timemachine_reset():
         return jsonify({"status": "reset"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@admin_bp.route('/timemachine/full_reset', methods=['POST'])
+def timemachine_full_reset():
+    """DB'yi sıfırlar VE geçmiş JSONL dosyalarını temizler (yeni sınav başlatmak için)."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+    from .. import timemachine as tm
+    try:
+        tm.reset_db()
+        tm.clear_history()
+        return jsonify({"status": "full_reset"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

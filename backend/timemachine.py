@@ -336,6 +336,18 @@ def reset_db():
             """)
         conn.close()
 
+def clear_history():
+    """
+    grader/history klasöründeki tüm JSONL dosyalarını siler.
+    Yeni sınav başlatılırken eski geçmişin temizlenmesi için kullanılır.
+    """
+    import shutil
+    history_base = os.path.join("grader", "history")
+    if os.path.exists(history_base):
+        shutil.rmtree(history_base)
+        os.makedirs(history_base, exist_ok=True)
+
+
 def append_history(exam_id: str, student_no: str, question_id: str, code: str):
     import json
     history_dir = os.path.join("grader", "history", str(exam_id))
