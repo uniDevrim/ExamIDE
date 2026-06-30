@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session,current_app
-import datetime
+from datetime import datetime, timezone
 from ..execution_pool import pool_manager
 auth_bp = Blueprint('auth', __name__)
 
@@ -41,7 +41,7 @@ def login():
             'bolum': request.form.get('bolum'),
             'sinif': request.form.get('sinif'),
             'question': 1,
-            'timestamp': datetime.datetime.now().strftime("%H:%M:%S")
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         client_ip  = request.remote_addr
         student_no = request.form.get('ogrenci_no')

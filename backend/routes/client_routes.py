@@ -40,6 +40,9 @@ def run_code():
     try:
         container = pool_manager.get_container(lang)
 
+        if container is None:
+            return jsonify({"stdout": "", "stderr": "Hata: Bu dil için hazır konteyner bulunamadı. Sınav başlatılmamış olabilir.", "exit_code": -1}), 503
+
         try:
             container.reload() 
             if container.status != "running":
