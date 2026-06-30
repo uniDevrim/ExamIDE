@@ -273,6 +273,16 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[TimeMachine] _restore_from_db hatası: {e}")
 
+    def reset_in_memory_state(self):
+        """Uygulama belleğindeki tüm aktif sınav, öğrenci ve süre durumlarını temizler."""
+        self.students = {}
+        self.exam_state = "idle"
+        self.exam_data = {}
+        self.exam_started_at = None
+        self.exam_paused_at = None
+        self.exam_total_paused_secs = 0.0
+        self.active_language = DEFAULT_LANG
+
     # ────────────────────────────────────────────────────────────
 
     def run_grader_container(self, student_code, language, exam_id=None):

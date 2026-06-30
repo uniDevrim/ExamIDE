@@ -288,6 +288,7 @@ def timemachine_full_reset():
     try:
         tm.reset_db()
         tm.clear_history()
+        pool_manager.reset_in_memory_state()
         return jsonify({"status": "full_reset"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
