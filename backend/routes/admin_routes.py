@@ -142,6 +142,13 @@ def admin_exam_status():
 
 @admin_bp.route("/playback/<exam_id>/<student_no>/<question_id>", methods=["GET"])
 def get_code_playback(exam_id, student_no, question_id):
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if ".." in str(exam_id) or "/" in str(exam_id) or "\\" in str(exam_id) or \
+       ".." in str(student_no) or "/" in str(student_no) or "\\" in str(student_no):
+        return jsonify({"error": "Invalid request parameters"}), 400
+
     # Ensure absolute path to grader/history
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     history_file = os.path.join(base_dir, "grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
@@ -172,6 +179,13 @@ def get_code_playback(exam_id, student_no, question_id):
 @admin_bp.route("/playback/<exam_id>/<student_no>", methods=["GET"])
 def get_all_playback(exam_id, student_no):
     """Returns ALL questions' playback frames for a student, grouped by question_id."""
+    if not session.get('is_admin'):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    if ".." in str(exam_id) or "/" in str(exam_id) or "\\" in str(exam_id) or \
+       ".." in str(student_no) or "/" in str(student_no) or "\\" in str(student_no):
+        return jsonify({"error": "Invalid request parameters"}), 400
+
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
     history_file = os.path.join(base_dir, "grader", "history", str(exam_id), f"{str(student_no)}.jsonl")
     
