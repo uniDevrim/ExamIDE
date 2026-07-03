@@ -86,3 +86,32 @@ do the sonuçlar ve değerlendirme part
     This means the client timer can drift up to 3 seconds from the real
     remaining time. Acceptable for now but worth knowing.
 
+[ ] Security: Broken Access Control on Admin Playback APIs
+    admin_routes.py — /playback/<exam_id>/<student_no> and
+    /playback/<exam_id>/<student_no>/<question_id> completely lack the
+    session['is_admin'] check. Any logged-in student or guest can retrieve
+    any student's entire keystroke history and code records.
+    → Add the standard is_admin check.
+
+[ ] Security: Student Submission Impersonation/Tampering
+    client_routes.py — /submit API accepts student_id from request body.
+    A malicious student can send a POST request with another student's ID
+    to overwrite or submit on their behalf.
+    → Force student_id to be retrieved from session['user']['no'] for student requests.
+
+[ ] Security: Path Traversal on Submissions
+    client_routes.py — /submit API does not sanitize student_id or exam_id.
+    A student could pass student_id = "../../path/to/file" and overwrite
+    arbitrary JSON/source files on the backend filesystem.
+    → Sanitize input parameters to be strictly alphanumeric.
+
+[ ] Security: No Active Exam Guard on /submit
+    client_routes.py — /submit has no check if the exam is active.
+    A student can submit their final exam long after it has been paused or ended.
+    → Add the check: pool_manager.exam_state == "running" before processing submissions.
+
+[ ] API: Unauthorized requests return HTML instead of JSON
+    client_routes.py — check_student_session() redirects unauthenticated API
+    requests to /login, causing JSON parsing syntax errors in frontend.
+    → Return jsonify({"error": "Unauthorized"}), 401 instead of redirecting.
+
