@@ -8,6 +8,20 @@ admin_bp = Blueprint('admin_bp', __name__, template_folder=template_dir, static_
 
 students_db = {}
 
+@admin_bp.before_request
+def check_admin_csrf():
+    if request.method in ["POST", "PUT", "DELETE"]:
+        expected_token = session.get('csrf_token')
+        received_token = request.headers.get('X-CSRF-Token')
+        if not expected_token or received_token != expected_token:
+            return jsonify({"error": "CSRF verification failed"}), 403
+
+@admin_bp.after_request
+def set_csrf_cookie(response):
+    if 'csrf_token' in session:
+        response.set_cookie('csrf_token', session['csrf_token'], httponly=False, samesite='Lax')
+    return response
+
 @admin_bp.route('/dashboard')
 def admin_dashboard():
     if not session.get('is_admin'):
@@ -54,6 +68,29 @@ def start_exam():
 
     if exam_data:
         pool_manager.set_exam_data(exam_data)
+        
+        # Auto-extract test cases from exam_data on start_exam
+        exam_id = exam_data.get('exam_id') or 'exam_001'
+        questions = exam_data.get('questions') or {}
+        
+        tests_base_dir = os.path.join('grader', 'test_cases', str(exam_id))
+        os.makedirs(tests_base_dir, exist_ok=True)
+        
+        for q_key, q_val in questions.items():
+            question_id = f"q{q_key}"
+            raw_tests = q_val.get('test-cases') or []
+            
+            # Map input/output to input/expected
+            formatted_tests = []
+            for t in raw_tests:
+                formatted_tests.append({
+                    "input": t.get("input", ""),
+                    "expected": t.get("expected") or t.get("output") or ""
+                })
+            
+            test_file = os.path.join(tests_base_dir, f"{question_id}.json")
+            with open(test_file, 'w', encoding='utf-8') as f:
+                json.dump({"question_id": question_id, "tests": formatted_tests}, f, indent=2)
 
     pool_manager.set_exam_state("running")
 

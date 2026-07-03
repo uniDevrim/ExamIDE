@@ -88,6 +88,47 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- CSRF Fetch Wrapper -->
+    <script>
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(resource, init) {
+                init = init || {};
+                const method = (init.method || 'GET').toUpperCase();
+                if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+                    const cookies = document.cookie.split(';');
+                    let token = '';
+                    for (let c of cookies) {
+                        c = c.trim();
+                        if (c.startsWith('csrf_token=')) {
+                            token = c.substring('csrf_token='.length);
+                            break;
+                        }
+                    }
+                    if (token) {
+                        init.headers = init.headers || {};
+                        if (init.headers instanceof Headers) {
+                            init.headers.set('X-CSRF-Token', token);
+                        } else if (Array.isArray(init.headers)) {
+                            let found = false;
+                            for (let pair of init.headers) {
+                                if (pair[0].toLowerCase() === 'x-csrf-token') {
+                                    pair[1] = token;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) init.headers.push(['X-CSRF-Token', token]);
+                        } else {
+                            init.headers['X-CSRF-Token'] = token;
+                        }
+                    }
+                }
+                return originalFetch(resource, init);
+            };
+        })();
+    </script>
+
     <script src="{{ url_for("admin_bp.static", filename="js/state.js") }}"></script>
     <script src="{{ url_for("admin_bp.static", filename="js/ui.js") }}"></script>
     <script src="{{ url_for("admin_bp.static", filename="js/exam_file.js") }}"></script>
