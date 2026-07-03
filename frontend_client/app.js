@@ -578,6 +578,10 @@ function startStatusPolling() {
 async function doPoll() {
     try {
         const res = await fetch('/api/client/exam/status');
+        if (res.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
         if (!res.ok) return;
         const status = await res.json();
         handleExamStatus(status);
@@ -800,6 +804,10 @@ function startTimeMachineAutosave() {
 async function restoreCodesFromTimeMachine() {
     try {
         const res = await fetch('/api/client/my_codes');
+        if (res.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
         if (!res.ok) return;
         const codesMap = await res.json(); // { "q1": { code, lang, saved_at }, ... }
 
