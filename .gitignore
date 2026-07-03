@@ -6,7 +6,8 @@ backend/.env
 frontend_client/config.js
 .DS_Store
 Thumbs.db
-
+to-do.txt
+.env
 .vscode/
 grader/submissions/
 grader/test_cases/
