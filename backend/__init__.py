@@ -35,11 +35,15 @@ def create_app():
         if request.endpoint == 'static':
             return
 
-        exempt_endpoints = ['auth.login',"static"]
+        exempt_endpoints = ['auth.login', "static"]
 
         if 'user' not in session and not session.get('is_admin'):
             if request.endpoint not in exempt_endpoints:
                 if request.blueprint != 'auth':
+                    # API routes get a JSON 401 — not an HTML redirect
+                    if request.path.startswith('/api/'):
+                        from flask import jsonify
+                        return jsonify({"error": "Unauthorized"}), 401
                     return redirect(url_for('auth.login'))
 
     @app.route('/')
