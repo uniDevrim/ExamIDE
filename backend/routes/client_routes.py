@@ -9,12 +9,15 @@ from datetime import datetime
 client_bp = Blueprint('client_bp', __name__)
 
 
-@client_bp.route('/exam/status', methods=['GET'])
-def exam_status():
-
+@client_bp.before_request
+def check_student_session():
     if 'user' not in session and not session.get('is_admin'):
         return jsonify({"error": "Unauthorized"}), 401
 
+
+
+@client_bp.route('/exam/status', methods=['GET'])
+def exam_status():
     # Update last-seen for the student on every poll (usually every few seconds)
     if 'user' in session:
         student_id = session['user'].get('no')
@@ -127,16 +130,30 @@ def run_code():
 
 @client_bp.route('/submit', methods=['POST'])
 def submit():
-    user = session.get('user', {})
+    if pool_manager.exam_state != "running" and not session.get('is_admin'):
+        return jsonify({"error": "Sınav aktif değil."}), 403
 
+    user = session.get('user', {})
     data = request.json or {}
     exam_id = data.get('exam_id') or (pool_manager.exam_data.get('exam_id', 'exam_001') if pool_manager.exam_data else 'exam_001')
-    student_id = data.get('student_id') or user.get('no')       
+    
+    # Enforce student_id to be the logged-in session user's ID to prevent impersonation/tampering
+    if not session.get('is_admin'):
+        student_id = user.get('no')
+    else:
+        student_id = data.get('student_id') or user.get('no')
+
     lang = data.get('language', 'python')
     questions = data.get('questions') 
 
     if not exam_id or not student_id or not questions:
         return jsonify({"error": "Missing exam_id, student_id or questions"}), 400
+
+    # Sanitize inputs to prevent path traversal
+    if ".." in str(exam_id) or "/" in str(exam_id) or "\\" in str(exam_id) or \
+       ".." in str(student_id) or "/" in str(student_id) or "\\" in str(student_id):
+        return jsonify({"error": "Invalid request parameters"}), 400
+
     submissions_dir = os.path.join('grader', 'submissions', str(exam_id))
     os.makedirs(submissions_dir, exist_ok=True)
     submission_path = os.path.join(submissions_dir, f"{student_id}.json")
@@ -153,6 +170,10 @@ def submit():
     for q in questions:
         question_id = q.get('question_id')
         code = q.get('code', '')
+
+        # Sanitize question_id to prevent traversal
+        if ".." in str(question_id) or "/" in str(question_id) or "\\" in str(question_id):
+            return jsonify({"error": "Invalid question_id"}), 400
 
         test_file = os.path.join(tests_dir, f"{question_id}.json")
         if not os.path.exists(test_file):
@@ -211,8 +232,6 @@ def save_code():
 
     user = session.get('user', {})
     student_no = user.get('no', '')
-    if not student_no:
-        return jsonify({"error": "Unauthorized"}), 401
 
     data = request.json or {}
     question_id = data.get('question_id', 'q1')
@@ -247,8 +266,6 @@ def my_codes():
     """
     user = session.get('user', {})
     student_no = user.get('no', '')
-    if not student_no:
-        return jsonify({"error": "Unauthorized"}), 401
 
     try:
         codes = tm.load_student_codes(student_no)
