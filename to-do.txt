@@ -1,0 +1,88 @@
+do the sonuçlar ve değerlendirme part
+
+═══════════════════════════════════════════
+  CODE AUDIT — Bugs & Issues Found
+  Audited: 2026-06-30
+═══════════════════════════════════════════
+
+── FIXED (small, committed) ──────────────
+
+[x] auth_routes.py — Student login timestamp was naive local "HH:MM:SS"
+    while every other place uses UTC ISO. Caused "last_seen" to display
+    incorrectly on the admin dashboard. → Fixed to datetime.now(timezone.utc).isoformat()
+
+[x] client_routes.py — /run endpoint: if get_container() returned None,
+    the next line (container.reload()) would crash with AttributeError.
+    → Added early None guard before reload.
+
+[x] admin_routes.py — Playback routes had duplicate /api/admin prefix
+    causing 404s. → Fixed in earlier commit.
+
+[x] utils.py — HARDCODED DEBUG DATA
+    auto_report() sends hardcoded student_id "2512729006" and
+    student_name "Varol" every 10 seconds to a UDP-discovered admin URL.
+    → Removed entire debug background tasks from utils.py.
+
+[x] Security: CORS is wide open
+    __init__.py line 18: CORS(app) with no origin restrictions.
+    → Restrict CORS origins to BASE_URL and localhost domains.
+
+[x] Security: No rate-limiting on login form
+    auth_routes.py — POST /login has no brute-force protection.
+    → Added in-memory IP rate limiter limiting logins to 5 attempts/min.
+
+[x] Security: Admin endpoints only check session['is_admin']
+    No CSRF protection on POST endpoints (start_exam, end_exam, etc.).
+    → Implemented double-submit cookie style CSRF check for admin POST/PUT/DELETE requests.
+
+[x] exam_status leaks test cases to students
+    execution_pool.py get_exam_status() line 177 sends full "test-cases"
+    (including expected outputs) to the client via /api/client/exam/status.
+    → Strip expected outputs, sending only the first testcase as a public example.
+
+[x] No execution timeout on /run
+    client_routes.py — container.exec_run() has no timeout parameter.
+    → Wrapped Docker execution command with `timeout 10` and handle exit code 124.
+
+[x] No exam state guard on /run and /save_code
+    Students can still run code and save code when exam_state is
+    "idle", "paused", or "ended".
+    → Added server-side check rejecting /run and /save_code with 403 when exam is not running.
+
+[x] results.js — currentExamId is never set
+    results.js line 7: `if (!currentExamId) return;`
+    → Wired to reference globalExamId.
+
+[x] Exam builder JSON missing exam_id field
+    exam_builder.js generateExamJson() does not include an "exam_id" field.
+    → Generates exam_id using "exam_" + Date.now().
+
+[x] start_exam doesn't upload test cases
+    When admin clicks "Sınavı Başlat", the exam data JSON is sent
+    to the backend, but the test cases are NOT extracted and saved.
+    → Implemented automatic extraction and file generation on start_exam.
+
+[x] client submit uses EXAM_ID / STUDENT_ID globals
+    app.js line 478: `exam_id: EXAM_ID`
+    → Modified client application to dynamically bind and resolve currentExamId from status.
+
+[x] Logout doesn't clear is_admin
+    auth_routes.py logout() only pops 'user' from session, not 'is_admin'.
+    → Modified to clear the entire session object on logout.
+
+[x] No input validation on student login fields
+    auth_routes.py — POST /login accepts any string for ogrenci_no.
+    → Validates fields exist, ogrenci_no is alphanumeric and 5-20 characters, other inputs < 50 chars.
+
+[x] live_code.js uses bootstrap.Modal but admin page doesn't load Bootstrap JS
+    → Deleted redundant live code view files as the playback panel handles it.
+
+
+── TO-DO (bigger issues) ─────────────────
+
+[ ] Timer drift between client and server
+    The client timer counts down locally (examTimeSeconds--) every 1 second
+    and only syncs with the server every 3 seconds via polling.
+    This means the client timer can drift up to 3 seconds from the real
+    remaining time. Acceptable for now but worth knowing.
+
