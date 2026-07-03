@@ -271,9 +271,16 @@
                 <div class="login-subtitle">Devam etmek için bilgilerinizi girin</div>
             </div>
 
-            <div class="login-divider"></div>
-
             <!-- Form -->
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 10px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 15px;">
+                  {% for message in messages %}
+                    <div><i class="bi bi-exclamation-triangle-fill"></i> {{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
             <form action="/login" method="POST" class="login-form">
 
                 <div class="form-group">

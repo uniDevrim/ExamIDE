@@ -3,7 +3,6 @@ from flask_cors import CORS
 from backend.routes.client_routes import client_bp
 from backend.routes.admin_routes import admin_bp
 from backend.routes.auth_routes import auth_bp
-from backend.utils import start_background_tasks
 import os
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -15,7 +14,11 @@ def create_app():
     
     # x_for=1, x_proto=1, x_host=1, x_prefix=1: Bir önceki proxy'ye (Nginx) güven.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
-    CORS(app)
+    
+    # Restrict CORS to configured BASE_URL and localhost ports
+    base_url = os.getenv('BASE_URL', 'http://localhost')
+    allowed_origins = [base_url, "http://127.0.0.1:5000", "http://localhost:5000", "http://127.0.0.1", "http://localhost"]
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins}}, supports_credentials=True)
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'cok-gizli-bir-anahtar')
     app.config['SESSION_COOKIE_NAME'] = 'my_session'
@@ -42,7 +45,5 @@ def create_app():
     @app.route('/')
     def index():
         return render_template("index.html", user=session.get('user'))
-
-    start_background_tasks()
 
     return app
