@@ -4,8 +4,8 @@
         let allResults = [];
 
         function loadResults() {
-            if (!currentExamId) return;
-            fetch(`/api/admin/exam/${currentExamId}/results`)
+            if (typeof globalExamId === 'undefined' || !globalExamId) return;
+            fetch(`/api/admin/exam/${globalExamId}/results`)
                 .then(r => r.json())
                 .then(data => {
                     allResults = data || [];

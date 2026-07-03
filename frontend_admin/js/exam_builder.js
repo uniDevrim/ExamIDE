@@ -126,6 +126,7 @@ function generateExamJson() {
     }
     
     const result = {
+        exam_id: "exam_" + Date.now(),
         name: examName,
         description: examDescription,
         time: examTime,
