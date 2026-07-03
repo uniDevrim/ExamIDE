@@ -25,6 +25,8 @@ def exam_status():
 
 @client_bp.route('/run', methods=['POST'])
 def run_code():
+    if pool_manager.exam_state != "running" and not session.get('is_admin'):
+        return jsonify({"stdout": "", "stderr": "Hata: Sınav aktif değil.", "exit_code": -1}), 403
     
     data = request.json or {}
     code = data.get('code')
@@ -74,13 +76,19 @@ def run_code():
 
         start_time = time.time()
         
+        # Timeout wrapping
+        full_exec_cmd = f"timeout 10 sh -c '{exec_cmd}'"
+        
         exit_code, output_bytes = container.exec_run(
-            f"sh -c '{exec_cmd}'", 
+            full_exec_cmd, 
             demux=True 
         )
         
         stdout = output_bytes[0].decode() if output_bytes[0] else ""
         stderr = output_bytes[1].decode() if output_bytes[1] else ""
+        
+        if exit_code == 124:
+            stderr = (stderr + "\n[Hata] Zaman aşımı: Kod 10 saniyeden uzun sürdü.").strip()
         
         return jsonify({
             "stdout": stdout,
@@ -119,10 +127,11 @@ def run_code():
 
 @client_bp.route('/submit', methods=['POST'])
 def submit():
+    user = session.get('user', {})
 
     data = request.json or {}
-    exam_id = data.get('exam_id')
-    student_id = data.get('student_id')       
+    exam_id = data.get('exam_id') or (pool_manager.exam_data.get('exam_id', 'exam_001') if pool_manager.exam_data else 'exam_001')
+    student_id = data.get('student_id') or user.get('no')       
     lang = data.get('language', 'python')
     questions = data.get('questions') 
 
@@ -197,6 +206,9 @@ def save_code():
     Frontend'den 10 saniyede bir gelen otomatik kaydetme isteği.
     Body: { "question_id": "q1", "code": "...", "language": "python" }
     """
+    if pool_manager.exam_state != "running" and not session.get('is_admin'):
+        return jsonify({"error": "Sınav aktif değil"}), 403
+
     user = session.get('user', {})
     student_no = user.get('no', '')
     if not student_no:

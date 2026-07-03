@@ -2,6 +2,7 @@ let currentQuestion = 0;
 let currentLanguage = 'python';
 let userCode = {};  // { questionId_lang: code }
 const questions = []; // Sorular API'den yüklenecek
+let currentExamId = 'exam_001';
 
 let examTimeSeconds = 90 * 60; // 90 minutes
 let timerInterval = null;
@@ -475,7 +476,7 @@ function confirmFinishExam() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            exam_id: EXAM_ID,
+            exam_id: currentExamId,
             student_id: STUDENT_ID,
             language: currentLanguage,
             questions: questionsPayload
@@ -592,6 +593,9 @@ async function doPoll() {
 function handleExamStatus(status) {
     const state = status.state;         // idle | running | paused | ended
     const examData = status.exam || {};
+    if (examData.exam_id) {
+        currentExamId = examData.exam_id;
+    }
     const questions_api = status.questions || {};
 
     const stateChanged = (state !== _lastExamState);

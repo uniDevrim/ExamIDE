@@ -171,10 +171,18 @@ class WarmContainerPool:
         questions_safe = {}
         raw_questions = self.exam_data.get("questions", {})
         for key, q in raw_questions.items():
+            raw_tc = q.get("test-cases", [])
+            safe_tc = []
+            if raw_tc:
+                first_tc = raw_tc[0]
+                safe_tc.append({
+                    "input": first_tc.get("input", ""),
+                    "output": first_tc.get("output") or first_tc.get("expected") or ""
+                })
             questions_safe[key] = {
                 "title"          : q.get("title", ""),
                 "description"    : q.get("description", ""),
-                "test-cases"     : q.get("test-cases", []),
+                "test-cases"     : safe_tc,
                 "run-time-limit" : q.get("run-time-limit", 5),
                 "memory-limit"   : q.get("memory-limit", 1024),
                 "points"         : q.get("points", 0),
@@ -341,7 +349,7 @@ class WarmContainerPool:
 
             b64_input = base64.b64encode(stdin_input.encode('utf-8')).decode('utf-8')
             container.exec_run(f"sh -c 'echo {b64_input} | base64 -d > /tmp/stdin_input.txt'")
-            full_cmd = f"sh -c '{exec_cmd} < /tmp/stdin_input.txt'"
+            full_cmd = f"timeout 10 sh -c '{exec_cmd} < /tmp/stdin_input.txt'"
 
             _, output_bytes = container.exec_run(full_cmd, demux=True)
 
