@@ -50,6 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Başlatıcı: önce polling ile soru verisi gelsin
     startStatusPolling();
+
+    // Kopyalama, kesme ve yapıştırma işlemlerini engelle
+    const preventAction = (e, msg) => {
+        e.preventDefault();
+        showToast(msg, 'error');
+    };
+    document.addEventListener('copy', (e) => preventAction(e, '⚠️ Kopyalama engellenmiştir!'));
+    document.addEventListener('cut', (e) => preventAction(e, '⚠️ Kesme engellenmiştir!'));
+    document.addEventListener('paste', (e) => preventAction(e, '⚠️ Yapıştırma engellenmiştir!'));
 });
 
 // ========================================

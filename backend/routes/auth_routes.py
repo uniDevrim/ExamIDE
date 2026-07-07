@@ -7,17 +7,6 @@ from collections import defaultdict
 
 auth_bp = Blueprint('auth', __name__)
 
-# Lightweight in-memory rate limiter: IP address -> list of login attempt timestamps
-login_attempts = defaultdict(list)
-
-def is_rate_limited(ip):
-    now = time.time()
-    # Keep attempts from the last 60 seconds
-    login_attempts[ip] = [t for t in login_attempts[ip] if now - t < 60]
-    if len(login_attempts[ip]) >= 5:  # Limit to 5 attempts per minute
-        return True
-    login_attempts[ip].append(now)
-    return False
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -43,9 +32,6 @@ def login():
             return redirect(url_for('admin_bp.admin_dashboard'))
             
         client_ip = request.remote_addr
-        if is_rate_limited(client_ip):
-            flash("Çok fazla giriş denemesi yaptınız. Lütfen 1 dakika sonra tekrar deneyin.")
-            return render_template('login.html'), 429
 
         ogrenci_no = request.form.get('ogrenci_no', '').strip()
         ad = request.form.get('ad', '').strip()
