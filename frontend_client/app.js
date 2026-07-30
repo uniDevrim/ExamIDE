@@ -671,6 +671,11 @@ function handleExamStatus(status) {
         overlays.ended && overlays.ended.classList.add('active');
         _setEditorReadOnly(true);
         clearInterval(_pollingInterval); // artık poll etmeye gerek yok
+        // Admin sınavı bitirdi — henüz gönderilmediyse otomatik gönder
+        if (stateChanged && _questionsLoaded) {
+            saveCurrentCode();
+            _autoSubmitOnTimeUp();
+        }
     } else if (state === 'running') {
         // Tüm overlay'ler kapatıldı, editörü aç
         _setEditorReadOnly(false);

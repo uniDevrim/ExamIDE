@@ -130,7 +130,8 @@ def run_code():
 
 @client_bp.route('/submit', methods=['POST'])
 def submit():
-    if pool_manager.exam_state != "running" and not session.get('is_admin'):
+    # Allow submission when exam is running OR ended (for auto-submit on time expiry / admin end)
+    if pool_manager.exam_state not in ("running", "ended") and not session.get('is_admin'):
         return jsonify({"error": "Sınav aktif değil."}), 403
 
     user = session.get('user', {})
