@@ -519,11 +519,48 @@ function finishExam(timeUp) {
     document.querySelector('.btn-finish-exam').disabled = true;
 
     if (timeUp) {
-        showToast('⏰ Süre doldu! Sınav otomatik olarak tamamlandı.', 'info');
+        showToast('⏰ Süre doldu! Cevaplarınız otomatik olarak gönderiliyor...', 'info');
+        // Auto-submit when time is up
+        _autoSubmitOnTimeUp();
     } else {
         showToast('✅ Sınav başarıyla tamamlandı!', 'success');
     }
 
+    _showFinishedOverlay();
+}
+
+function _autoSubmitOnTimeUp() {
+    const questionsPayload = questions.map(q => ({
+        question_id: `q${q.id}`,
+        code: userCode[`${q.id}_${currentLanguage}`] || q.starterCode[currentLanguage] || ''
+    }));
+
+    fetch('/api/client/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            exam_id: currentExamId,
+            student_id: STUDENT_ID,
+            language: currentLanguage,
+            questions: questionsPayload
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.message === 'Submitted successfully') {
+            showToast('✅ Süre doldu — cevaplarınız gönderildi.', 'success');
+        } else if (data.error === 'Already submitted') {
+            // Zaten gönderilmiş, sorun yok
+        } else {
+            showToast('⚠️ Otomatik gönderim hatası: ' + (data.error || ''), 'error');
+        }
+    })
+    .catch(() => {
+        showToast('⚠️ Sunucuya bağlanılamadı, kodlarınız TimeMachine ile korunmaktadır.', 'error');
+    });
+}
+
+function _showFinishedOverlay() {
     setTimeout(() => {
         const overlay = document.createElement('div');
         overlay.style.cssText = `
@@ -724,7 +761,11 @@ function _loadQuestionsFromApi(questionsObj, examData) {
     if (['python', 'cpp', 'csharp'].includes(lang)) {
         currentLanguage = lang;
         const sel = document.getElementById('languageSelect');
-        if (sel) sel.value = currentLanguage;
+        if (sel) {
+            sel.value = currentLanguage;
+            sel.disabled = true; // Sınav dili kilitli — öğrenci değiştiremez
+            sel.title = 'Sınav dili: ' + lang.toUpperCase();
+        }
     }
 
     // soruları yeniden oluştur
@@ -733,7 +774,7 @@ function _loadQuestionsFromApi(questionsObj, examData) {
         const q = questionsObj[key];
         const examples = (q['test-cases'] || []).map((tc, i) => ({
             input: tc.input ?? '',
-            output: tc.output ?? '',
+            output: tc.output ?? tc.expected ?? '',
             explanation: ''
         }));
         questions.push({
