@@ -790,7 +790,7 @@ function _loadQuestionsFromApi(questionsObj, examData) {
                 `Bellek sınırı: ${q['memory-limit']} MB`,
             ],
             starterCode: {
-                python: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.python || q['starter_code']?.python || `# Python 3\n# Kodunuzu buraya yazın\n\ndef main():\n    pass\n\nif __name__ == "__main__":\n    main()\n`),
+                python: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.python || q['starter_code']?.python || `# Kodunuzu buraya yazın\n`),
                 cpp: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.cpp || q['starter_code']?.cpp || `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Kodunuzu buraya yazın\n    \n    return 0;\n}\n`),
                 csharp: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.csharp || q['starter_code']?.csharp || `using System;\n\nclass Program {\n    static void Main(string[] args) {\n        // Kodunuzu buraya yazın\n        \n    }\n}\n`)
             }
