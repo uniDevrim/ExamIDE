@@ -792,8 +792,7 @@ function _loadQuestionsFromApi(questionsObj, examData) {
             starterCode: {
                 python: `# Kodunuzu buraya yazın\n`,
                 cpp: `// Kodunuzu buraya yazın\n`,
-                java: `// Kodunuzu buraya yazın\n`,
-                c: `// Kodunuzu buraya yazın\n`,
+                csharp: `// Kodunuzu buraya yazın\n`
             }
         });
     });

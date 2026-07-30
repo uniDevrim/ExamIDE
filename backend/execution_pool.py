@@ -431,6 +431,10 @@ class WarmContainerPool:
         b64_code = base64.b64encode(code_str.encode('utf-8')).decode('utf-8')
         cmd = f"sh -c 'echo {b64_code} | base64 -d > /tmp/{filename}'"
         container.exec_run(cmd)
+        if filename == "Program.cs":
+            csproj = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net7.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>'
+            b64_csproj = base64.b64encode(csproj.encode('utf-8')).decode('utf-8')
+            container.exec_run(f"sh -c 'echo {b64_csproj} | base64 -d > /tmp/app.csproj'")
 
     def shutdown(self):
         self.running = False
