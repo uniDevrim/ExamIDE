@@ -7,6 +7,7 @@ import atexit
 import os
 import json
 from backend import timemachine as tm
+from backend import driver_generator
 
 DEFAULT_LANG = None  
 POOL_SIZE = 3  
@@ -41,9 +42,9 @@ class WarmContainerPool:
         self.exam_paused_at        = None     # datetime — son duraklama anı
         self.exam_total_paused_secs = 0.0    # toplam duraklatılan süre (saniye)
 
-        # ── TimeMachine: DB başlat, önceki state'i kurtar ───────────────
+        # ── TimeMachine: DB başlat, her açılışta temiz slate ──────────────
         tm.init_db()
-        self._restore_from_db()
+        self._reset_db()
         # ────────────────────────────────────────────────────────────────
 
         atexit.register(self.shutdown)
@@ -171,18 +172,10 @@ class WarmContainerPool:
         questions_safe = {}
         raw_questions = self.exam_data.get("questions", {})
         for key, q in raw_questions.items():
-            raw_tc = q.get("test-cases", [])
-            safe_tc = []
-            if raw_tc:
-                first_tc = raw_tc[0]
-                safe_tc.append({
-                    "input": first_tc.get("input", ""),
-                    "output": first_tc.get("output") or first_tc.get("expected") or ""
-                })
             questions_safe[key] = {
                 "title"          : q.get("title", ""),
                 "description"    : q.get("description", ""),
-                "test-cases"     : safe_tc,
+                "test-cases"     : q.get("test-cases", []),
                 "run-time-limit" : q.get("run-time-limit", 5),
                 "memory-limit"   : q.get("memory-limit", 1024),
                 "points"         : q.get("points", 0),
@@ -192,7 +185,6 @@ class WarmContainerPool:
             "description" : self.exam_data.get("description", ""),
             "time"        : self.exam_data.get("time", ""),
             "language"    : self.exam_data.get("language", ""),
-            "exam_id"     : self.exam_data.get("exam_id", "exam_001")
         } if self.exam_data else {}
         return {
             "state"             : self.exam_state,
@@ -281,16 +273,6 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[TimeMachine] _restore_from_db hatası: {e}")
 
-    def reset_in_memory_state(self):
-        """Uygulama belleğindeki tüm aktif sınav, öğrenci ve süre durumlarını temizler."""
-        self.students = {}
-        self.exam_state = "idle"
-        self.exam_data = {}
-        self.exam_started_at = None
-        self.exam_paused_at = None
-        self.exam_total_paused_secs = 0.0
-        self.active_language = DEFAULT_LANG
-
     # ────────────────────────────────────────────────────────────
 
     def run_grader_container(self, student_code, language, exam_id=None):
@@ -349,7 +331,7 @@ class WarmContainerPool:
 
             b64_input = base64.b64encode(stdin_input.encode('utf-8')).decode('utf-8')
             container.exec_run(f"sh -c 'echo {b64_input} | base64 -d > /tmp/stdin_input.txt'")
-            full_cmd = f"timeout 10 sh -c '{exec_cmd} < /tmp/stdin_input.txt'"
+            full_cmd = f"sh -c '{exec_cmd} < /tmp/stdin_input.txt'"
 
             _, output_bytes = container.exec_run(full_cmd, demux=True)
 
@@ -359,6 +341,238 @@ class WarmContainerPool:
         except Exception as e:
             print(f"[-] run_with_stdin error: {e}")
             return False
+        finally:
+            if container:
+                self.cleanup(container)
+
+    @staticmethod
+    def _compare_output(actual, expected) -> bool:
+        """
+        Test ciktisini beklenen deger ile karsilastirir.
+        - None durumlari
+        - float/int hassas karsilastirma
+        - bool karsilastirma
+        - string \\r\\n -> \\n ve strip
+        - JSON parse edilmis tipler
+        """
+        if actual is None and expected is None:
+            return True
+        if actual is None or expected is None:
+            return False
+
+        # Boolean karsilastirmasi (biri bool ise digeri de mutlaka bool olmali)
+        if type(actual) is bool or type(expected) is bool:
+            return type(actual) is bool and type(expected) is bool and actual == expected
+
+        # Sayisal karsilastirma (float / int)
+        if isinstance(actual, (int, float)) and isinstance(expected, (int, float)):
+            try:
+                import math
+                return math.isclose(float(actual), float(expected), rel_tol=1e-5, abs_tol=1e-8)
+            except Exception:
+                return actual == expected
+
+        # String karsilastirma
+        if isinstance(actual, str) and isinstance(expected, str):
+            norm_actual = actual.replace('\r\n', '\n').strip()
+            norm_expected = expected.replace('\r\n', '\n').strip()
+            return norm_actual == norm_expected
+
+        # JSON string vs tip uyumsuzlugu toleransi
+        if isinstance(actual, str) and not isinstance(expected, str):
+            try:
+                return json.loads(actual) == expected
+            except Exception:
+                pass
+        if isinstance(expected, str) and not isinstance(actual, str):
+            try:
+                return actual == json.loads(expected)
+            except Exception:
+                pass
+
+        return actual == expected
+
+    def run_batch_tests(self, code: str, lang: str, function_name: str, test_cases: list,
+                        parameters: list = None, return_type: str = "", timeout: int = 10) -> list:
+        """
+        Fonksiyon tabanli sorular icin tum test senaryolarini tek bir Docker container exec
+        cagrisiyla toplu olarak calistirir ve detayli sonuc listesi dondurur.
+        """
+        lang = (lang or "").lower().strip()
+        if not test_cases:
+            return []
+
+        # Test case'lerde beklenen degerleri hazirla
+        canonical_tests = []
+        for i, t in enumerate(test_cases):
+            exp = t.get("expected") if t.get("expected") is not None else (t.get("output") if t.get("output") is not None else "")
+            canonical_tests.append({
+                "input": t.get("input", []),
+                "expected": exp
+            })
+
+        container = None
+        try:
+            container = self.get_container(lang)
+            if container is None:
+                print(f"[-] run_batch_tests: No container available for language {lang}")
+                return [{
+                    "index": i,
+                    "passed": False,
+                    "actual": None,
+                    "expected": t["expected"],
+                    "status": "error",
+                    "error_type": "system",
+                    "error_message": "Sistem hatasi: Calistirma icin uygun container bulunamadi."
+                } for i, t in enumerate(canonical_tests)]
+
+            try:
+                container.reload()
+                if container.status != "running":
+                    raise Exception("Stale container")
+            except Exception:
+                container = self.get_container(lang)
+                if container is None:
+                    return [{
+                        "index": i,
+                        "passed": False,
+                        "actual": None,
+                        "expected": t["expected"],
+                        "status": "error",
+                        "error_type": "system",
+                        "error_message": "Sistem hatasi: Container yanit vermiyor."
+                    } for i, t in enumerate(canonical_tests)]
+
+            # Driver kodu ve dosya adi belirle
+            if lang in ("python", "py"):
+                driver_code = driver_generator.generate_python_driver(code, function_name)
+                filename = "main.py"
+                exec_cmd = "python3 /tmp/main.py"
+            elif lang in ("cpp", "c++", "c"):
+                driver_code = driver_generator.generate_cpp_driver(code, function_name, parameters or [], return_type)
+                filename = "main.cpp"
+                exec_cmd = "g++ -O2 -o /tmp/app /tmp/main.cpp && chmod +x /tmp/app && /tmp/app"
+            elif lang in ("csharp", "c#", "cs"):
+                driver_code = driver_generator.generate_csharp_driver(code, function_name, parameters or [], return_type)
+                filename = "Program.cs"
+                csproj = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net7.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>'
+                b64_csproj = base64.b64encode(csproj.encode('utf-8')).decode('utf-8')
+                container.exec_run(f"sh -c 'echo {b64_csproj} | base64 -d > /tmp/app.csproj'")
+                exec_cmd = "cd /tmp && dotnet run"
+            else:
+                return [{
+                    "index": i,
+                    "passed": False,
+                    "actual": None,
+                    "expected": t["expected"],
+                    "status": "error",
+                    "error_type": "system",
+                    "error_message": f"Desteklenmeyen programlama dili: {lang}"
+                } for i, t in enumerate(canonical_tests)]
+
+            # Driver kodunu ve test case JSON dosyasini container'a yukle
+            self.copy_code(container, filename, driver_code)
+            tests_json_str = json.dumps(canonical_tests, ensure_ascii=False)
+            self.copy_code(container, "tests.json", tests_json_str)
+
+            full_cmd = f"timeout {timeout} sh -c '{exec_cmd} < /tmp/tests.json'"
+            exit_code, output_bytes = container.exec_run(full_cmd, demux=True)
+
+            stdout = output_bytes[0].decode('utf-8', errors='replace').strip() if output_bytes and output_bytes[0] else ""
+            stderr = output_bytes[1].decode('utf-8', errors='replace').strip() if output_bytes and output_bytes[1] else ""
+
+            # 1. Zaman asimi kontrolu (timeout komutu cikis kodu 124 veya 137 doner)
+            if exit_code in (124, 137):
+                return [{
+                    "index": i,
+                    "passed": False,
+                    "actual": None,
+                    "expected": t["expected"],
+                    "status": "error",
+                    "error_type": "timeout",
+                    "error_message": f"Zaman asimi ({timeout} saniye)"
+                } for i, t in enumerate(canonical_tests)]
+
+            # 2. Derleme hatasi kontrolu (ozellikle C++ / C# veya Python SyntaxError)
+            if exit_code != 0 and not stdout:
+                return [{
+                    "index": i,
+                    "passed": False,
+                    "actual": None,
+                    "expected": t["expected"],
+                    "status": "error",
+                    "error_type": "compilation",
+                    "error_message": stderr or "Derleme / calistirma hatasi"
+                } for i, t in enumerate(canonical_tests)]
+
+            # 3. JSON cikti cozumleme
+            try:
+                driver_results = json.loads(stdout)
+            except Exception:
+                return [{
+                    "index": i,
+                    "passed": False,
+                    "actual": stdout[:200] if stdout else None,
+                    "expected": t["expected"],
+                    "status": "error",
+                    "error_type": "output_parse",
+                    "error_message": f"Program ciktisi okunamadi: {stderr or stdout}"
+                } for i, t in enumerate(canonical_tests)]
+
+            # Sonuclari test case'lerle eslestir ve dogrula
+            results_by_index = {r.get("index", idx): r for idx, r in enumerate(driver_results) if isinstance(r, dict)}
+            final_results = []
+
+            for i, t in enumerate(canonical_tests):
+                r = results_by_index.get(i)
+                expected_val = t["expected"]
+
+                if not r:
+                    final_results.append({
+                        "index": i,
+                        "passed": False,
+                        "actual": None,
+                        "expected": expected_val,
+                        "status": "error",
+                        "error_type": "runtime",
+                        "error_message": "Bu test senaryosu icin surucuden sonuc alinamadi."
+                    })
+                elif r.get("status") == "error":
+                    final_results.append({
+                        "index": i,
+                        "passed": False,
+                        "actual": None,
+                        "expected": expected_val,
+                        "status": "error",
+                        "error_type": r.get("error_type", "runtime"),
+                        "error_message": r.get("message", "Calisma zamani hatasi")
+                    })
+                else:
+                    actual_val = r.get("output")
+                    passed = self._compare_output(actual_val, expected_val)
+                    final_results.append({
+                        "index": i,
+                        "passed": passed,
+                        "actual": actual_val,
+                        "expected": expected_val,
+                        "status": "passed" if passed else "failed",
+                        "error_type": None if passed else "wrong_answer",
+                        "error_message": None if passed else "Hatali sonuc (Beklenen ile uyusmuyor)"
+                    })
+
+            return final_results
+
+        except Exception as e:
+            print(f"[-] run_batch_tests genel hata: {e}")
+            return [{
+                "index": i,
+                "passed": False,
+                "actual": None,
+                "expected": t.get("expected", ""),
+                "status": "error",
+                "error_type": "system",
+                "error_message": str(e)
+            } for i, t in enumerate(test_cases)]
         finally:
             if container:
                 self.cleanup(container)
@@ -431,10 +645,6 @@ class WarmContainerPool:
         b64_code = base64.b64encode(code_str.encode('utf-8')).decode('utf-8')
         cmd = f"sh -c 'echo {b64_code} | base64 -d > /tmp/{filename}'"
         container.exec_run(cmd)
-        if filename == "Program.cs":
-            csproj = '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net7.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup></Project>'
-            b64_csproj = base64.b64encode(csproj.encode('utf-8')).decode('utf-8')
-            container.exec_run(f"sh -c 'echo {b64_csproj} | base64 -d > /tmp/app.csproj'")
 
     def shutdown(self):
         self.running = False
