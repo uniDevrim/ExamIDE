@@ -189,6 +189,7 @@ function switchToQuestion(index) {
 // ========================================
 function loadQuestion(index) {
     const q = questions[index];
+    if (!q) return;
 
     // Header
     document.getElementById('questionTitle').innerHTML = `
@@ -200,12 +201,28 @@ function loadQuestion(index) {
     `;
 
     document.getElementById('questionMeta').innerHTML = `
-        <span><i class="bi bi-tag"></i> ${q.category}</span>
+        <span><i class="bi bi-tag"></i> ${q.category || 'Fonksiyon'}</span>
         <span><i class="bi bi-star"></i> ${q.points} Puan</span>
     `;
 
     // Body
     let bodyHTML = `<p>${q.description}</p>`;
+
+    // Fonksiyon imzası (eğer fonksiyon tabanlı bir soruysa)
+    if (q.functionName) {
+        const paramStr = (q.parameters || []).map(p => `${p.name}: ${p.type || 'any'}`).join(', ');
+        const sig = `${q.functionName}(${paramStr}) -> ${q.returnType || 'void'}`;
+        bodyHTML += `
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 10px 14px; margin: 15px 0;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px;">
+                    <i class="bi bi-code-square"></i> Beklenen Fonksiyon İmzası
+                </div>
+                <div style="font-family: monospace; font-size: 0.9rem; color: var(--accent-primary, #6366f1); font-weight: 600;">
+                    <code>${sig}</code>
+                </div>
+            </div>
+        `;
+    }
 
     // Examples
     q.examples.forEach((ex, i) => {
@@ -213,13 +230,25 @@ function loadQuestion(index) {
             <div class="example-block">
                 <div class="example-label">Örnek ${i + 1}</div>
                 <div class="example-content">
-                    <div><span class="input-label">Girdi:</span> ${ex.input}</div>
-                    <div><span class="output-label">Çıktı:</span> ${ex.output}</div>
+                    <div><span class="input-label">${q.functionName ? 'Parametreler:' : 'Girdi:'}</span> <code>${ex.input}</code></div>
+                    <div><span class="output-label">${q.functionName ? 'Dönüş Değeri:' : 'Çıktı:'}</span> <code>${ex.output}</code></div>
                     ${ex.explanation ? `<div class="explanation">Açıklama: ${ex.explanation}</div>` : ''}
                 </div>
             </div>
         `;
     });
+
+    // Gizli test senaryosu uyarısı
+    if (q.hiddenTests > 0) {
+        bodyHTML += `
+            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 10px 14px; margin: 15px 0; font-size: 0.82rem; color: #f59e0b; display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-lock-fill" style="font-size: 1.1rem;"></i>
+                <div>
+                    Bu soruda <strong>${q.hiddenTests} adet gizli test senaryosu</strong> daha bulunmaktadır. "Test Et" butonu sadece yukarıdaki örnek senaryoları çalıştırır; tüm testler sınav gönderildiğinde değerlendirilir.
+                </div>
+            </div>
+        `;
+    }
 
     // Constraints
     bodyHTML += `
@@ -242,7 +271,7 @@ function loadQuestion(index) {
     // Clear output
     const outputBody = document.getElementById('outputBody');
     outputBody.className = 'output-body';
-    outputBody.textContent = 'Henüz çıktı yok. Kodunuzu çalıştırın veya gönderin.';
+    outputBody.textContent = 'Henüz çıktı yok. Kodunuzu test edin veya çalıştırın.';
 }
 
 function loadCodeForCurrentQuestion() {
@@ -369,39 +398,128 @@ function setupOutputPanel() {
 function runCode(event) {
     if (event) event.preventDefault();
 
+    const q = questions[currentQuestion];
+    if (!q) return;
+
     const code = monacoEditor.getValue();
-    const language = document.getElementById('languageSelect').value.toLowerCase();
+    const language = currentLanguage || document.getElementById('languageSelect').value.toLowerCase();
     const outputElement = document.getElementById('outputBody');
+    const panel = document.querySelector('.output-panel');
+    const runBtn = document.getElementById('btnRunCode') || document.querySelector('.btn-run');
 
-    console.log("Backend'e gönderilen veri:", { code, language });
+    panel.classList.remove('collapsed');
+    outputElement.className = 'output-body';
+    outputElement.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); padding: 8px;">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>Kod derleniyor ve test senaryoları çalıştırılıyor...</span>
+        </div>
+    `;
 
-    outputElement.innerText = "Kod konteynerde derleniyor...";
-    document.querySelector('.output-panel').classList.remove('collapsed');
+    if (runBtn) {
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Çalıştırılıyor...';
+    }
 
-    fetch('/api/client/run', {
+    // Fonksiyon tabanlı sorularda doğrudan test case motorunu çalıştır
+    fetch('/api/client/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             code: code,
             language: language,
-            question_id: questions[currentQuestion] ? 'q' + questions[currentQuestion].id : 'q1'
+            question_id: q.id.toString()
         })
     })
-        .then(response => {
-            // Eğer backend 500 dönerse burası yakalar
-            if (!response.ok) {
-                return response.json().then(err => { throw new Error(err.stderr || "Sunucu hatası"); });
-            }
-            return response.json();
-        })
-        .then(data => {
-            outputElement.innerText = data.stdout || data.stderr || "Program çıktı vermedi.";
-        })
-        .catch(error => {
-            console.error('Hata Detayı:', error);
-            outputElement.innerText = "Hata: " + error.message;
-            outputElement.style.color = "red";
-        });
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.error || "Sunucu hatası"); });
+        }
+        return res.json();
+    })
+    .then(data => {
+        renderTestResults(data);
+    })
+    .catch(err => {
+        outputElement.innerHTML = `
+            <div style="color:var(--accent-danger, #ef4444); padding: 8px;">
+                <i class="bi bi-exclamation-octagon-fill"></i> <strong>Hata:</strong> ${err.message}
+            </div>
+        `;
+    })
+    .finally(() => {
+        if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="bi bi-play-fill"></i> Çalıştır';
+        }
+    });
+}
+
+// Geriye dönük uyumluluk için testCode referansı runCode'a yönlendirilir
+const testCode = runCode;
+
+function renderTestResults(data) {
+    const outputElement = document.getElementById('outputBody');
+    const results = data.results || [];
+    const passedCount = data.passed_count ?? 0;
+    const hiddenCount = data.hidden_count ?? 0;
+
+    let html = `
+        <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <div style="font-weight: 600; font-size: 0.95rem; color: ${passedCount === results.length && results.length > 0 ? 'var(--accent-success, #22c55e)' : 'var(--accent-danger, #ef4444)'};">
+                <i class="bi ${passedCount === results.length && results.length > 0 ? 'bi-check-all' : 'bi-x-circle'}"></i> 
+                ${passedCount}/${results.length} Açık Test Başarılı
+            </div>
+            ${hiddenCount > 0 ? `
+                <div style="font-size: 0.8rem; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px;">
+                    <i class="bi bi-lock-fill"></i> ${hiddenCount} Gizli Test
+                </div>
+            ` : ''}
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+    `;
+
+    results.forEach((r, idx) => {
+        const passed = r.passed === true;
+        const color = passed ? 'var(--accent-success, #22c55e)' : 'var(--accent-danger, #ef4444)';
+        const icon = passed ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+        const badgeBg = passed ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        const expStr = r.expected !== undefined ? JSON.stringify(r.expected) : '';
+        const actStr = r.actual !== undefined && r.actual !== null ? JSON.stringify(r.actual) : '';
+
+        let badgeText = 'Başarılı';
+        if (!passed) {
+            if (r.error_type === 'timeout') badgeText = '⏰ Zaman Aşımı';
+            else if (r.error_type === 'compilation') badgeText = '⚠️ Derleme Hatası';
+            else if (r.error_type === 'wrong_answer') badgeText = '❌ Hatalı Sonuç';
+            else badgeText = r.error_type || 'Hata';
+        }
+
+        html += `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-weight: 600; font-size: 0.85rem; color: ${color};">
+                        <i class="bi ${icon}"></i> Test ${idx + 1}
+                    </span>
+                    <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: ${badgeBg}; color: ${color}; font-weight: 500;">
+                        ${badgeText}
+                    </span>
+                </div>
+                <div style="font-family: monospace; font-size: 0.82rem; line-height: 1.5;">
+                    <div><span style="color: var(--text-muted);">Beklenen:</span> <code style="color: var(--text-primary);">${expStr}</code></div>
+                    ${!passed && actStr ? `<div><span style="color: var(--accent-danger, #ef4444);">Alınan:</span> <code style="color: var(--accent-danger, #ef4444);">${actStr}</code></div>` : ''}
+                    ${r.error_message ? `
+                        <div style="margin-top: 4px; color: var(--accent-danger, #ef4444); font-size: 0.78rem;">
+                            <i class="bi bi-info-circle"></i> ${r.error_message}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    outputElement.innerHTML = html;
 }
 
 
@@ -494,6 +612,9 @@ function confirmFinishExam() {
         .then(r => r.json())
         .then(data => {
             if (data.message === 'Submitted successfully') {
+                const passed = data.passed_tests !== undefined ? data.passed_tests : 0;
+                const total = data.total_tests !== undefined ? data.total_tests : 0;
+                showToast(`✅ Sınavınız gönderildi — ${passed}/${total} test başarılı!`, 'success');
                 finishExam(false);
             } else if (data.error === 'Already submitted') {
                 showToast('⚠️ Bu sınav zaten gönderilmiş.', 'error');
@@ -777,27 +898,66 @@ function _loadQuestionsFromApi(questionsObj, examData) {
     questions.length = 0;  // dizini temizle
     Object.keys(questionsObj).forEach((key, idx) => {
         const q = questionsObj[key];
-        const examples = (q['test-cases'] || []).map((tc, i) => ({
-            input: tc.input ?? '',
-            output: tc.output ?? tc.expected ?? '',
-            explanation: ''
-        }));
+        const funcName = q.function_name || '';
+        const parameters = q.parameters || [];
+        const returnType = q.return_type || '';
+        const visibleTests = q['test-cases'] || [];
+        const totalTests = q.total_tests !== undefined ? q.total_tests : visibleTests.length;
+        const hiddenTests = Math.max(0, totalTests - visibleTests.length);
+
+        const examples = visibleTests.map((tc, i) => {
+            let inVal = tc.input;
+            if (typeof inVal === 'object' && inVal !== null) {
+                inVal = JSON.stringify(inVal);
+            }
+            let outVal = tc.expected !== undefined ? tc.expected : tc.output;
+            if (typeof outVal === 'object' && outVal !== null) {
+                outVal = JSON.stringify(outVal);
+            }
+            return {
+                input: inVal !== undefined ? inVal : '',
+                output: outVal !== undefined ? outVal : '',
+                explanation: ''
+            };
+        });
+
+        // Starter code: Eğer fonksiyon adı tanımlıysa generateStarterCode üret, yoksa eski şablon
+        let pyStarter = funcName ? generateStarterCode('python', funcName, parameters, returnType) : '# Kodunuzu buraya yazın\n';
+        let cppStarter = funcName ? generateStarterCode('cpp', funcName, parameters, returnType) : '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Kodunuzu buraya yazın\n    return 0;\n}\n';
+        let csStarter = funcName ? generateStarterCode('csharp', funcName, parameters, returnType) : 'using System;\n\npublic class Solution {\n    // Kodunuzu buraya yazın\n}\n';
+
+        if (q['starter-code'] || q['starter_code']) {
+            const sc = q['starter-code'] || q['starter_code'];
+            if (typeof sc === 'string') {
+                pyStarter = sc; cppStarter = sc; csStarter = sc;
+            } else if (typeof sc === 'object') {
+                if (sc.python) pyStarter = sc.python;
+                if (sc.cpp) cppStarter = sc.cpp;
+                if (sc.csharp) csStarter = sc.csharp;
+            }
+        }
+
         questions.push({
             id: parseInt(key, 10) || (idx + 1),
             title: q.title || `Soru ${key}`,
             difficulty: 'medium',
             points: q.points || 0,
-            category: '',
+            category: funcName ? 'Fonksiyon' : '',
             description: q.description || '',
+            functionName: funcName,
+            parameters: parameters,
+            returnType: returnType,
+            totalTests: totalTests,
+            hiddenTests: hiddenTests,
             examples,
             constraints: [
                 `Çalışma süresi sınırı: ${q['run-time-limit']} saniye`,
                 `Bellek sınırı: ${q['memory-limit']} MB`,
             ],
             starterCode: {
-                python: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.python || q['starter_code']?.python || `# Kodunuzu buraya yazın\n`),
-                cpp: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.cpp || q['starter_code']?.cpp || `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Kodunuzu buraya yazın\n    \n    return 0;\n}\n`),
-                csharp: typeof q['starter-code'] === 'string' ? q['starter-code'] : (q['starter-code']?.csharp || q['starter_code']?.csharp || `using System;\n\nclass Program {\n    static void Main(string[] args) {\n        // Kodunuzu buraya yazın\n        \n    }\n}\n`)
+                python: pyStarter,
+                cpp: cppStarter,
+                csharp: csStarter
             }
         });
     });
@@ -884,4 +1044,25 @@ async function restoreCodesFromTimeMachine() {
     } catch (e) {
         console.warn('[TimeMachine] Restore hatası:', e);
     }
+}
+
+// ========================================
+// Starter Code Generator
+// ========================================
+function generateStarterCode(lang, functionName, parameters = [], returnType = '') {
+    const l = (lang || 'python').toLowerCase().trim();
+    if (l === 'python' || l === 'py') {
+        const params = parameters.map((p, i) => p.name || `param${i}`).join(', ');
+        const ret = returnType ? ` -> ${returnType}` : '';
+        return `def ${functionName}(${params})${ret}:\n    # Kodunuzu buraya yazın\n    pass\n`;
+    } else if (l === 'cpp' || l === 'c++') {
+        const ret = returnType || 'void';
+        const params = parameters.map((p, i) => `${p.type || 'int'} ${p.name || `param${i}`}`).join(', ');
+        return `#include <iostream>\n#include <vector>\n#include <string>\n\n${ret} ${functionName}(${params}) {\n    // Kodunuzu buraya yazın\n}\n`;
+    } else if (l === 'csharp' || l === 'c#' || l === 'cs') {
+        const ret = returnType || 'void';
+        const params = parameters.map((p, i) => `${p.type || 'int'} ${p.name || `param${i}`}`).join(', ');
+        return `using System;\nusing System.Collections.Generic;\n\npublic class Solution\n{\n    public static ${ret} ${functionName}(${params})\n    {\n        // Kodunuzu buraya yazın\n    }\n}\n`;
+    }
+    return '';
 }
