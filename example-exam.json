@@ -1,21 +1,78 @@
 {
-  "name": "Sınav Adı",
-  "description": "Sınav Açıklaması",
+  "name": "Python Vize Sınavı",
+  "description": "Fonksiyon tabanlı programlama soruları içeren örnek sınav.",
   "time": "90",
   "language": "Python",
   "questions": {
     "1": {
-      "title": "Soru Başlığı",
-      "description": "Soru Açıklaması",
+      "title": "Asal Sayı Kontrolü",
+      "description": "Verilen bir n tamsayısının asal olup olmadığını kontrol eden bir fonksiyon yazınız. 1 ve daha küçük sayılar asal kabul edilmez.",
+      "function_name": "is_prime",
+      "parameters": [
+        {
+          "name": "n",
+          "type": "int"
+        }
+      ],
+      "return_type": "bool",
       "test-cases": [
         {
-          "input": "Giriş",
-          "output": "Çıkış"
+          "input": [7],
+          "expected": true
+        },
+        {
+          "input": [4],
+          "expected": false
+        },
+        {
+          "input": [1],
+          "expected": false
+        },
+        {
+          "input": [13],
+          "expected": true
         }
       ],
       "run-time-limit": 5,
-      "memory-limit": 1024,
-      "points": 10
+      "memory-limit": 512,
+      "points": 50
+    },
+    "2": {
+      "title": "İki Sayının Toplamı",
+      "description": "Verilen a ve b tamsayılarını toplayıp sonucunu döndüren bir fonksiyon yazınız.",
+      "function_name": "add_numbers",
+      "parameters": [
+        {
+          "name": "a",
+          "type": "int"
+        },
+        {
+          "name": "b",
+          "type": "int"
+        }
+      ],
+      "return_type": "int",
+      "test-cases": [
+        {
+          "input": [2, 3],
+          "expected": 5
+        },
+        {
+          "input": [10, 20],
+          "expected": 30
+        },
+        {
+          "input": [-5, 5],
+          "expected": 0
+        },
+        {
+          "input": [100, -200],
+          "expected": -100
+        }
+      ],
+      "run-time-limit": 5,
+      "memory-limit": 512,
+      "points": 50
     }
   }
 }

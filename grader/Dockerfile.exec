@@ -1,5 +1,10 @@
 FROM python:3.9-alpine
 
+RUN apk add --no-cache g++ make wget
+RUN mkdir -p /usr/include/nlohmann && \
+    wget -qO /usr/include/nlohmann/json.hpp \
+    https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp
+
 WORKDIR /app
 
 CMD ["python3"]
