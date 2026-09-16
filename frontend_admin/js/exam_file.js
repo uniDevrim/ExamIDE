@@ -66,7 +66,9 @@
                             } else {
                                 q['test-cases'].forEach((tc, idx) => {
                                     if (tc.input === undefined) errors.push(`${qLabel} test-case[${idx}]: "input" alanı eksik.`);
-                                    if (tc.output === undefined) errors.push(`${qLabel} test-case[${idx}]: "output" alanı eksik.`);
+                                    if (tc.output === undefined && tc.expected === undefined) {
+                                        errors.push(`${qLabel} test-case[${idx}]: "output" veya "expected" alanı eksik.`);
+                                    }
                                 });
                             }
                         }
