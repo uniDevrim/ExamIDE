@@ -128,6 +128,71 @@ def run_code():
             pool_manager.cleanup(container)
 
 
+@client_bp.route('/test', methods=['POST'])
+def test_code():
+    """Öğrencinin kodunu sadece açık olan ilk 2 test senaryosu üzerinde çalıştırır."""
+    if pool_manager.exam_state != "running" and not session.get('is_admin'):
+        return jsonify({"error": "Sınav aktif değil."}), 403
+
+    data = request.json or {}
+    code = data.get('code', '')
+    lang = data.get('language') or pool_manager.active_language or 'python'
+    question_id = str(data.get('question_id', '1'))
+
+    q_key = question_id.replace('q', '') if question_id.startswith('q') else question_id
+    raw_questions = pool_manager.exam_data.get('questions', {}) if pool_manager.exam_data else {}
+    q_data = raw_questions.get(q_key)
+
+    if not q_data:
+        return jsonify({"error": f"Soru {question_id} bulunamadı."}), 404
+
+    all_tests = q_data.get('test-cases', [])
+    visible_tests = all_tests[:2]
+    total_count = len(all_tests)
+    visible_count = len(visible_tests)
+    hidden_count = max(0, total_count - visible_count)
+
+    function_name = q_data.get('function_name', '')
+    parameters = q_data.get('parameters', [])
+    return_type = q_data.get('return_type', '')
+    timeout_val = q_data.get('run-time-limit', 10)
+
+    # TimeMachine snapshot kaydı
+    user = session.get('user', {})
+    student_no = user.get('no', '')
+    if student_no and code:
+        try:
+            tm.save_code_snapshot(
+                student_no=student_no,
+                question_id=f"q{q_key}",
+                code=code,
+                lang=lang,
+                trigger='test'
+            )
+        except Exception as e:
+            print(f"[TimeMachine] snapshot hatası: {e}")
+
+    results = pool_manager.run_batch_tests(
+        code=code,
+        lang=lang,
+        function_name=function_name,
+        test_cases=visible_tests,
+        parameters=parameters,
+        return_type=return_type,
+        timeout=timeout_val
+    )
+
+    passed_count = sum(1 for r in results if r.get('passed') is True)
+
+    return jsonify({
+        "results": results,
+        "passed_count": passed_count,
+        "visible_count": visible_count,
+        "hidden_count": hidden_count,
+        "total_count": total_count
+    }), 200
+
+
 @client_bp.route('/submit', methods=['POST'])
 def submit():
     # Allow submission when exam is running OR ended (for auto-submit on time expiry / admin end)
@@ -185,39 +250,78 @@ def submit():
             })
             continue
 
-        with open(test_file) as f:
+        with open(test_file, encoding='utf-8') as f:
             test_data = json.load(f)
 
-        test_results = []
+        function_name = test_data.get("function_name", "")
+        parameters = test_data.get("parameters", [])
+        return_type = test_data.get("return_type", "")
+        all_tests = test_data.get('tests', [])
 
-        for test in test_data.get('tests', []):
-            stdin_input = test.get('input', '')
-            expected = test.get('expected', '').strip()
+        q_num = question_id.replace('q', '') if question_id.startswith('q') else question_id
+        q_meta = (pool_manager.exam_data.get('questions', {}).get(q_num, {}) if pool_manager.exam_data else {})
+        timeout_val = q_meta.get('run-time-limit', 10)
 
-            passed = pool_manager.run_with_stdin(
+        if function_name:
+            test_results = pool_manager.run_batch_tests(
                 code=code,
                 lang=lang,
-                stdin_input=stdin_input,
-                expected_output=expected
+                function_name=function_name,
+                test_cases=all_tests,
+                parameters=parameters,
+                return_type=return_type,
+                timeout=timeout_val
             )
-            test_results.append(passed)
+        else:
+            # Fallback: eski stdin yöntemi
+            test_results = []
+            for test in all_tests:
+                stdin_input = test.get('input', '')
+                expected = str(test.get('expected', '')).strip()
+                passed = pool_manager.run_with_stdin(
+                    code=code,
+                    lang=lang,
+                    stdin_input=stdin_input,
+                    expected_output=expected
+                )
+                test_results.append({
+                    "passed": passed,
+                    "expected": expected,
+                    "actual": expected if passed else "",
+                    "status": "passed" if passed else "failed",
+                    "error_type": None if passed else "wrong_answer"
+                })
 
         result_questions.append({
             "question_id": question_id,
             "code": code,
-            "tests": test_results   
+            "tests": test_results
         })
+
+    # Toplam ve geçen test sayısını hesapla
+    total_count = sum(len(q_res["tests"]) for q_res in result_questions)
+    passed_count = sum(
+        sum(1 for t in q_res["tests"] if (isinstance(t, dict) and t.get("passed") is True) or t is True)
+        for q_res in result_questions
+    )
 
     submission = {
         "student_id": student_id,
         "submitted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "total_tests": total_count,
+        "passed_tests": passed_count,
         "questions": result_questions
     }
 
-    with open(submission_path, 'w') as f:
-        json.dump(submission, f, indent=2)
+    with open(submission_path, 'w', encoding='utf-8') as f:
+        json.dump(submission, f, indent=2, ensure_ascii=False)
 
-    return jsonify({"message": "Submitted successfully"}), 200
+    return jsonify({
+        "message": "Submitted successfully",
+        "passed_tests": passed_count,
+        "total_tests": total_count,
+        "questions": result_questions
+    }), 200
 
 
 # ── TimeMachine Endpoints ────────────────────────────────────────────────────

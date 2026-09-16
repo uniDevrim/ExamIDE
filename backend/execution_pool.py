@@ -172,10 +172,16 @@ class WarmContainerPool:
         questions_safe = {}
         raw_questions = self.exam_data.get("questions", {})
         for key, q in raw_questions.items():
+            all_tests = q.get("test-cases", [])
+            visible_tests = all_tests[:2]
             questions_safe[key] = {
                 "title"          : q.get("title", ""),
                 "description"    : q.get("description", ""),
-                "test-cases"     : q.get("test-cases", []),
+                "function_name"  : q.get("function_name", ""),
+                "parameters"     : q.get("parameters", []),
+                "return_type"    : q.get("return_type", ""),
+                "test-cases"     : visible_tests,
+                "total_tests"    : len(all_tests),
                 "run-time-limit" : q.get("run-time-limit", 5),
                 "memory-limit"   : q.get("memory-limit", 1024),
                 "points"         : q.get("points", 0),
@@ -185,6 +191,7 @@ class WarmContainerPool:
             "description" : self.exam_data.get("description", ""),
             "time"        : self.exam_data.get("time", ""),
             "language"    : self.exam_data.get("language", ""),
+            "exam_id"     : self.exam_data.get("exam_id", "exam_001")
         } if self.exam_data else {}
         return {
             "state"             : self.exam_state,

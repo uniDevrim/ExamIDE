@@ -91,7 +91,13 @@ def start_exam():
             
             test_file = os.path.join(tests_base_dir, f"{question_id}.json")
             with open(test_file, 'w', encoding='utf-8') as f:
-                json.dump({"question_id": question_id, "tests": formatted_tests}, f, indent=2, ensure_ascii=False)
+                json.dump({
+                    "question_id": question_id,
+                    "function_name": q_val.get("function_name", ""),
+                    "parameters": q_val.get("parameters", []),
+                    "return_type": q_val.get("return_type", ""),
+                    "tests": formatted_tests
+                }, f, indent=2, ensure_ascii=False)
 
     pool_manager.set_exam_state("running")
 
