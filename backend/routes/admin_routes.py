@@ -241,15 +241,20 @@ def upload_tests(exam_id):
         return jsonify({"error": "question_id and tests are required"}), 400
 
     for t in tests:
-        if 'input' not in t or 'expected' not in t:
-            return jsonify({"error": "Each test needs 'input' and 'expected'"}), 400
+        if 'input' not in t:
+            return jsonify({"error": "Each test needs 'input'"}), 400
+        if 'expected' not in t and 'output' not in t:
+            return jsonify({"error": "Each test needs 'expected' or 'output'"}), 400
+        # Normalize
+        if 'output' in t and 'expected' not in t:
+            t['expected'] = t.pop('output')
 
     tests_dir = os.path.join('grader', 'test_cases', str(exam_id))
     os.makedirs(tests_dir, exist_ok=True)
 
     test_file = os.path.join(tests_dir, f"{question_id}.json")
-    with open(test_file, 'w') as f:
-        json.dump({"question_id": question_id, "tests": tests}, f, indent=2)
+    with open(test_file, 'w', encoding='utf-8') as f:
+        json.dump({"question_id": question_id, "tests": tests}, f, indent=2, ensure_ascii=False)
 
     return jsonify({
         "status": "saved",
