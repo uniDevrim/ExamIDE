@@ -395,7 +395,7 @@ function setupOutputPanel() {
 // ========================================
 // Run & Submit
 // ========================================
-function runCode(event) {
+function testCode(event) {
     if (event) event.preventDefault();
 
     const q = questions[currentQuestion];
@@ -405,7 +405,7 @@ function runCode(event) {
     const language = currentLanguage || document.getElementById('languageSelect').value.toLowerCase();
     const outputElement = document.getElementById('outputBody');
     const panel = document.querySelector('.output-panel');
-    const runBtn = document.getElementById('btnRunCode') || document.querySelector('.btn-run');
+    const btn = document.getElementById('btnRunCode') || document.querySelector('.btn-run');
 
     panel.classList.remove('collapsed');
     outputElement.className = 'output-body';
@@ -416,12 +416,12 @@ function runCode(event) {
         </div>
     `;
 
-    if (runBtn) {
-        runBtn.disabled = true;
-        runBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Çalıştırılıyor...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Çalıştırılıyor...';
     }
 
-    // Fonksiyon tabanlı sorularda doğrudan test case motorunu çalıştır
+    // Açık olan test senaryolarını backend /api/client/test endpoint'inde çalıştır
     fetch('/api/client/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -448,15 +448,17 @@ function runCode(event) {
         `;
     })
     .finally(() => {
-        if (runBtn) {
-            runBtn.disabled = false;
-            runBtn.innerHTML = '<i class="bi bi-play-fill"></i> Çalıştır';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-play-fill"></i> Çalıştır';
         }
     });
 }
 
-// Geriye dönük uyumluluk için testCode referansı runCode'a yönlendirilir
-const testCode = runCode;
+// "Çalıştır" butonu test senaryolarını koşturan testCode fonksiyonunu tetikler
+function runCode(event) {
+    testCode(event);
+}
 
 function renderTestResults(data) {
     const outputElement = document.getElementById('outputBody');
