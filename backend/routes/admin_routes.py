@@ -80,17 +80,18 @@ def start_exam():
             question_id = f"q{q_key}"
             raw_tests = q_val.get('test-cases') or []
             
-            # Map input/output to input/expected
+            # Map input/output to input/expected (normalize to 'expected')
             formatted_tests = []
             for t in raw_tests:
+                exp = t.get("expected") if t.get("expected") is not None else (t.get("output") if t.get("output") is not None else "")
                 formatted_tests.append({
                     "input": t.get("input", ""),
-                    "expected": t.get("expected") or t.get("output") or ""
+                    "expected": exp
                 })
             
             test_file = os.path.join(tests_base_dir, f"{question_id}.json")
             with open(test_file, 'w', encoding='utf-8') as f:
-                json.dump({"question_id": question_id, "tests": formatted_tests}, f, indent=2)
+                json.dump({"question_id": question_id, "tests": formatted_tests}, f, indent=2, ensure_ascii=False)
 
     pool_manager.set_exam_state("running")
 
