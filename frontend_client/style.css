@@ -787,6 +787,42 @@ body {
     color: var(--accent-danger);
 }
 
+.test-stdout-box {
+    margin-top: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent-primary);
+    border-radius: 4px;
+    padding: 6px 10px;
+}
+
+[data-theme="light"] .test-stdout-box {
+    background: #f8fafc;
+}
+
+.test-stdout-header {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+}
+
+.test-stdout-content {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
 /* ========================================
    Finish Exam Modal
    ======================================== */

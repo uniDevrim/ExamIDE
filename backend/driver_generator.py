@@ -47,26 +47,43 @@ def generate_python_driver(student_code: str, function_name: str) -> str:
     Python için test runner driver kodu üretir.
     stdin'den JSON test senaryolarını okur, öğrenci fonksiyonunu çağırır ve
     her testin sonucunu stdout'a JSON dizisi olarak yazar.
+    Öğrencinin print çıktılarını test bazında yakalar.
     """
-    driver_template = f'''# --- Öğrenci Kodu Başlangıcı ---
+    driver_template = f'''import sys
+import json
+import io
+
+__real_stdout = sys.stdout
+__real_stderr = sys.stderr
+
+# Modül seviyesinde öğrencinin yaptığı printleri yakalamak için stdout yönlendirilir
+__module_stdout = io.StringIO()
+sys.stdout = __module_stdout
+
+# --- Öğrenci Kodu Başlangıcı ---
 {student_code}
 # --- Öğrenci Kodu Sonu ---
 
-import sys
-import json
-import io
+# Öğrenci kodu yüklendikten sonra stdout eski haline getirilir
+sys.stdout = __real_stdout
 
 def __run_driver():
     raw_input = sys.stdin.read()
     if not raw_input.strip():
-        print("[]")
+        __real_stdout.write("\\n__EXAMIDE_JSON_START__\\n[]\\n__EXAMIDE_JSON_END__\\n")
         return
 
     try:
         test_cases = json.loads(raw_input)
     except Exception as e:
-        err_res = [{{"index": 0, "status": "error", "error_type": "input_parse", "message": f"Test verisi parse edilemedi: {{str(e)}}"}}]
-        print(json.dumps(err_res, ensure_ascii=False))
+        err_res = [{{
+            "index": 0,
+            "status": "error",
+            "error_type": "input_parse",
+            "message": f"Test verisi parse edilemedi: {{str(e)}}",
+            "stdout": __module_stdout.getvalue()
+        }}]
+        __real_stdout.write("\\n__EXAMIDE_JSON_START__\\n" + json.dumps(err_res, ensure_ascii=False) + "\\n__EXAMIDE_JSON_END__\\n")
         return
 
     results = []
@@ -77,12 +94,14 @@ def __run_driver():
                 "index": i,
                 "status": "error",
                 "error_type": "runtime",
-                "message": f"{function_name} fonksiyonu bulunamadı veya çağrılabilir değil."
+                "message": f"{function_name} fonksiyonu bulunamadı veya çağrılabilir değil.",
+                "stdout": __module_stdout.getvalue() if i == 0 else ""
             }})
-        print(json.dumps(results, ensure_ascii=False))
+        __real_stdout.write("\\n__EXAMIDE_JSON_START__\\n" + json.dumps(results, ensure_ascii=False) + "\\n__EXAMIDE_JSON_END__\\n")
         return
 
-    real_stdout = sys.stdout
+    module_top_out = __module_stdout.getvalue()
+
     for i, tc in enumerate(test_cases):
         args = tc.get("input", [])
         if not isinstance(args, (list, tuple)):
@@ -92,22 +111,26 @@ def __run_driver():
         sys.stdout = captured_out
         try:
             res = func(*args)
-            sys.stdout = real_stdout
+            test_stdout = (module_top_out if i == 0 else "") + captured_out.getvalue()
             results.append({{
                 "index": i,
                 "status": "success",
-                "output": res
+                "output": res,
+                "stdout": test_stdout
             }})
         except Exception as err:
-            sys.stdout = real_stdout
+            test_stdout = (module_top_out if i == 0 else "") + captured_out.getvalue()
             results.append({{
                 "index": i,
                 "status": "error",
                 "error_type": "runtime",
-                "message": str(err)
+                "message": str(err),
+                "stdout": test_stdout
             }})
+        finally:
+            sys.stdout = __real_stdout
 
-    real_stdout.write(json.dumps(results, ensure_ascii=False))
+    __real_stdout.write("\\n__EXAMIDE_JSON_START__\\n" + json.dumps(results, ensure_ascii=False) + "\\n__EXAMIDE_JSON_END__\\n")
 
 if __name__ == "__main__":
     __run_driver()
@@ -120,6 +143,7 @@ def generate_cpp_driver(student_code: str, function_name: str, parameters: List[
     C++ için test runner driver kodu üretir.
     nlohmann/json kütüphanesini kullanarak stdin'den JSON test case'lerini deserialize eder,
     fonksiyonu çağırır ve sonuçları JSON dizisi olarak stdout'a yazar.
+    Öğrencinin std::cout çıktılarını yakalar.
     """
     cpp_return_type = _map_cpp_type(return_type)
 
@@ -144,23 +168,26 @@ def generate_cpp_driver(student_code: str, function_name: str, parameters: List[
     extractions_str = "\n".join(arg_extractions)
     args_pass_str = ", ".join(arg_names)
 
-    call_and_output = ""
     if cpp_return_type == "void":
         call_and_output = (
             f"            {function_name}({args_pass_str});\n"
+            f"            std::cout.rdbuf(old_buf);\n"
             f"            results.push_back({{\n"
             f"                {{\"index\", i}},\n"
             f"                {{\"status\", \"success\"}},\n"
-            f"                {{\"output\", nullptr}}\n"
+            f"                {{\"output\", nullptr}},\n"
+            f"                {{\"stdout\", test_ss.str()}}\n"
             f"            }});"
         )
     else:
         call_and_output = (
             f"            auto func_res = {function_name}({args_pass_str});\n"
+            f"            std::cout.rdbuf(old_buf);\n"
             f"            results.push_back({{\n"
             f"                {{\"index\", i}},\n"
             f"                {{\"status\", \"success\"}},\n"
-            f"                {{\"output\", func_res}}\n"
+            f"                {{\"output\", func_res}},\n"
+            f"                {{\"stdout\", test_ss.str()}}\n"
             f"            }});"
         )
 
@@ -185,43 +212,50 @@ int main() {{
     try {{
         std::string raw_input((std::istreambuf_iterator<char>(std::cin)), std::istreambuf_iterator<char>());
         if (raw_input.empty()) {{
-            std::cout << "[]" << std::endl;
+            std::cout << "\\n__EXAMIDE_JSON_START__\\n[]\\n__EXAMIDE_JSON_END__\\n";
             return 0;
         }}
         test_cases = json::parse(raw_input);
     }} catch (const std::exception& e) {{
         json err_arr = json::array({{
-            {{ {{"index", 0}}, {{"status", "error"}}, {{"error_type", "input_parse"}}, {{"message", e.what()}} }}
+            {{ {{"index", 0}}, {{"status", "error"}}, {{"error_type", "input_parse"}}, {{"message", e.what()}}, {{"stdout", ""}} }}
         }});
-        std::cout << err_arr.dump() << std::endl;
+        std::cout << "\\n__EXAMIDE_JSON_START__\\n" << err_arr.dump() << "\\n__EXAMIDE_JSON_END__\\n";
         return 0;
     }}
 
     json results = json::array();
     for (size_t i = 0; i < test_cases.size(); ++i) {{
+        std::stringstream test_ss;
+        auto* old_buf = std::cout.rdbuf(test_ss.rdbuf());
         try {{
             auto& tc = test_cases[i];
             auto input_val = tc.value("input", json::array());
 {extractions_str}
 {call_and_output}
         }} catch (const std::exception& e) {{
+            std::cout.rdbuf(old_buf);
             results.push_back({{
                 {{"index", i}},
                 {{"status", "error"}},
                 {{"error_type", "runtime"}},
-                {{"message", e.what()}}
+                {{"message", e.what()}},
+                {{"stdout", test_ss.str()}}
             }});
         }} catch (...) {{
+            std::cout.rdbuf(old_buf);
             results.push_back({{
                 {{"index", i}},
                 {{"status", "error"}},
                 {{"error_type", "runtime"}},
-                {{"message", "Bilinmeyen çalışma zamanı hatası"}}
+                {{"message", "Bilinmeyen çalışma zamanı hatası"}},
+                {{"stdout", test_ss.str()}}
             }});
         }}
+        std::cout.rdbuf(old_buf);
     }}
 
-    std::cout << results.dump() << std::endl;
+    std::cout << "\\n__EXAMIDE_JSON_START__\\n" << results.dump() << "\\n__EXAMIDE_JSON_END__\\n" << std::endl;
     return 0;
 }}
 """
@@ -232,9 +266,11 @@ def generate_csharp_driver(student_code: str, function_name: str, parameters: Li
     """
     C# (.NET 7) için test runner driver kodu üretir.
     System.Text.Json ile stdin'i okur, Solution sınıfı ve reflection üzerinden metodu çağırır.
+    Öğrencinin Console.WriteLine çıktılarını yakalar.
     """
     driver_code = f"""using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -246,10 +282,11 @@ public class DriverProgram
 {{
     public static void Main(string[] args)
     {{
+        var realOut = Console.Out;
         string input = Console.In.ReadToEnd();
         if (string.IsNullOrWhiteSpace(input))
         {{
-            Console.WriteLine("[]");
+            realOut.WriteLine("\\n__EXAMIDE_JSON_START__\\n[]\\n__EXAMIDE_JSON_END__\\n");
             return;
         }}
 
@@ -259,7 +296,7 @@ public class DriverProgram
             var doc = JsonNode.Parse(input)?.AsArray();
             if (doc == null)
             {{
-                Console.WriteLine("[]");
+                realOut.WriteLine("\\n__EXAMIDE_JSON_START__\\n[]\\n__EXAMIDE_JSON_END__\\n");
                 return;
             }}
 
@@ -273,10 +310,11 @@ public class DriverProgram
                         {{ "index", i }},
                         {{ "status", "error" }},
                         {{ "error_type", "runtime" }},
-                        {{ "message", "'{function_name}' metodu Solution sınıfında bulunamadı." }}
+                        {{ "message", "'{function_name}' metodu Solution sınıfında bulunamadı." }},
+                        {{ "stdout", "" }}
                     }});
                 }}
-                Console.WriteLine(JsonSerializer.Serialize(results));
+                realOut.WriteLine("\\n__EXAMIDE_JSON_START__\\n" + JsonSerializer.Serialize(results) + "\\n__EXAMIDE_JSON_END__\\n");
                 return;
             }}
 
@@ -284,44 +322,56 @@ public class DriverProgram
 
             for (int i = 0; i < doc.Count; i++)
             {{
-                try
+                using (var sw = new StringWriter())
                 {{
-                    var tc = doc[i];
-                    var inputNode = tc?["input"];
-                    var paramInfos = method.GetParameters();
-                    object[] paramValues = new object[paramInfos.Length];
-
-                    for (int p = 0; p < paramInfos.Length; p++)
+                    Console.SetOut(sw);
+                    try
                     {{
-                        JsonNode valNode = inputNode is JsonArray arr && p < arr.Count ? arr[p] : (p == 0 ? inputNode : null);
-                        if (valNode == null)
+                        var tc = doc[i];
+                        var inputNode = tc?["input"];
+                        var paramInfos = method.GetParameters();
+                        object[] paramValues = new object[paramInfos.Length];
+
+                        for (int p = 0; p < paramInfos.Length; p++)
                         {{
-                            paramValues[p] = paramInfos[p].DefaultValue;
+                            JsonNode valNode = inputNode is JsonArray arr && p < arr.Count ? arr[p] : (p == 0 ? inputNode : null);
+                            if (valNode == null)
+                            {{
+                                paramValues[p] = paramInfos[p].DefaultValue;
+                            }}
+                            else
+                            {{
+                                paramValues[p] = JsonSerializer.Deserialize(valNode.ToJsonString(), paramInfos[p].ParameterType);
+                            }}
                         }}
-                        else
+
+                        var retVal = method.Invoke(instance, paramValues);
+                        Console.SetOut(realOut);
+                        results.Add(new Dictionary<string, object>
                         {{
-                            paramValues[p] = JsonSerializer.Deserialize(valNode.ToJsonString(), paramInfos[p].ParameterType);
-                        }}
+                            {{ "index", i }},
+                            {{ "status", "success" }},
+                            {{ "output", retVal }},
+                            {{ "stdout", sw.ToString() }}
+                        }});
                     }}
-
-                    var retVal = method.Invoke(instance, paramValues);
-                    results.Add(new Dictionary<string, object>
+                    catch (Exception ex)
                     {{
-                        {{ "index", i }},
-                        {{ "status", "success" }},
-                        {{ "output", retVal }}
-                    }});
-                }}
-                catch (Exception ex)
-                {{
-                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    results.Add(new Dictionary<string, object>
+                        Console.SetOut(realOut);
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        results.Add(new Dictionary<string, object>
+                        {{
+                            {{ "index", i }},
+                            {{ "status", "error" }},
+                            {{ "error_type", "runtime" }},
+                            {{ "message", msg }},
+                            {{ "stdout", sw.ToString() }}
+                        }});
+                    }}
+                    finally
                     {{
-                        {{ "index", i }},
-                        {{ "status", "error" }},
-                        {{ "error_type", "runtime" }},
-                        {{ "message", msg }}
-                    }});
+                        Console.SetOut(realOut);
+                    }}
                 }}
             }}
         }}
@@ -332,11 +382,16 @@ public class DriverProgram
                 {{ "index", 0 }},
                 {{ "status", "error" }},
                 {{ "error_type", "runtime" }},
-                {{ "message", ex.Message }}
+                {{ "message", ex.Message }},
+                {{ "stdout", "" }}
             }});
         }}
+        finally
+        {{
+            Console.SetOut(realOut);
+        }}
 
-        Console.WriteLine(JsonSerializer.Serialize(results));
+        realOut.WriteLine("\\n__EXAMIDE_JSON_START__\\n" + JsonSerializer.Serialize(results) + "\\n__EXAMIDE_JSON_END__\\n");
     }}
 }}
 """

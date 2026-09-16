@@ -13,3 +13,5 @@ grader/submissions/
 grader/test_cases/
 grader/temp_submissions/
 grader/timemachine.db
+.idea/
+grader/history/

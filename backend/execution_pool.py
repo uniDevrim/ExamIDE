@@ -495,6 +495,7 @@ class WarmContainerPool:
                     "passed": False,
                     "actual": None,
                     "expected": t["expected"],
+                    "stdout": "",
                     "status": "error",
                     "error_type": "timeout",
                     "error_message": f"Zaman asimi ({timeout} saniye)"
@@ -507,20 +508,37 @@ class WarmContainerPool:
                     "passed": False,
                     "actual": None,
                     "expected": t["expected"],
+                    "stdout": stderr if i == 0 else "",
                     "status": "error",
                     "error_type": "compilation",
                     "error_message": stderr or "Derleme / calistirma hatasi"
                 } for i, t in enumerate(canonical_tests)]
 
             # 3. JSON cikti cozumleme
+            json_content = None
+            if "__EXAMIDE_JSON_START__" in stdout and "__EXAMIDE_JSON_END__" in stdout:
+                try:
+                    json_content = stdout.split("__EXAMIDE_JSON_START__")[1].split("__EXAMIDE_JSON_END__")[0].strip()
+                except Exception:
+                    json_content = None
+
+            if not json_content:
+                start_idx = stdout.find('[')
+                end_idx = stdout.rfind(']')
+                if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                    json_content = stdout[start_idx:end_idx+1]
+                else:
+                    json_content = stdout
+
             try:
-                driver_results = json.loads(stdout)
+                driver_results = json.loads(json_content)
             except Exception:
                 return [{
                     "index": i,
                     "passed": False,
                     "actual": stdout[:200] if stdout else None,
                     "expected": t["expected"],
+                    "stdout": stdout if i == 0 else "",
                     "status": "error",
                     "error_type": "output_parse",
                     "error_message": f"Program ciktisi okunamadi: {stderr or stdout}"
@@ -540,6 +558,7 @@ class WarmContainerPool:
                         "passed": False,
                         "actual": None,
                         "expected": expected_val,
+                        "stdout": "",
                         "status": "error",
                         "error_type": "runtime",
                         "error_message": "Bu test senaryosu icin surucuden sonuc alinamadi."
@@ -550,6 +569,7 @@ class WarmContainerPool:
                         "passed": False,
                         "actual": None,
                         "expected": expected_val,
+                        "stdout": r.get("stdout", ""),
                         "status": "error",
                         "error_type": r.get("error_type", "runtime"),
                         "error_message": r.get("message", "Calisma zamani hatasi")
@@ -562,6 +582,7 @@ class WarmContainerPool:
                         "passed": passed,
                         "actual": actual_val,
                         "expected": expected_val,
+                        "stdout": r.get("stdout", ""),
                         "status": "passed" if passed else "failed",
                         "error_type": None if passed else "wrong_answer",
                         "error_message": None if passed else "Hatali sonuc (Beklenen ile uyusmuyor)"

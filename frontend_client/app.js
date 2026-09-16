@@ -460,11 +460,30 @@ function runCode(event) {
     testCode(event);
 }
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function renderTestResults(data) {
     const outputElement = document.getElementById('outputBody');
     const results = data.results || [];
     const passedCount = data.passed_count ?? 0;
     const hiddenCount = data.hidden_count ?? 0;
+
+    if (results.length === 0) {
+        outputElement.innerHTML = `
+            <div style="color:var(--text-muted); padding: 8px;">
+                <i class="bi bi-info-circle"></i> Test senaryosu bulunamadı.
+            </div>
+        `;
+        return;
+    }
 
     let html = `
         <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
@@ -478,7 +497,7 @@ function renderTestResults(data) {
                 </div>
             ` : ''}
         </div>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
     `;
 
     results.forEach((r, idx) => {
@@ -486,8 +505,8 @@ function renderTestResults(data) {
         const color = passed ? 'var(--accent-success, #22c55e)' : 'var(--accent-danger, #ef4444)';
         const icon = passed ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
         const badgeBg = passed ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-        const expStr = r.expected !== undefined ? JSON.stringify(r.expected) : '';
-        const actStr = r.actual !== undefined && r.actual !== null ? JSON.stringify(r.actual) : '';
+        const expStr = r.expected !== undefined ? escapeHtml(JSON.stringify(r.expected)) : '';
+        const actStr = r.actual !== undefined && r.actual !== null ? escapeHtml(JSON.stringify(r.actual)) : '';
 
         let badgeText = 'Başarılı';
         if (!passed) {
@@ -496,6 +515,16 @@ function renderTestResults(data) {
             else if (r.error_type === 'wrong_answer') badgeText = '❌ Hatalı Sonuç';
             else badgeText = r.error_type || 'Hata';
         }
+
+        const hasStdout = r.stdout && r.stdout.toString().trim().length > 0;
+        const stdoutBlock = hasStdout ? `
+            <div class="test-stdout-box">
+                <div class="test-stdout-header">
+                    <i class="bi bi-terminal"></i> Konsol Çıktısı (stdout / print)
+                </div>
+                <pre class="test-stdout-content">${escapeHtml(r.stdout.trim())}</pre>
+            </div>
+        ` : '';
 
         html += `
             <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 12px;">
@@ -512,10 +541,11 @@ function renderTestResults(data) {
                     ${!passed && actStr ? `<div><span style="color: var(--accent-danger, #ef4444);">Alınan:</span> <code style="color: var(--accent-danger, #ef4444);">${actStr}</code></div>` : ''}
                     ${r.error_message ? `
                         <div style="margin-top: 4px; color: var(--accent-danger, #ef4444); font-size: 0.78rem;">
-                            <i class="bi bi-info-circle"></i> ${r.error_message}
+                            <i class="bi bi-info-circle"></i> ${escapeHtml(r.error_message)}
                         </div>
                     ` : ''}
                 </div>
+                ${stdoutBlock}
             </div>
         `;
     });

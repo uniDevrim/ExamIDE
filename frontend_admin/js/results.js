@@ -68,6 +68,7 @@
                             const badgeBg = passed ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
                             
                             let details = '';
+                            let stdoutHtml = '';
                             if (isObj) {
                                 const expStr = t.expected !== undefined ? JSON.stringify(t.expected) : '';
                                 const actStr = t.actual !== undefined ? JSON.stringify(t.actual) : '';
@@ -80,6 +81,15 @@
                                         ${errMsg}
                                     </div>
                                 `;
+
+                                if (t.stdout && t.stdout.toString().trim()) {
+                                    const safeStdout = t.stdout.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                    stdoutHtml = `
+                                        <div style="margin-top:5px; background:rgba(0,0,0,0.3); border-left:2px solid var(--accent-primary, #3b82f6); border-radius:3px; padding:4px 8px; font-size:0.75rem; font-family:monospace; color:#cbd5e1; white-space:pre-wrap; max-height:100px; overflow-y:auto;">
+                                            <span style="color:var(--accent-primary, #3b82f6); font-size:0.7rem; font-weight:600;"><i class="bi bi-terminal"></i> Konsol Çıktısı:</span><br>${safeStdout.trim()}
+                                        </div>
+                                    `;
+                                }
                             }
 
                             testHtml += `
@@ -91,6 +101,7 @@
                                         ${isObj && t.error_type ? `<span style="font-size:0.75rem; padding:2px 8px; border-radius:4px; background:${badgeBg}; color:${color}; font-weight:500;">${t.error_type}</span>` : ''}
                                     </div>
                                     ${details}
+                                    ${stdoutHtml}
                                 </div>
                             `;
                         });
