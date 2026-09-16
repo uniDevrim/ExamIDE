@@ -32,6 +32,33 @@ function addQuestionCard() {
                             <label for="qDesc_${qId}" style="color: var(--text-muted);">Sorunun detaylı açıklaması...</label>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control q-funcname" id="qFuncName_${qId}" placeholder="Fonksiyon Adı" value="solution" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                            <label for="qFuncName_${qId}" style="color: var(--text-muted);">Fonksiyon Adı (Örn: is_prime, twoSum)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control q-returntype" id="qReturnType_${qId}" placeholder="Dönüş Tipi" value="bool" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                            <label for="qReturnType_${qId}" style="color: var(--text-muted);">Dönüş Tipi (Örn: bool, int, string)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: 8px; padding: 12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                                <label style="color: var(--text-primary); font-size: 0.85rem; font-weight:600; margin: 0;">
+                                    <i class="bi bi-sliders"></i> Fonksiyon Parametreleri
+                                </label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addParameter(${qId})" style="font-size:0.75rem; padding: 3px 10px;">
+                                    <i class="bi bi-plus-circle"></i> Parametre Ekle
+                                </button>
+                            </div>
+                            <div id="parametersContainer_${qId}">
+                                <!-- Parametre satırları buraya eklenir -->
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-4">
                         <div class="form-floating">
                             <input type="number" class="form-control q-time" id="qTime_${qId}" placeholder="Zaman" value="5" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
@@ -69,13 +96,42 @@ function addQuestionCard() {
     tempDiv.innerHTML = cardHtml;
     container.appendChild(tempDiv.firstElementChild);
     
-    // Add one default test case
+    // Varsayılan 1 parametre ve 1 test case ekle
+    addParameter(qId, "n", "int");
     addTestCase(qId);
 }
 
 function removeQuestionCard(qId) {
     const card = document.getElementById(`questionCard_${qId}`);
     if (card) card.remove();
+}
+
+function addParameter(qId, name = '', type = 'int') {
+    const container = document.getElementById(`parametersContainer_${qId}`);
+    if (!container) return;
+    const pId = Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+    const row = document.createElement("div");
+    row.className = "row g-2 mb-2 param-row align-items-center";
+    row.innerHTML = `
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input type="text" class="form-control p-name" id="pName_${pId}" placeholder="Parametre Adı" value="${name}" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <label for="pName_${pId}" style="color: var(--text-muted);">Parametre Adı (Örn: n, nums)</label>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="form-floating">
+                <input type="text" class="form-control p-type" id="pType_${pId}" placeholder="Tip" value="${type}" required style="background: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);">
+                <label for="pType_${pId}" style="color: var(--text-muted);">Tip (Örn: int, string, vector&lt;int&gt;)</label>
+            </div>
+        </div>
+        <div class="col-md-1 d-flex justify-content-end">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.param-row').remove()" title="Parametre Sil" style="height: 45px; width: 45px; border-radius: 8px;">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
 }
 
 function addTestCase(qId) {
@@ -94,14 +150,14 @@ function addTestCase(qId) {
     row.innerHTML = `
         <div class="col-md-5">
             <div class="form-floating">
-                <textarea class="form-control tc-input" id="tcIn_${uid}" placeholder="Input" style="height: 55px; font-family: monospace; font-size: 0.85rem; background: var(--bg-editor); border-color: var(--border-color); color: var(--text-primary); resize: none;"></textarea>
-                <label for="tcIn_${uid}" style="color: var(--text-muted); font-size: 0.8rem; padding-top: 12px;">Girdi (Örn: 5\\n3)</label>
+                <textarea class="form-control tc-input" id="tcIn_${uid}" placeholder="Parametreler (JSON)" style="height: 55px; font-family: monospace; font-size: 0.85rem; background: var(--bg-editor); border-color: var(--border-color); color: var(--text-primary); resize: none;"></textarea>
+                <label for="tcIn_${uid}" style="color: var(--text-muted); font-size: 0.8rem; padding-top: 12px;">Parametreler JSON [arg1, arg2] (Örn: [7])</label>
             </div>
         </div>
         <div class="col-md-5">
             <div class="form-floating">
-                <textarea class="form-control tc-output" id="tcOut_${uid}" placeholder="Output" style="height: 55px; font-family: monospace; font-size: 0.85rem; background: var(--bg-editor); border-color: var(--border-color); color: var(--text-primary); resize: none;"></textarea>
-                <label for="tcOut_${uid}" style="color: var(--text-muted); font-size: 0.8rem; padding-top: 12px;">Beklenen Çıktı (Örn: 8)</label>
+                <textarea class="form-control tc-output" id="tcOut_${uid}" placeholder="Beklenen Değer (JSON)" style="height: 55px; font-family: monospace; font-size: 0.85rem; background: var(--bg-editor); border-color: var(--border-color); color: var(--text-primary); resize: none;"></textarea>
+                <label for="tcOut_${uid}" style="color: var(--text-muted); font-size: 0.8rem; padding-top: 12px;">Beklenen Dönüş Değeri JSON (Örn: true)</label>
             </div>
         </div>
         <div class="col-md-2 d-flex justify-content-end">
@@ -146,6 +202,8 @@ function generateExamJson() {
         const qIndex = index + 1;
         const title = card.querySelector(".q-title").value.trim();
         const desc = card.querySelector(".q-desc").value.trim();
+        const funcName = (card.querySelector(".q-funcname")?.value || "").trim();
+        const returnType = (card.querySelector(".q-returntype")?.value || "void").trim();
         const runTime = parseInt(card.querySelector(".q-time").value) || 5;
         const memLimit = parseInt(card.querySelector(".q-memory").value) || 1024;
         const points = parseInt(card.querySelector(".q-points").value) || 10;
@@ -154,16 +212,53 @@ function generateExamJson() {
             hasError = true;
             showToast(`Soru ${qIndex} başlığı eksik.`, "warning");
         }
+        if (!funcName) {
+            hasError = true;
+            showToast(`Soru ${qIndex} fonksiyon adı eksik.`, "warning");
+        }
+
+        // Parametreleri topla
+        const paramRows = card.querySelectorAll(".param-row");
+        const parameters = [];
+        paramRows.forEach(pRow => {
+            const pName = pRow.querySelector(".p-name")?.value.trim();
+            const pType = pRow.querySelector(".p-type")?.value.trim() || "int";
+            if (pName) {
+                parameters.push({ name: pName, type: pType });
+            }
+        });
         
         const testCaseRows = card.querySelectorAll(".test-case-row");
         const testCases = [];
         
         testCaseRows.forEach(row => {
-            const inputVal = row.querySelector(".tc-input").value;
-            const outputVal = row.querySelector(".tc-output").value;
+            const inputRaw = row.querySelector(".tc-input").value.trim();
+            const outputRaw = row.querySelector(".tc-output").value.trim();
+            
+            let parsedInput = inputRaw;
+            try {
+                parsedInput = JSON.parse(inputRaw);
+            } catch (e) {
+                // Eğer doğrudan dizi değilse [inputRaw] olarak sarmala
+                if (!inputRaw.startsWith('[') && !isNaN(Number(inputRaw))) {
+                    parsedInput = [Number(inputRaw)];
+                } else if (!inputRaw.startsWith('[')) {
+                    parsedInput = [inputRaw];
+                }
+            }
+
+            let parsedExpected = outputRaw;
+            try {
+                parsedExpected = JSON.parse(outputRaw);
+            } catch (e) {
+                if (outputRaw.toLowerCase() === 'true') parsedExpected = true;
+                else if (outputRaw.toLowerCase() === 'false') parsedExpected = false;
+                else if (!isNaN(Number(outputRaw))) parsedExpected = Number(outputRaw);
+            }
+
             testCases.push({
-                input: inputVal,
-                output: outputVal
+                input: parsedInput,
+                expected: parsedExpected
             });
         });
         
@@ -175,6 +270,9 @@ function generateExamJson() {
         result.questions[qIndex.toString()] = {
             title: title,
             description: desc,
+            function_name: funcName,
+            parameters: parameters,
+            return_type: returnType,
             "test-cases": testCases,
             "run-time-limit": runTime,
             "memory-limit": memLimit,

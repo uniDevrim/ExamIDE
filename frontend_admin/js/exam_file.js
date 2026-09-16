@@ -83,6 +83,27 @@
                         if (q['points'] !== undefined && typeof q['points'] !== 'number') {
                             errors.push(`${qLabel}: "points" sayısal bir değer olmalıdır.`);
                         }
+
+                        // Fonksiyon tabanlı alan kontrolleri
+                        if (q.function_name !== undefined) {
+                            if (typeof q.function_name !== 'string' || !q.function_name.trim()) {
+                                errors.push(`${qLabel}: "function_name" geçerli bir metin olmalıdır.`);
+                            }
+                        }
+                        if (q.parameters !== undefined) {
+                            if (!Array.isArray(q.parameters)) {
+                                errors.push(`${qLabel}: "parameters" bir dizi (array) olmalıdır.`);
+                            } else {
+                                q.parameters.forEach((p, pIdx) => {
+                                    if (!p || typeof p !== 'object' || !p.name || !p.type) {
+                                        errors.push(`${qLabel} parametre[${pIdx}]: "name" ve "type" alanları zorunludur.`);
+                                    }
+                                });
+                            }
+                        }
+                        if (q.return_type !== undefined && typeof q.return_type !== 'string') {
+                            errors.push(`${qLabel}: "return_type" metin (string) olmalıdır.`);
+                        }
                     });
                 }
             }

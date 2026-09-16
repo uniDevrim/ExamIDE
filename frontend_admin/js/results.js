@@ -55,15 +55,44 @@
             if (r.questions && r.questions.length > 0) {
                 r.questions.forEach(q => {
                     const totalTests = q.tests ? q.tests.length : 0;
-                    const passedTests = q.tests ? q.tests.filter(t => t).length : 0;
+                    const passedTests = q.tests ? q.tests.filter(t => (typeof t === 'object' && t !== null) ? t.passed === true : !!t).length : 0;
                     
                     let testHtml = '';
-                    if (q.tests) {
-                        testHtml = '<div style="display:flex; gap:5px; flex-wrap:wrap; margin-top:10px;">';
-                        q.tests.forEach((passed, idx) => {
+                    if (q.tests && q.tests.length > 0) {
+                        testHtml = '<div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">';
+                        q.tests.forEach((t, idx) => {
+                            const isObj = typeof t === 'object' && t !== null;
+                            const passed = isObj ? (t.passed === true) : !!t;
                             const color = passed ? 'var(--accent-success)' : 'var(--accent-danger)';
                             const icon = passed ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
-                            testHtml += `<span style="color:${color}; font-size:1.2rem;" title="Test ${idx+1}"><i class="bi ${icon}"></i></span>`;
+                            const badgeBg = passed ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+                            
+                            let details = '';
+                            if (isObj) {
+                                const expStr = t.expected !== undefined ? JSON.stringify(t.expected) : '';
+                                const actStr = t.actual !== undefined ? JSON.stringify(t.actual) : '';
+                                const errMsg = t.error_message ? `<div style="color:var(--accent-danger); font-size:0.75rem; margin-top:3px;"><i class="bi bi-exclamation-triangle"></i> ${t.error_message}</div>` : '';
+                                
+                                details = `
+                                    <div style="font-size:0.8rem; margin-top:3px; font-family: monospace;">
+                                        <span style="color:var(--text-muted);">Beklenen:</span> <code style="color:var(--text-primary);">${expStr}</code>
+                                        ${!passed && actStr ? ` | <span style="color:var(--accent-danger);">Alınan:</span> <code style="color:var(--accent-danger);">${actStr}</code>` : ''}
+                                        ${errMsg}
+                                    </div>
+                                `;
+                            }
+
+                            testHtml += `
+                                <div style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:6px; padding:6px 10px;">
+                                    <div style="display:flex; align-items:center; justify-content:space-between;">
+                                        <span style="font-weight:600; font-size:0.85rem; color:${color};">
+                                            <i class="bi ${icon}"></i> Test ${idx + 1}
+                                        </span>
+                                        ${isObj && t.error_type ? `<span style="font-size:0.75rem; padding:2px 8px; border-radius:4px; background:${badgeBg}; color:${color}; font-weight:500;">${t.error_type}</span>` : ''}
+                                    </div>
+                                    ${details}
+                                </div>
+                            `;
                         });
                         testHtml += '</div>';
                     }
@@ -72,7 +101,7 @@
                         <div style="margin-bottom: 30px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
                             <div style="background: var(--bg-secondary); padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                                 <h6 style="margin: 0; color: var(--text-primary);">Soru ${q.question_id}</h6>
-                                <span style="font-size: 0.85rem; font-weight: 600; color: ${passedTests === totalTests ? 'var(--accent-success)' : 'var(--accent-danger)'};">
+                                <span style="font-size: 0.85rem; font-weight: 600; color: ${passedTests === totalTests && totalTests > 0 ? 'var(--accent-success)' : 'var(--accent-danger)'};">
                                     ${passedTests}/${totalTests} Test Başarılı
                                 </span>
                             </div>
