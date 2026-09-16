@@ -27,7 +27,7 @@ services:
       - ./frontend_client:/frontend_client
       - grader_data:/app/grader
     env_file:
-      - ./backend/.env
+      - ./.env
     environment:
       - PYTHONPATH=/app
       - DOCKER_HOST=tcp://docker-proxy:2375
